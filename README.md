@@ -1,2 +1,3 @@
-# sbsdb-server
-Server für SBS-Datenbank
+## sbsdb-server
+
+Node-Server für SBS-Datenbank

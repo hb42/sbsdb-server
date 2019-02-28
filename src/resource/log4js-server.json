@@ -1,0 +1,17 @@
+{
+  "appenders": {
+    "everything": {
+      "type": "dateFile",
+      "filename": "../log/server.log",
+      "backups": 6,
+      "keepFileExt": true,
+      "layout": {
+        "type": "pattern",
+        "pattern": "%d %-5p [%c] %m"
+      }
+    }
+  },
+  "categories": {
+    "default": { "appenders": [ "everything" ], "level": "all" }
+  }
+}

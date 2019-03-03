@@ -1,4 +1,5 @@
-import { ApController } from "./controller/apController";
+import { SwController } from "./controller/spielwieseController";
+import { ApController } from "./model_v4/controller/apController";
 
 export const Routes = [
   {
@@ -19,5 +20,24 @@ export const Routes = [
     controller: ApController,
     action    : "search",
   },
-  
+
+  {
+    method    : "get",
+    route     : "/sw",
+    controller: SwController,
+    action    : "all",
+  },
+  {
+    method    : "get",
+    route     : "/sw/:id",
+    controller: SwController,
+    action    : "one",
+  },
+  {
+    method    : "get",
+    route     : "/sw/ins/:txt",
+    controller: SwController,
+    action    : "save",
+  },
+
 ];

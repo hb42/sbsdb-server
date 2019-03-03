@@ -11,7 +11,7 @@ import * as bodyParser from "body-parser";
 import * as express from "express";
 import "reflect-metadata";
 
-import { Connection, ConnectionOptions, ConnectionOptionsReader, createConnection, } from "typeorm";
+import { Connection, ConnectionOptions, ConnectionOptionsReader, createConnection } from "typeorm";
 import * as v8 from "v8";
 import { Routes } from "./routes";
 
@@ -29,12 +29,15 @@ const log = LoggerService.get("sbsdb-server.main");
 log.info("sbsdb-server starting");
 log.info(v8.getHeapStatistics());
 
+let dbv4: Connection;
 let db: Connection;
 const dbConnect = async () => {
   // mit benannter Connection muss der Name auch bei getRepository, etc. angegeben werden!
-  const opt: ConnectionOptions =
+  let opt: ConnectionOptions =
                                // typeorm sucht ab node_modules, das kann beim Testen Aerger machen
             await new ConnectionOptionsReader({root: __dirname, configName: "ormconfig.json"}).get("sbsdb_v4");
+  dbv4 = await createConnection(opt);
+  opt = await new ConnectionOptionsReader({root: __dirname, configName: "ormconfig.json"}).get("sbsdb");
   db = await createConnection(opt);
 };
 
@@ -49,7 +52,7 @@ app.use(bodyParser.json());
     // register express routes from defined application routes
 Routes.forEach((route) => {
   (app as any)[route.method](route.route, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const result = (new (route.controller as any))[route.action](req, res, next);
+    const result = (new (route.controller as any)())[route.action](req, res, next);
     if (result instanceof Promise) {
       result.then((reslt) => reslt !== null && reslt !== undefined ? res.send(reslt) : undefined);
     } else if (result !== null && result !== undefined) {

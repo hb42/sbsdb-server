@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { getRepository, Repository, SelectQueryBuilder } from "typeorm";
+import { getManager, getRepository, Repository, SelectQueryBuilder } from "typeorm";
 
-import { SBS_AP } from "../model_v4";
+import { SBS_AP } from "..";
 
 export class ApController {
 
@@ -34,13 +34,11 @@ export class ApController {
   }
 
   public async search(request: Request, response: Response, next: NextFunction) {
-    // console.info(request.params.query.toUpperCase());
-    // TODO hier scheint die :name-Syntax nicht zu funktionieren
+    // !! Syntax fuer param mit LIKE !!
     const q: SelectQueryBuilder<SBS_AP> = this.apQuery
-        .where("upper(ap.AP_NAME) like '%" + request.params.query.toUpperCase() + "%'");
+        .where("upper(ap.AP_NAME) like :qs", {qs: `%${ request.params.query.toUpperCase() }%`});
     console.info(q.getSql());
     return q.getMany();
-
   }
 
   /*

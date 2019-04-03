@@ -40,15 +40,7 @@
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="2.18.0-beta3" />
   </ItemGroup>
   <ItemGroup>
-    <Content Update="config\nlog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="config\" />
-    <Folder Include="Model\" />
-    <Folder Include="Model\Entities\" />
-    <Folder Include="Model\Repositories\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

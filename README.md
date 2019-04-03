@@ -1,3 +1,4 @@
 ## sbsdb-server
 
-Node-Server für SBS-Datenbank
+Server für SBS-Datenbank auf Basis ASP.NET Core, IIS und Oracle.
+

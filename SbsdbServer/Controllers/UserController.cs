@@ -5,10 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace hb.SbsdbServer.Controllers {
-  [Route(Const.API_PATH)]
-  [ApiController]
-  [Authorize]
-  public class UserController : Controller {
+
+  public class UserController : AbstractControllerBase<UserController> {
 
     private readonly IUserService userService;
 

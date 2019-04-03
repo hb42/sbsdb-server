@@ -378,10 +378,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
         entity.HasIndex(e => e.FilialeIndex)
             .HasName("FK8044EDB8427CC73D");
 
-        entity.HasOne(d => d.FilialeIndexNavigation)
-            .WithMany(p => p.SbsSegment)
-            .HasForeignKey(d => d.FilialeIndex)
-            .HasConstraintName("FK8044EDB8427CC73D");
+        //entity.HasOne(d => d.FilialeIndexNavigation)
+            //.WithMany(p => p.SbsSegment)
+            //.HasForeignKey(d => d.FilialeIndex)
+            //.HasConstraintName("FK8044EDB8427CC73D");
       });
 
       modelBuilder.Entity<SbsSw>(entity => {

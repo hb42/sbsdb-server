@@ -25,9 +25,9 @@ namespace hb.SbsdbServer.sbsdbv4.model
         [Column("FILIALE_INDEX", TypeName = "bigint(20)")]
         public long? FilialeIndex { get; set; }
 
-        [ForeignKey("FilialeIndex")]
-        [InverseProperty("SbsSegment")]
-        public virtual SbsFiliale FilialeIndexNavigation { get; set; }
+        //[ForeignKey("FilialeIndex")]
+        //[InverseProperty("SbsSegment")]
+        //public virtual SbsFiliale FilialeIndexNavigation { get; set; }
         [InverseProperty("SegmentIndexNavigation")]
         public virtual ICollection<SbsAp> SbsAp { get; set; }
     }

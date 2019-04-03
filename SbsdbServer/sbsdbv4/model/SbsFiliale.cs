@@ -11,7 +11,7 @@ namespace hb.SbsdbServer.sbsdbv4.model
         public SbsFiliale()
         {
             SbsOe = new HashSet<SbsOe>();
-            SbsSegment = new HashSet<SbsSegment>();
+            //SbsSegment = new HashSet<SbsSegment>();
         }
 
         [Column("FILIALE_INDEX", TypeName = "bigint(20)")]
@@ -27,7 +27,7 @@ namespace hb.SbsdbServer.sbsdbv4.model
 
         [InverseProperty("FilialeIndexNavigation")]
         public virtual ICollection<SbsOe> SbsOe { get; set; }
-        [InverseProperty("FilialeIndexNavigation")]
-        public virtual ICollection<SbsSegment> SbsSegment { get; set; }
+        //[InverseProperty("FilialeIndexNavigation")]
+        //public virtual ICollection<SbsSegment> SbsSegment { get; set; }
     }
 }

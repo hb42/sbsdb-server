@@ -2,24 +2,19 @@
 using hb.Common.Version;
 using hb.SbsdbServer.Services;
 using hb.SbsdbServer.ViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
-  [Route(Const.API_PATH)]
-  [ApiController]
-  [Authorize]
-  public class TestController : ControllerBase {
+
+  public class TestController : AbstractControllerBase<TestController> {
 
     private readonly VersionResource version;
     private readonly TestService testService;
-    private readonly ILogger LOG;
 
-    public TestController(VersionResource ver, TestService ts, ILogger<TestController> log) {
+    public TestController(VersionResource ver, TestService ts) {
       version = ver;
       testService = ts;
-      LOG = log;
       //user = configuration.GetSection("Groups").GetValue<string>("test");
     }
 

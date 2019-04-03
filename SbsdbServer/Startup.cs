@@ -84,6 +84,8 @@ namespace hb.SbsdbServer {
 
       services.AddTransient<IUserService, UserService>();
       services.AddTransient<IUserRepository, UserRepository>();
+      services.AddTransient<ITreeService, TreeService>();
+      services.AddTransient<ITreeRepository, TreeRepository>();
 
       LOG.LogInformation("Starting  " + version.ToString());
     }

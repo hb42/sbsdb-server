@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Controllers {
 
@@ -16,7 +17,7 @@ namespace hb.SbsdbServer.Controllers {
 
     [HttpGet]
     [ActionName("oe")]
-    public ActionResult<IEnumerable<object>> OeTree() {
+    public ActionResult<List<OeTreeItem>> OeTree() {
       var tree = treeService.GetOeTree();
       return Ok(tree);
     }

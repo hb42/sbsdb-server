@@ -15,6 +15,7 @@ namespace hb.SbsdbServer.Model.Repositories {
 
     // tables
     public virtual DbSet<UserSettings> UserSettings { get; set; }
+    public virtual DbSet<ProgramSettings> ProgramSettings { get; set; }
 
     public SbsdbContext(DbContextOptions<SbsdbContext> options) : base(options) {
     }
@@ -23,15 +24,16 @@ namespace hb.SbsdbServer.Model.Repositories {
       modelBuilder.Entity<UserSettings>(entity => {
         entity.ToTable("USER_SETTINGS");
 
-        entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
           .HasColumnName("ID")
           .HasColumnType("number(19)")
-          .UseOracleIdentityColumn();  
+          .UseOracleIdentityColumn();
+        entity.HasKey(e => e.Id);
 
         entity.Property(e => e.Uid)
           .HasColumnName("UID")
           .HasColumnType("varchar(20)");
+        entity.HasIndex(e => e.Uid).IsUnique();
 
         // Objekt-Typ User als JSON im Feld ablegen
         entity.Property(e => e.Settings)
@@ -41,6 +43,25 @@ namespace hb.SbsdbServer.Model.Repositories {
             v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
             v => JsonConvert.DeserializeObject<User>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
 
+      });
+
+      modelBuilder.Entity<ProgramSettings>(entity => {
+        entity.ToTable("PROGRAM_SETTINGS");
+
+        entity.Property(e => e.Id)
+          .HasColumnName("ID")
+          .HasColumnType("number(19)")
+          .UseOracleIdentityColumn();
+        entity.HasKey(e => e.Id);
+
+        entity.Property(e => e.Key)
+          .HasColumnName("KEY")
+          .HasColumnType("varchar(100)");
+        entity.HasIndex(e => e.Key).IsUnique();
+
+        entity.Property(e => e.Value)
+          .HasColumnName("VALUE")
+          .HasColumnType("varchar(2000)");
       });
 
     }

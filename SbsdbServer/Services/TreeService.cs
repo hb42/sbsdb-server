@@ -2,6 +2,7 @@
 using hb.SbsdbServer.Model.Repositories;
 using System.Collections;
 using System.Collections.Generic;
+using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Services {
   public class TreeService: ITreeService {
@@ -15,7 +16,7 @@ namespace hb.SbsdbServer.Services {
     /*
      * Hierarchischer OE-Baum
      */
-    public IEnumerable<object> GetOeTree() {
+    public List<OeTreeItem> GetOeTree() {
       // TODO Daten vorbbereiten
       return treeRepository.GetOeTree();
     }

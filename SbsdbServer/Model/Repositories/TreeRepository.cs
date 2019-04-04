@@ -2,6 +2,7 @@
 using hb.SbsdbServer.sbsdbv4.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Model.Repositories {
 
@@ -17,7 +18,7 @@ namespace hb.SbsdbServer.Model.Repositories {
     /*
      * Hierachischer OE-Baum
      */
-    public IEnumerable<object> GetOeTree() {
+    public List<OeTreeItem> GetOeTree() {
 
       // vollstaendiger BST-Baum mit beliebiger Tiefe
       // Verlinkung via parent == parent.id, wobei id 0 der root-Knoten ist
@@ -30,7 +31,7 @@ namespace hb.SbsdbServer.Model.Repositories {
       // TODO Daten aus SbsFiliale muessen extra geholt werden, Include wuerde im Kreis laufen,
       //      waehrend Select nicht die Hierarchie wiedergeben wuerde.
       // nur das root-Element, alles weitere waere redunant
-      return bst.Where(b => b.ParentOe == 0 && b.OeIndex == 0);
+      return BuildTree(bst.Where(b => b.ParentOe == 0 && b.OeIndex == 0));
     }
 
     /*
@@ -41,6 +42,34 @@ namespace hb.SbsdbServer.Model.Repositories {
       var bst = dbContext.SbsOe
         .Where(b => b.Ap > 0);
       return bst.ToList();
+    }
+
+    private List<OeTreeItem> BuildTree(IEnumerable<SbsOe> oes) {
+      List<OeTreeItem> items = new List<OeTreeItem>();
+      foreach (SbsOe oe in oes) {
+        OeTreeItem item = new OeTreeItem {
+          OeIndex = oe.OeIndex,
+          Ap = oe.Ap > 0,
+          Betriebsstelle = oe.Betriebsstelle,
+          Bst = oe.Bst,
+          Fax = oe.Fax,
+          Oeff = oe.Oeff,
+          Tel = oe.Tel,
+        };
+        if (oe.FilialeIndex != null) {
+          item.FilialeIndex = oe.FilialeIndex;
+          item.Hausnr = oe.FilialeIndexNavigation.Hausnr;
+          item.Ort = oe.FilialeIndexNavigation.Ort;
+          item.Plz = oe.FilialeIndexNavigation.Plz;
+          item.Strasse = oe.FilialeIndexNavigation.Strasse;
+        } else {
+          item.FilialeIndex = null;
+        }
+        item.Children = oe.InverseParentOeNavigation != null
+          ? BuildTree(oe.InverseParentOeNavigation)  // Rekursion
+          : new List<OeTreeItem>();
+      }
+      return items;
     }
 
   }

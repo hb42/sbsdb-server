@@ -61,12 +61,14 @@ namespace hb.SbsdbServer {
        // alter Bestand - MySQL/EF
        // TODO kann raus, sobald alles auf neue Oracle-Struktur ueberfuehrt
       services.AddDbContextPool<Sbsdbv4Context>( 
-               options => options/*.UseLazyLoadingProxies() */  // sofern lazy loading gewuenscht
+               options => options
+              //   .UseLazyLoadingProxies()   // sofern lazy loading gewuenscht
                  .UseMySql(connStrv4, 
-                   mySqlOptions => {
-                     mySqlOptions.ServerVersion(new Version(5, 5, 60), ServerType.MySql); 
-                   }
-      ));
+                           mySqlOptions => {
+                             mySqlOptions.ServerVersion(new Version(5, 5, 60), ServerType.MySql); 
+                           }
+                 )
+     );
 
       // neuer Bestand - Oracle/EF
       services.AddDbContextPool<SbsdbContext>(

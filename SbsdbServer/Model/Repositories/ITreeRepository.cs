@@ -3,7 +3,7 @@ using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Model.Repositories {
   public interface ITreeRepository {
-    List<OeTreeItem> GetOeTree();
+    IEnumerable<object> GetOeTree();
     IEnumerable<object> GetBstTree();
   }
 }

@@ -16,7 +16,7 @@ namespace hb.SbsdbServer.Services {
     /*
      * Hierarchischer OE-Baum
      */
-    public List<OeTreeItem> GetOeTree() {
+    public IEnumerable<object> GetOeTree() {
       // TODO Daten vorbbereiten
       return treeRepository.GetOeTree();
     }

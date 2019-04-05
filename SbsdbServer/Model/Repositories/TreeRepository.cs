@@ -1,8 +1,9 @@
-﻿using System.Linq;
-using hb.SbsdbServer.sbsdbv4.model;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.ViewModel;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace hb.SbsdbServer.Model.Repositories {
 
@@ -10,15 +11,17 @@ namespace hb.SbsdbServer.Model.Repositories {
 
     // TODO v4
     private readonly Sbsdbv4Context dbContext;
+    private readonly ILogger<TreeRepository> LOG;
 
-    public TreeRepository(Sbsdbv4Context context) {
+    public TreeRepository(Sbsdbv4Context context, ILogger<TreeRepository> log) {
       dbContext = context;
+      LOG = log;
     }
 
     /*
      * Hierachischer OE-Baum
      */
-    public List<OeTreeItem> GetOeTree() {
+    public IEnumerable<object> GetOeTree() {
 
       // vollstaendiger BST-Baum mit beliebiger Tiefe
       // Verlinkung via parent == parent.id, wobei id 0 der root-Knoten ist
@@ -31,6 +34,7 @@ namespace hb.SbsdbServer.Model.Repositories {
       // TODO Daten aus SbsFiliale muessen extra geholt werden, Include wuerde im Kreis laufen,
       //      waehrend Select nicht die Hierarchie wiedergeben wuerde.
       // nur das root-Element, alles weitere waere redunant
+      //return bst.Where(b => b.ParentOe == 0 && b.OeIndex == 0);
       return BuildTree(bst.Where(b => b.ParentOe == 0 && b.OeIndex == 0));
     }
 
@@ -38,13 +42,14 @@ namespace hb.SbsdbServer.Model.Repositories {
      * Flacher OE-Baum
      */
     public IEnumerable<object> GetBstTree() {
-      // TODO hier koennten alle benoetigten Daten via Select geholt werden
+      var list = dbContext.SbsFiliale.ToList();
       var bst = dbContext.SbsOe
         .Where(b => b.Ap > 0);
-      return bst.ToList();
+      return BuildTree(bst.ToList());
     }
 
     private List<OeTreeItem> BuildTree(IEnumerable<SbsOe> oes) {
+      LOG.LogDebug("BuildTree IN length=" + oes.Count());
       List<OeTreeItem> items = new List<OeTreeItem>();
       foreach (SbsOe oe in oes) {
         OeTreeItem item = new OeTreeItem {
@@ -58,16 +63,19 @@ namespace hb.SbsdbServer.Model.Repositories {
         };
         if (oe.FilialeIndex != null) {
           item.FilialeIndex = oe.FilialeIndex;
-          item.Hausnr = oe.FilialeIndexNavigation.Hausnr;
-          item.Ort = oe.FilialeIndexNavigation.Ort;
-          item.Plz = oe.FilialeIndexNavigation.Plz;
-          item.Strasse = oe.FilialeIndexNavigation.Strasse;
+          if (oe.FilialeIndexNavigation != null) {
+            item.Hausnr = oe.FilialeIndexNavigation.Hausnr;
+            item.Ort = oe.FilialeIndexNavigation.Ort;
+            item.Plz = oe.FilialeIndexNavigation.Plz;
+            item.Strasse = oe.FilialeIndexNavigation.Strasse;
+          }
         } else {
           item.FilialeIndex = null;
         }
-        item.Children = oe.InverseParentOeNavigation != null
+        item.Children = oe.InverseParentOeNavigation.Count > 0
           ? BuildTree(oe.InverseParentOeNavigation)  // Rekursion
           : new List<OeTreeItem>();
+        items.Add(item);
       }
       return items;
     }

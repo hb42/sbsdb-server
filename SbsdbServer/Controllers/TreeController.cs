@@ -17,7 +17,7 @@ namespace hb.SbsdbServer.Controllers {
 
     [HttpGet]
     [ActionName("oe")]
-    public ActionResult<List<OeTreeItem>> OeTree() {
+    public ActionResult<IEnumerable<object>> OeTree() {
       var tree = treeService.GetOeTree();
       return Ok(tree);
     }

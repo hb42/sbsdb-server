@@ -5,6 +5,7 @@ namespace hb.SbsdbServer.ViewModel {
   public class OeTreeItem {
 
     public long OeIndex { get; set; }
+    public long ParentOe { get; set; }
     public bool Ap { get; set; }
 //    [Column("BETRIEBSSTELLE", TypeName = "varchar(50)")]
     public string Betriebsstelle { get; set; }
@@ -27,6 +28,7 @@ namespace hb.SbsdbServer.ViewModel {
   //  [Column("STRASSE", TypeName = "varchar(50)")]
     public string Strasse { get; set; }
 
-    public List<OeTreeItem> Children;
+    public bool Leaf { get; set; }
+    public List<OeTreeItem> Children = new List<OeTreeItem>();
   }
 }

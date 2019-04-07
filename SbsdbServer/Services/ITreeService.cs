@@ -3,7 +3,8 @@ using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Services {
   public interface ITreeService {
-    IEnumerable<object> GetOeTree();
-    IEnumerable<object> GetBstTree();
+    OeTreeItem GetOeTree();
+    List<OeTreeItem> GetBstTree();
+    IEnumerable<object> GetVlanTree();
   }
 }

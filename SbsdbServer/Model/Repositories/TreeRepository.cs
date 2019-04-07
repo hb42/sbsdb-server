@@ -21,63 +21,105 @@ namespace hb.SbsdbServer.Model.Repositories {
     /*
      * Hierachischer OE-Baum
      */
-    public IEnumerable<object> GetOeTree() {
+    public OeTreeItem GetOeTree() {
 
       // vollstaendiger BST-Baum mit beliebiger Tiefe
       // Verlinkung via parent == parent.id, wobei id 0 der root-Knoten ist
       // => es muss ein root-Knoten existieren mit ID == 0 + parent == 0
       //    -> Name "Sparkasse" -> fix vorgeben! 
 
-      var bst = dbContext.SbsOe
-        .Include(b => b.InverseParentOeNavigation)
+      // Hierarchische Abfragen machen mit EF nur Aerger. Das hier ist ein ueberschaubarer
+      // Datenbestand => flache Abfrage und den Rest im Programm zusammenbauen.
+      List<OeTreeItem> bst = dbContext.SbsOe
+        .Select(b => new OeTreeItem {
+          OeIndex = b.OeIndex,
+          ParentOe = b.ParentOe,
+          Ap = b.Ap > 0,
+          Betriebsstelle = b.Betriebsstelle,
+          Bst = b.Bst,
+          Fax = b.Fax,
+          Oeff = b.Oeff,
+          Tel = b.Tel,
+          FilialeIndex = b.FilialeIndex,
+          Hausnr = b.FilialeIndexNavigation.Hausnr,
+          Ort = b.FilialeIndexNavigation.Ort,
+          Plz = b.FilialeIndexNavigation.Plz,
+          Strasse = b.FilialeIndexNavigation.Strasse,
+          Leaf = b.InverseParentOeNavigation.Count == 0
+        })
         .ToList();
-      // TODO Daten aus SbsFiliale muessen extra geholt werden, Include wuerde im Kreis laufen,
-      //      waehrend Select nicht die Hierarchie wiedergeben wuerde.
-      // nur das root-Element, alles weitere waere redunant
-      //return bst.Where(b => b.ParentOe == 0 && b.OeIndex == 0);
-      return BuildTree(bst.Where(b => b.ParentOe == 0 && b.OeIndex == 0));
+
+      OeTreeItem root = bst.First(b => b.OeIndex == 0 && b.ParentOe == 0);
+      List<OeTreeItem> children = bst
+        .Where(b => b.ParentOe == 0 && b.OeIndex != 0)
+        .OrderBy(b => b.Betriebsstelle)
+        .ToList();
+      return MakeOeTree(root, children, bst);
     }
 
     /*
      * Flacher OE-Baum
      */
-    public IEnumerable<object> GetBstTree() {
-      var list = dbContext.SbsFiliale.ToList();
-      var bst = dbContext.SbsOe
-        .Where(b => b.Ap > 0);
-      return BuildTree(bst.ToList());
+    public List<OeTreeItem> GetBstTree() {
+      List<OeTreeItem> bst = dbContext.SbsOe
+        .Select(b => new OeTreeItem {
+          OeIndex = b.OeIndex,
+          ParentOe = b.ParentOe,
+          Ap = b.Ap > 0,
+          Betriebsstelle = b.Betriebsstelle,
+          Bst = b.Bst,
+          Fax = b.Fax,
+          Oeff = b.Oeff,
+          Tel = b.Tel,
+          FilialeIndex = b.FilialeIndex,
+          Hausnr = b.FilialeIndexNavigation.Hausnr,
+          Ort = b.FilialeIndexNavigation.Ort,
+          Plz = b.FilialeIndexNavigation.Plz,
+          Strasse = b.FilialeIndexNavigation.Strasse,
+          Leaf = b.InverseParentOeNavigation.Count == 0
+        })
+        .Where(b => b.Ap == true)
+        .OrderBy(b => b.Betriebsstelle)
+        .ToList();
+      return bst;
     }
 
-    private List<OeTreeItem> BuildTree(IEnumerable<SbsOe> oes) {
-      LOG.LogDebug("BuildTree IN length=" + oes.Count());
-      List<OeTreeItem> items = new List<OeTreeItem>();
-      foreach (SbsOe oe in oes) {
-        OeTreeItem item = new OeTreeItem {
-          OeIndex = oe.OeIndex,
-          Ap = oe.Ap > 0,
-          Betriebsstelle = oe.Betriebsstelle,
-          Bst = oe.Bst,
-          Fax = oe.Fax,
-          Oeff = oe.Oeff,
-          Tel = oe.Tel,
-        };
-        if (oe.FilialeIndex != null) {
-          item.FilialeIndex = oe.FilialeIndex;
-          if (oe.FilialeIndexNavigation != null) {
-            item.Hausnr = oe.FilialeIndexNavigation.Hausnr;
-            item.Ort = oe.FilialeIndexNavigation.Ort;
-            item.Plz = oe.FilialeIndexNavigation.Plz;
-            item.Strasse = oe.FilialeIndexNavigation.Strasse;
-          }
-        } else {
-          item.FilialeIndex = null;
+    public IEnumerable<object> GetVlans() {
+      var vlan = dbContext.SbsSegment
+        .Select(v => new {
+          v.SegmentIndex,
+          v.SegmentName,
+          v.Tcp,
+          v.Netmask
+        })
+        .ToList();
+
+      return vlan;
+    }
+
+    // Hierarchischer Baum: root node
+    private OeTreeItem MakeOeTree(OeTreeItem root, List<OeTreeItem> children, List<OeTreeItem> list) {
+      //root.Children = new List<OeTreeItem>();
+      foreach(OeTreeItem item in children) {
+      //  item.Children = new List<OeTreeItem>();
+        root.Children.Add(item);
+        if (!item.Leaf) {
+          AddOes(item, list);
         }
-        item.Children = oe.InverseParentOeNavigation.Count > 0
-          ? BuildTree(oe.InverseParentOeNavigation)  // Rekursion
-          : new List<OeTreeItem>();
-        items.Add(item);
       }
-      return items;
+      return root;
+    }
+    // Hierarchischer Baum: alles unterhalb root rekursiv zusammensetzen
+    private void AddOes(OeTreeItem parent, List<OeTreeItem> list) {
+      List<OeTreeItem> children = list.Where(b => b.ParentOe == parent.OeIndex)
+        .OrderBy(b => b.Betriebsstelle).ToList();
+      foreach (OeTreeItem item in children) {
+     //   item.Children = new List<OeTreeItem>();
+        parent.Children.Add(item);
+        if (!item.Leaf) {
+          AddOes(item, list);
+        }
+      }
     }
 
   }

@@ -16,7 +16,7 @@ namespace hb.SbsdbServer.Services {
     /*
      * Hierarchischer OE-Baum
      */
-    public IEnumerable<object> GetOeTree() {
+    public OeTreeItem GetOeTree() {
       // TODO Daten vorbbereiten
       return treeRepository.GetOeTree();
     }
@@ -24,9 +24,13 @@ namespace hb.SbsdbServer.Services {
     /*
      * Flacher OE-Baum
      */
-    public IEnumerable<object> GetBstTree() {
+    public List<OeTreeItem> GetBstTree() {
       // TODO Daten vorbbereiten
       return treeRepository.GetBstTree();
+    }
+
+    public IEnumerable<object> GetVlanTree() {
+      return treeRepository.GetVlans();
     }
 
   }

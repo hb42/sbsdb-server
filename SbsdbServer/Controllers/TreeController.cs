@@ -29,5 +29,12 @@ namespace hb.SbsdbServer.Controllers {
       return Ok(tree);
     }
 
+    [HttpGet]
+    [ActionName("vlan")]
+    public ActionResult<IEnumerable<object>> VlanTree() {
+      var tree = treeService.GetVlanTree();
+      return Ok(tree);
+    }
+
   }
 }

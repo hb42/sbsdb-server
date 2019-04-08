@@ -6,7 +6,12 @@
    * Dadurch muss nicht bei jedem zusaetzlichen Wert aus der Benutzeroberflaeche
    * die DB-Tabelle geaendert werden, sondern nur diese Klasse.  
    */
-  public class User {
+  public class UserSession {
+
+    public UserSession() { }
+    public UserSession(string uid) {
+      UID = uid;
+    }
 
     public string UID { get; set; }
     public string Path { get; set; }

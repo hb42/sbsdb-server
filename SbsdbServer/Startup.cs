@@ -1,6 +1,6 @@
-﻿using System;
-using hb.Common.Validation;
+﻿using hb.Common.Validation;
 using hb.Common.Version;
+using hb.SbsdbServer.Model;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.Services;
@@ -10,13 +10,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.IISIntegration;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using System;
 
 namespace hb.SbsdbServer {
   public class Startup {
@@ -88,6 +88,8 @@ namespace hb.SbsdbServer {
       services.AddTransient<IUserRepository, UserRepository>();
       services.AddTransient<ITreeService, TreeService>();
       services.AddTransient<ITreeRepository, TreeRepository>();
+
+      services.AddTransient<v4Migration, v4Migration>();
 
       LOG.LogInformation("Starting  " + version.ToString());
     }

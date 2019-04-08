@@ -7,6 +7,7 @@ namespace hb.SbsdbServer.Model.Entities {
    */
   public class ProgramSettings {
 
+    [Required]
     public long Id { get; set; }
 
     [Required]

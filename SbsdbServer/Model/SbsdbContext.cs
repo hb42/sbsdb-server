@@ -2,18 +2,19 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace hb.SbsdbServer.Model.Repositories {
+namespace hb.SbsdbServer.Model {
   public class SbsdbContext: DbContext {
     /* TODO Abhaengigkeiten, die bei der DB-Erstellung beruecksichtigt werden muessen
      * 
      *      OE
      *      Die Ueber- Unterordnung wird mit dem Feld parent abgebildet. Das Feld
      *      bekommt die ID der naechsthoeheren OE. Der root-Knoten muss ID 0 und
-     *      parent 0 bekommen (Name "Sparkasse" || "Gesamthaus").   
+     *      parent 0 bekommen (Name "Sparkasse" || "Gesamthaus" ...).   
      *      
      */
 
     // tables
+    public virtual DbSet<Adresse> Adresse { get; set; }
     public virtual DbSet<UserSettings> UserSettings { get; set; }
     public virtual DbSet<ProgramSettings> ProgramSettings { get; set; }
 
@@ -21,6 +22,29 @@ namespace hb.SbsdbServer.Model.Repositories {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
+      modelBuilder.Entity<Adresse>(entity => {
+        entity.ToTable("ADRESSE");
+
+        entity.Property(e => e.Id)
+          .HasColumnName("ID")
+          .HasColumnType("number(19)")
+          .UseOracleIdentityColumn();
+        entity.HasKey(e => e.Id);
+
+        entity.Property(e => e.HausNr)
+          .HasColumnName("HAUSNR")
+          .HasColumnType("varchar(50)");
+        entity.Property(e => e.Ort)
+          .HasColumnName("ORT")
+          .HasColumnType("varchar(100)");
+        entity.Property(e => e.Plz)
+          .HasColumnName("PLZ")
+          .HasColumnType("varchar(50)");
+        entity.Property(e => e.Strasse)
+          .HasColumnName("STRASSE")
+          .HasColumnType("varchar(100)");
+      });
+
       modelBuilder.Entity<UserSettings>(entity => {
         entity.ToTable("USER_SETTINGS");
 
@@ -35,13 +59,13 @@ namespace hb.SbsdbServer.Model.Repositories {
           .HasColumnType("varchar(20)");
         entity.HasIndex(e => e.Uid).IsUnique();
 
-        // Objekt-Typ User als JSON im Feld ablegen
+        // Objekt-Typ UserSession als JSON im Feld ablegen
         entity.Property(e => e.Settings)
           .HasColumnName("SETTINGS")
           .HasColumnType("clob")
           .HasConversion(
             v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-            v => JsonConvert.DeserializeObject<User>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+            v => JsonConvert.DeserializeObject<UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
 
       });
 

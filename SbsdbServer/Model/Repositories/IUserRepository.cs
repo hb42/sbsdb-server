@@ -2,8 +2,8 @@
 
 namespace hb.SbsdbServer.Model.Repositories {
   public interface IUserRepository {
-    User GetUser(string UID);
-    void SetUser(User user);
+    UserSession GetUser(string UID);
+    void SetUser(UserSession user);
     void DeleteUser(long id);
   }
 }

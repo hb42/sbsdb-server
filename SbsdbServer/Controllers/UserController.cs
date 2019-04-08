@@ -15,12 +15,12 @@ namespace hb.SbsdbServer.Controllers {
     }
 
     [HttpGet]
-    public User Get() {
+    public UserSession Get() {
       return userService.GetUser(GetUserId());
     }
 
     [HttpPost]
-    public void Set([FromBody]User user) {
+    public void Set([FromBody]UserSession user) {
       userService.SetUser(GetUserId(), user);
     }
 

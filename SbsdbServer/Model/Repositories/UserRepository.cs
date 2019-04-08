@@ -18,12 +18,12 @@ namespace hb.SbsdbServer.Model.Repositories {
       }
     }
 
-    public User GetUser(string UID) {
+    public UserSession GetUser(string UID) {
       UserSettings user = dbContext.UserSettings.FirstOrDefault(u => u.Uid == UID);
       if (user == null) {
         user = new UserSettings {
           Uid = UID,
-          Settings = new User {
+          Settings = new UserSession {
             UID = UID
           }
         };
@@ -33,7 +33,7 @@ namespace hb.SbsdbServer.Model.Repositories {
       return user.Settings;
     }
 
-    public void SetUser(User user) {
+    public void SetUser(UserSession user) {
       dbContext.Update(user);
       dbContext.SaveChanges();  // throws on error
     }

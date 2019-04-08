@@ -1,21 +1,12 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities {
-  /*
-   * Programm-Einstellungen
-   */
-  public class ProgramSettings {
-
-    [Required]
-    public long Id { get; set; }
-
-    [Required]
-    [StringLength(100, ErrorMessage = "Schluessel darf nicht länger als 100 Stellen sein.")]
-    public string Key { get; set; }
-
-    [StringLength(2000, ErrorMessage = "Eintrag darf nicht länger als 2.000 Stellen sein.")]
-    public string Value { get; set; }
-
-  }
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class ProgramSettings
+    {
+        public decimal Id { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
 }

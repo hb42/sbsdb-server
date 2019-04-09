@@ -69,6 +69,19 @@ namespace hb.SbsdbServer.Model {
       v5dbContext.SaveChanges();
     }
     private void MigApklasse() {
+      var old = v4dbContext.SbsApklasse.ToList();
+      foreach (var o in old) {
+        var n = new Apklasse {
+          Id = o.ApklasseIndex,
+          Apklasse1 = o.Apklasse,
+          Flag = o.Flag,
+          AptypId = o.AptypIndex
+        };
+        LOG.LogDebug("ApKlasse add #" + n.Id);
+        v5dbContext.Apklasse.Add(n);
+      }
+      LOG.LogDebug("ApKlasse saving...");
+      v5dbContext.SaveChanges();
 
     }
     private void MigHwtyp() {

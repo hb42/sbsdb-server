@@ -105,11 +105,12 @@ namespace hb.SbsdbServer {
 
       // create-table-commands fuer alle Entities die SbsdbContext verwaltet ins Log schreiben
       // TODO kann raus, wenn die Datenbankstruktur steht 
-      using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>()
+      /*using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>()
                    .CreateScope()) {
         LOG.LogDebug(serviceScope.ServiceProvider.GetService<SbsdbContext>()
             .Database.GenerateCreateScript());
       }
+      */
 
       // Exceptions fangen und einheitlich zurueckgeben (Status 500)
       app.UseExceptionHandler(a => a.Run(async context => {

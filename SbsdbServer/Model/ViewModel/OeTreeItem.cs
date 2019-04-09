@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace hb.SbsdbServer.ViewModel {
+namespace hb.SbsdbServer.Model.ViewModel {
   public class OeTreeItem {
 
     public long OeIndex { get; set; }

@@ -1,15 +1,10 @@
-﻿using System;
+﻿using hb.SbsdbServer.Model.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Newtonsoft.Json;
 
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class SbsdbContext : DbContext
+namespace hb.SbsdbServer.Model {
+  public partial class SbsdbContext : DbContext
     {
-        public SbsdbContext()
-        {
-        }
-
         public SbsdbContext(DbContextOptions<SbsdbContext> options)
             : base(options)
         {
@@ -39,8 +34,6 @@ namespace hb.SbsdbServer.Model.Entities
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseOracle("Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=nathan)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XEPDB1)));User ID=SBSDB_MASTER;Password=sbsdbpw;");
             }
         }
 
@@ -283,7 +276,7 @@ namespace hb.SbsdbServer.Model.Entities
                 entity.Property(e => e.Id)
                     .HasColumnName("ID")
                     .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                  /*  .ValueGeneratedOnAdd()*/;
 
                 entity.Property(e => e.Apklasse1)
                     .IsRequired()
@@ -320,7 +313,7 @@ namespace hb.SbsdbServer.Model.Entities
                 entity.Property(e => e.Id)
                     .HasColumnName("ID")
                     .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                  /*  .ValueGeneratedOnAdd()*/;
 
                 entity.Property(e => e.Aptyp1)
                     .IsRequired()
@@ -797,7 +790,7 @@ namespace hb.SbsdbServer.Model.Entities
                 entity.Property(e => e.Id)
                     .HasColumnName("ID")
                     .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                  /*  .ValueGeneratedOnAdd()*/;
 
                 entity.Property(e => e.AdresseId)
                     .HasColumnName("ADRESSE_ID")
@@ -929,11 +922,15 @@ namespace hb.SbsdbServer.Model.Entities
                     .HasColumnType("NUMBER(38)")
                     .ValueGeneratedOnAdd();
 
+              // Objekt UserSession als JSON-String speichern
                 entity.Property(e => e.Settings)
                     .HasColumnName("SETTINGS")
-                    .HasColumnType("CLOB");
+                    .HasColumnType("CLOB")
+                    .HasConversion(
+                      v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                      v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
 
-                entity.Property(e => e.Userid)
+              entity.Property(e => e.Userid)
                     .IsRequired()
                     .HasColumnName("USERID")
                     .HasColumnType("VARCHAR2(20)");
@@ -973,163 +970,6 @@ namespace hb.SbsdbServer.Model.Entities
                     .HasColumnType("VARCHAR2(100)");
             });
 
-            modelBuilder.HasSequence("ISEQ$$_78938");
-
-            modelBuilder.HasSequence("ISEQ$$_79168");
-
-            modelBuilder.HasSequence("ISEQ$$_79296");
-
-            modelBuilder.HasSequence("ISEQ$$_84823");
-
-            modelBuilder.HasSequence("ISEQ$$_85881");
-
-            modelBuilder.HasSequence("ISEQ$$_85884");
-
-            modelBuilder.HasSequence("ISEQ$$_85893");
-
-            modelBuilder.HasSequence("ISEQ$$_85904");
-
-            modelBuilder.HasSequence("ISEQ$$_85910");
-
-            modelBuilder.HasSequence("ISEQ$$_85914");
-
-            modelBuilder.HasSequence("ISEQ$$_85918");
-
-            modelBuilder.HasSequence("ISEQ$$_85925");
-
-            modelBuilder.HasSequence("ISEQ$$_85928");
-
-            modelBuilder.HasSequence("ISEQ$$_85937");
-
-            modelBuilder.HasSequence("ISEQ$$_85945");
-
-            modelBuilder.HasSequence("ISEQ$$_85951");
-
-            modelBuilder.HasSequence("ISEQ$$_85956");
-
-            modelBuilder.HasSequence("ISEQ$$_85960");
-
-            modelBuilder.HasSequence("ISEQ$$_85969");
-
-            modelBuilder.HasSequence("ISEQ$$_85973");
-
-            modelBuilder.HasSequence("ISEQ$$_85978");
-
-            modelBuilder.HasSequence("ISEQ$$_85984");
-
-            modelBuilder.HasSequence("ISEQ$$_85993");
-
-            modelBuilder.HasSequence("ISEQ$$_85996");
-
-            modelBuilder.HasSequence("ISEQ$$_86005");
-
-            modelBuilder.HasSequence("ISEQ$$_86016");
-
-            modelBuilder.HasSequence("ISEQ$$_86022");
-
-            modelBuilder.HasSequence("ISEQ$$_86026");
-
-            modelBuilder.HasSequence("ISEQ$$_86030");
-
-            modelBuilder.HasSequence("ISEQ$$_86037");
-
-            modelBuilder.HasSequence("ISEQ$$_86040");
-
-            modelBuilder.HasSequence("ISEQ$$_86049");
-
-            modelBuilder.HasSequence("ISEQ$$_86057");
-
-            modelBuilder.HasSequence("ISEQ$$_86063");
-
-            modelBuilder.HasSequence("ISEQ$$_86068");
-
-            modelBuilder.HasSequence("ISEQ$$_86072");
-
-            modelBuilder.HasSequence("ISEQ$$_86081");
-
-            modelBuilder.HasSequence("ISEQ$$_86085");
-
-            modelBuilder.HasSequence("ISEQ$$_86090");
-
-            modelBuilder.HasSequence("ISEQ$$_86096");
-
-            modelBuilder.HasSequence("ISEQ$$_86132");
-
-            modelBuilder.HasSequence("ISEQ$$_86138");
-
-            modelBuilder.HasSequence("ISEQ$$_86141");
-
-            modelBuilder.HasSequence("ISEQ$$_86150");
-
-            modelBuilder.HasSequence("ISEQ$$_86161");
-
-            modelBuilder.HasSequence("ISEQ$$_86167");
-
-            modelBuilder.HasSequence("ISEQ$$_86171");
-
-            modelBuilder.HasSequence("ISEQ$$_86175");
-
-            modelBuilder.HasSequence("ISEQ$$_86182");
-
-            modelBuilder.HasSequence("ISEQ$$_86185");
-
-            modelBuilder.HasSequence("ISEQ$$_86194");
-
-            modelBuilder.HasSequence("ISEQ$$_86201");
-
-            modelBuilder.HasSequence("ISEQ$$_86209");
-
-            modelBuilder.HasSequence("ISEQ$$_86215");
-
-            modelBuilder.HasSequence("ISEQ$$_86220");
-
-            modelBuilder.HasSequence("ISEQ$$_86224");
-
-            modelBuilder.HasSequence("ISEQ$$_86233");
-
-            modelBuilder.HasSequence("ISEQ$$_86237");
-
-            modelBuilder.HasSequence("ISEQ$$_86242");
-
-            modelBuilder.HasSequence("ISEQ$$_86248");
-
-            modelBuilder.HasSequence("ISEQ$$_86423");
-
-            modelBuilder.HasSequence("ISEQ$$_86426");
-
-            modelBuilder.HasSequence("ISEQ$$_86435");
-
-            modelBuilder.HasSequence("ISEQ$$_86446");
-
-            modelBuilder.HasSequence("ISEQ$$_86452");
-
-            modelBuilder.HasSequence("ISEQ$$_86456");
-
-            modelBuilder.HasSequence("ISEQ$$_86460");
-
-            modelBuilder.HasSequence("ISEQ$$_86467");
-
-            modelBuilder.HasSequence("ISEQ$$_86470");
-
-            modelBuilder.HasSequence("ISEQ$$_86479");
-
-            modelBuilder.HasSequence("ISEQ$$_86486");
-
-            modelBuilder.HasSequence("ISEQ$$_86494");
-
-            modelBuilder.HasSequence("ISEQ$$_86500");
-
-            modelBuilder.HasSequence("ISEQ$$_86505");
-
-            modelBuilder.HasSequence("ISEQ$$_86509");
-
-            modelBuilder.HasSequence("ISEQ$$_86518");
-
-            modelBuilder.HasSequence("ISEQ$$_86522");
-
-            modelBuilder.HasSequence("ISEQ$$_86527");
-
-            modelBuilder.HasSequence("ISEQ$$_86533");
         }
     }
 }

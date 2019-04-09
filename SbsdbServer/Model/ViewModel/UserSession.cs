@@ -1,4 +1,4 @@
-﻿namespace hb.SbsdbServer.Model.Entities {
+﻿namespace hb.SbsdbServer.Model.ViewModel {
   /*
    * Programmeinstellungen des Benutzers
    *   

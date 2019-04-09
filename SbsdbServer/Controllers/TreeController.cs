@@ -1,9 +1,6 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
-using hb.SbsdbServer.Services;
+﻿using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Controllers {
 

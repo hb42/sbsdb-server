@@ -1,4 +1,4 @@
-﻿namespace hb.SbsdbServer.ViewModel {
+﻿namespace hb.SbsdbServer.Model.ViewModel {
   public class Ap {
     public string Apname { get; set; }
     public string Bezeichnung { get; set; }

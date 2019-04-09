@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using hb.SbsdbServer.Model.Entities;
+﻿using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace hb.SbsdbServer.Controllers {
 

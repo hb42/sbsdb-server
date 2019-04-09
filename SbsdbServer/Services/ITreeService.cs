@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using hb.SbsdbServer.ViewModel;
+using hb.SbsdbServer.Model.ViewModel;
 
 namespace hb.SbsdbServer.Services {
   public interface ITreeService {

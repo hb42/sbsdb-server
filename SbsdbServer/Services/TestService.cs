@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using hb.SbsdbServer.Model;
+﻿using hb.SbsdbServer.Model;
+using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.sbsdbv4.model;
-using hb.SbsdbServer.ViewModel;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace hb.SbsdbServer.Services {
 

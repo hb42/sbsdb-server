@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using hb.SbsdbServer.Model.Entities;
+using hb.SbsdbServer.Model.ViewModel;
 
 namespace hb.SbsdbServer.Model.Repositories {
   public class UserRepository: IUserRepository {
@@ -19,10 +20,10 @@ namespace hb.SbsdbServer.Model.Repositories {
     }
 
     public UserSession GetUser(string UID) {
-      UserSettings user = dbContext.UserSettings.FirstOrDefault(u => u.Uid == UID);
+      UserSettings user = dbContext.UserSettings.FirstOrDefault(u => u.Userid == UID);
       if (user == null) {
         user = new UserSettings {
-          Uid = UID,
+          Userid = UID,
           Settings = new UserSession {
             UID = UID
           }

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using hb.Common.Version;
+﻿using hb.Common.Version;
+using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
-using hb.SbsdbServer.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Controllers {
 

@@ -3,13 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace hb.SbsdbServer.Model {
-  public class SbsdbContext: DbContext {
+  public class SbsdbContext_tmp: DbContext {
     /* TODO Abhaengigkeiten, die bei der DB-Erstellung beruecksichtigt werden muessen
      * 
      *      OE
      *      Die Ueber- Unterordnung wird mit dem Feld parent abgebildet. Das Feld
      *      bekommt die ID der naechsthoeheren OE. Der root-Knoten muss ID 0 und
      *      parent 0 bekommen (Name "Sparkasse" || "Gesamthaus" ...).   
+     *      
+     *      APTYP/ APKLASSE
+     *      Peripherie hat Index 0 (koennte zusaetzlichen Wert in flag sparen)
      *      
      */
 
@@ -18,7 +21,7 @@ namespace hb.SbsdbServer.Model {
     public virtual DbSet<UserSettings> UserSettings { get; set; }
     public virtual DbSet<ProgramSettings> ProgramSettings { get; set; }
 
-    public SbsdbContext(DbContextOptions<SbsdbContext> options) : base(options) {
+    public SbsdbContext_tmp(DbContextOptions<SbsdbContext> options) : base(options) {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -31,7 +34,7 @@ namespace hb.SbsdbServer.Model {
           .UseOracleIdentityColumn();
         entity.HasKey(e => e.Id);
 
-        entity.Property(e => e.HausNr)
+        entity.Property(e => e.Hausnr)
           .HasColumnName("HAUSNR")
           .HasColumnType("varchar(50)");
         entity.Property(e => e.Ort)
@@ -54,19 +57,19 @@ namespace hb.SbsdbServer.Model {
           .UseOracleIdentityColumn();
         entity.HasKey(e => e.Id);
 
-        entity.Property(e => e.Uid)
+        entity.Property(e => e.Userid)
           .HasColumnName("UID")
           .HasColumnType("varchar(20)");
-        entity.HasIndex(e => e.Uid).IsUnique();
+        entity.HasIndex(e => e.Userid).IsUnique();
 
         // Objekt-Typ UserSession als JSON im Feld ablegen
-        entity.Property(e => e.Settings)
+/*        entity.Property(e => e.Settings)
           .HasColumnName("SETTINGS")
           .HasColumnType("clob")
           .HasConversion(
             v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
             v => JsonConvert.DeserializeObject<UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
-
+*/
       });
 
       modelBuilder.Entity<ProgramSettings>(entity => {

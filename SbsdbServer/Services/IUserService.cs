@@ -1,5 +1,4 @@
-﻿using System;
-using hb.SbsdbServer.Model.Entities;
+﻿using hb.SbsdbServer.Model.ViewModel;
 
 namespace hb.SbsdbServer.Services {
   public interface IUserService {

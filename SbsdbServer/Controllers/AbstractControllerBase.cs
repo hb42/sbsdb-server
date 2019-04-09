@@ -21,7 +21,7 @@ namespace hb.SbsdbServer.Controllers {
     // NLog Logger
     protected ILogger<T> LOG => _log ?? (_log = HttpContext.RequestServices.GetService<ILogger<T>>());
     // Config -> appsettings, etc.
-    protected IConfiguration configuration => _config ?? (_config = HttpContext.RequestServices.GetService<IConfiguration>());
+    protected IConfiguration Configuration => _config ?? (_config = HttpContext.RequestServices.GetService<IConfiguration>());
 
   }
 }

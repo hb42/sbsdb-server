@@ -1,4 +1,4 @@
-﻿using hb.SbsdbServer.Model.Entities;
+﻿using hb.SbsdbServer.Model.ViewModel;
 
 namespace hb.SbsdbServer.Model.Repositories {
   public interface IUserRepository {

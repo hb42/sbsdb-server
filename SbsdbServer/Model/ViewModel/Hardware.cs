@@ -1,4 +1,4 @@
-﻿namespace hb.SbsdbServer.ViewModel {
+﻿namespace hb.SbsdbServer.Model.ViewModel {
   public class Hardware {
     public string Hersteller { get; set; }
     public string Bezeichnung { get; set; }

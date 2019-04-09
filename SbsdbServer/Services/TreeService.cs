@@ -1,8 +1,6 @@
-﻿using System;
-using hb.SbsdbServer.Model.Repositories;
-using System.Collections;
+﻿using hb.SbsdbServer.Model.Repositories;
+using hb.SbsdbServer.Model.ViewModel;
 using System.Collections.Generic;
-using hb.SbsdbServer.ViewModel;
 
 namespace hb.SbsdbServer.Services {
   public class TreeService: ITreeService {

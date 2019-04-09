@@ -1,6 +1,5 @@
-﻿using hb.SbsdbServer.sbsdbv4.model;
-using hb.SbsdbServer.ViewModel;
-using Microsoft.EntityFrameworkCore;
+﻿using hb.SbsdbServer.Model.ViewModel;
+using hb.SbsdbServer.sbsdbv4.model;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,6 +1,6 @@
-﻿using System;
-using hb.SbsdbServer.Model.Entities;
-using hb.SbsdbServer.Model.Repositories;
+﻿using hb.SbsdbServer.Model.Repositories;
+using hb.SbsdbServer.Model.ViewModel;
+using System;
 
 namespace hb.SbsdbServer.Services {
   public class UserService: IUserService {

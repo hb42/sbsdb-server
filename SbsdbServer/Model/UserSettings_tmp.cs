@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using hb.SbsdbServer.Model.ViewModel;
+using System.ComponentModel.DataAnnotations;
 
-namespace hb.SbsdbServer.Model.Entities {
+namespace hb.SbsdbServer.Model {
   /*
    * Benutzereinstellungen
    */
-  public class UserSettings {
+  public class UserSettings_tmp {
 
     [Required]
     public long Id { get; set; }

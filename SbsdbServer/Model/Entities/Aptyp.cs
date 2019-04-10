@@ -11,9 +11,9 @@ namespace hb.SbsdbServer.Model.Entities
             Hwtyp = new HashSet<Hwtyp>();
         }
 
-        public decimal Id { get; set; }
-        public string Aptyp1 { get; set; }
-        public decimal? Flag { get; set; }
+        public long Id { get; set; }
+        public string Bezeichnung { get; set; }
+        public long? Flag { get; set; }
 
         public virtual ICollection<Apklasse> Apklasse { get; set; }
         public virtual ICollection<Hwtyp> Hwtyp { get; set; }

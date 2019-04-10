@@ -10,10 +10,10 @@ namespace hb.SbsdbServer.Model.Entities
             Mac = new HashSet<Mac>();
         }
 
-        public decimal Id { get; set; }
-        public decimal Netmask { get; set; }
-        public string Vlan1 { get; set; }
-        public decimal Ip { get; set; }
+        public long Id { get; set; }
+        public long Ip { get; set; }
+        public long Netmask { get; set; }
+        public string Bezeichnung { get; set; }
 
         public virtual ICollection<Mac> Mac { get; set; }
     }

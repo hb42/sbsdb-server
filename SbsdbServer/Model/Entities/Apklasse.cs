@@ -12,10 +12,10 @@ namespace hb.SbsdbServer.Model.Entities
             Tagtyp = new HashSet<Tagtyp>();
         }
 
-        public decimal Id { get; set; }
-        public string Apklasse1 { get; set; }
-        public decimal? Flag { get; set; }
-        public decimal AptypId { get; set; }
+        public long Id { get; set; }
+        public string Bezeichnung { get; set; }
+        public long? Flag { get; set; }
+        public long AptypId { get; set; }
 
         public virtual Aptyp Aptyp { get; set; }
         public virtual ICollection<Ap> Ap { get; set; }

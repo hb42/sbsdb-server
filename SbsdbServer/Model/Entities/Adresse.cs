@@ -10,11 +10,11 @@ namespace hb.SbsdbServer.Model.Entities
             Oe = new HashSet<Oe>();
         }
 
-        public decimal Id { get; set; }
-        public string Hausnr { get; set; }
-        public string Ort { get; set; }
+        public long Id { get; set; }
         public string Plz { get; set; }
+        public string Ort { get; set; }
         public string Strasse { get; set; }
+        public string Hausnr { get; set; }
 
         public virtual ICollection<Oe> Oe { get; set; }
     }

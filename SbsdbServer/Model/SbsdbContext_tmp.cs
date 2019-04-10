@@ -14,6 +14,33 @@ namespace hb.SbsdbServer.Model {
      *      APTYP/ APKLASSE
      *      Peripherie hat Index 0 (koennte zusaetzlichen Wert in flag sparen)
      *      
+     *      KONFIG
+     *      Fuer jeden HWTYP eine Konfig anlegen, mit NONASSET=true + Bezeichnung/Hersteller
+     *      "fremde HW" o.ae.
+     */
+
+    /* Anpassungen in automatisch erstellten Entites/Context
+     * 
+     * SbsdbContext
+     *   - leeren c'tor raus
+     *   
+     *   - UserSettings -> Settings
+               .HasConversion(
+                 v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                 v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+     * 
+     *   - .ValueGeneratedOnAdd() muss fuer die IDs angeschaltet werden, sonst
+     *     wird ein vorhandener Index "0" nicht eingefuegt.
+     *     betrifft Aptyp, 
+     *              Apklasse, 
+     *              Oe
+     *            
+     *   - Sequences koennen raus         
+     *   
+     * UserSettings
+     *    public UserSession Settings { get; set; }
+     * 
+     * 
      */
 
     // tables

@@ -12,15 +12,15 @@ namespace hb.SbsdbServer.Model.Entities
             InverseOeNavigation = new HashSet<Oe>();
         }
 
-        public decimal Id { get; set; }
-        public decimal? Ap { get; set; }
+        public long Id { get; set; }
         public string Betriebsstelle { get; set; }
-        public decimal Bst { get; set; }
+        public long Bst { get; set; }
         public string Fax { get; set; }
-        public string Oeff { get; set; }
         public string Tel { get; set; }
-        public decimal OeId { get; set; }
-        public decimal? AdresseId { get; set; }
+        public string Oeff { get; set; }
+        public bool? Ap { get; set; }
+        public long OeId { get; set; }
+        public long AdresseId { get; set; }
 
         public virtual Adresse Adresse { get; set; }
         public virtual Oe OeNavigation { get; set; }

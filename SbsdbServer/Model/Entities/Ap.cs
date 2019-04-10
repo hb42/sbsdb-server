@@ -12,13 +12,13 @@ namespace hb.SbsdbServer.Model.Entities
             Hw = new HashSet<Hw>();
         }
 
-        public decimal Id { get; set; }
+        public long Id { get; set; }
         public string Apname { get; set; }
-        public string Bemerkung { get; set; }
         public string Bezeichnung { get; set; }
-        public decimal? OeIdVerOe { get; set; }
-        public decimal OeId { get; set; }
-        public decimal ApklasseId { get; set; }
+        public string Bemerkung { get; set; }
+        public long OeId { get; set; }
+        public long? OeIdVerOe { get; set; }
+        public long ApklasseId { get; set; }
 
         public virtual Apklasse Apklasse { get; set; }
         public virtual Oe Oe { get; set; }

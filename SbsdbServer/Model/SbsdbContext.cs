@@ -1,10 +1,14 @@
-﻿using hb.SbsdbServer.Model.Entities;
+﻿using System;
+using hb.SbsdbServer.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
 
-namespace hb.SbsdbServer.Model {
-  public partial class SbsdbContext : DbContext
+namespace hb.SbsdbServer.Model
+{
+    public partial class SbsdbContext : DbContext
     {
+
         public SbsdbContext(DbContextOptions<SbsdbContext> options)
             : base(options)
         {
@@ -50,10 +54,7 @@ namespace hb.SbsdbServer.Model {
                     .HasName("ADRESSE_PK")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Hausnr)
                     .HasColumnName("HAUSNR")
@@ -90,16 +91,11 @@ namespace hb.SbsdbServer.Model {
                     .HasName("AP_OE_ID_IDX");
 
                 entity.HasIndex(e => e.OeIdVerOe)
-                    .HasName("AP_OE_ID1_IDX");
+                    .HasName("AP_OE_ID_VER_OE_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApklasseId)
-                    .HasColumnName("APKLASSE_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.ApklasseId).HasColumnName("APKLASSE_ID");
 
                 entity.Property(e => e.Apname)
                     .IsRequired()
@@ -115,13 +111,9 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(200)");
 
-                entity.Property(e => e.OeId)
-                    .HasColumnName("OE_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.OeId).HasColumnName("OE_ID");
 
-                entity.Property(e => e.OeIdVerOe)
-                    .HasColumnName("OE_ID_VER_OE")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.OeIdVerOe).HasColumnName("OE_ID_VER_OE");
 
                 entity.HasOne(d => d.Apklasse)
                     .WithMany(p => p.Ap)
@@ -167,14 +159,9 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.Userid)
                     .HasName("AP_ISSUE_USERID_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApId)
-                    .HasColumnName("AP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.ApId).HasColumnName("AP_ID");
 
                 entity.Property(e => e.Close)
                     .HasColumnName("CLOSE")
@@ -185,17 +172,13 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("ISSUE")
                     .HasColumnType("CLOB");
 
-                entity.Property(e => e.IssuetypId)
-                    .HasColumnName("ISSUETYP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.IssuetypId).HasColumnName("ISSUETYP_ID");
 
                 entity.Property(e => e.Open)
                     .HasColumnName("OPEN")
                     .HasColumnType("DATE");
 
-                entity.Property(e => e.Prio)
-                    .HasColumnName("PRIO")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Prio).HasColumnName("PRIO");
 
                 entity.Property(e => e.Userid)
                     .IsRequired()
@@ -205,6 +188,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasOne(d => d.Ap)
                     .WithMany(p => p.ApIssue)
                     .HasForeignKey(d => d.ApId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("AP_ISSUE_AP_FK");
 
                 entity.HasOne(d => d.Issuetyp)
@@ -225,29 +209,22 @@ namespace hb.SbsdbServer.Model {
                     .HasName("AP_TAG_PK")
                     .IsUnique();
 
-                entity.HasIndex(e => e.TagText)
-                    .HasName("AP_TAG_TAG_TEXT_IDX");
-
                 entity.HasIndex(e => e.TagtypId)
                     .HasName("AP_TAG_TAGTYP_ID_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.HasIndex(e => e.Text)
+                    .HasName("AP_TAG_TEXT_IDX");
 
-                entity.Property(e => e.ApId)
-                    .HasColumnName("AP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.TagText)
+                entity.Property(e => e.ApId).HasColumnName("AP_ID");
+
+                entity.Property(e => e.TagtypId).HasColumnName("TAGTYP_ID");
+
+                entity.Property(e => e.Text)
                     .IsRequired()
-                    .HasColumnName("TAG_TEXT")
+                    .HasColumnName("TEXT")
                     .HasColumnType("VARCHAR2(100)");
-
-                entity.Property(e => e.TagtypId)
-                    .HasColumnName("TAGTYP_ID")
-                    .HasColumnType("NUMBER(38)");
 
                 entity.HasOne(d => d.Ap)
                     .WithMany(p => p.ApTag)
@@ -273,23 +250,16 @@ namespace hb.SbsdbServer.Model {
                     .HasName("APKLASSE_PK")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                  /*  .ValueGeneratedOnAdd()*/;
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.Apklasse1)
+                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
+
+                entity.Property(e => e.Bezeichnung)
                     .IsRequired()
-                    .HasColumnName("APKLASSE")
+                    .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(50)");
 
-                entity.Property(e => e.AptypId)
-                    .HasColumnName("APTYP_ID")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Flag)
-                    .HasColumnName("FLAG")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
 
                 entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Apklasse)
@@ -302,27 +272,22 @@ namespace hb.SbsdbServer.Model {
             {
                 entity.ToTable("APTYP");
 
-                entity.HasIndex(e => e.Aptyp1)
-                    .HasName("APTYP_APTYP_UN")
+                entity.HasIndex(e => e.Bezeichnung)
+                    .HasName("APTYP_BEZEICHNUNG_UN")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Id)
                     .HasName("APTYP_PK")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                  /*  .ValueGeneratedOnAdd()*/;
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.Aptyp1)
+                entity.Property(e => e.Bezeichnung)
                     .IsRequired()
-                    .HasColumnName("APTYP")
+                    .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(50)");
 
-                entity.Property(e => e.Flag)
-                    .HasColumnName("FLAG")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
             });
 
             modelBuilder.Entity<Aussond>(entity =>
@@ -339,10 +304,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.SerNr)
                     .HasName("AUSSOND_SER_NR_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.AnschDat)
                     .HasColumnName("ANSCH_DAT")
@@ -350,7 +312,7 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.AnschWert)
                     .HasColumnName("ANSCH_WERT")
-                    .HasColumnType("NUMBER");
+                    .HasColumnType("NUMBER(19,2)");
 
                 entity.Property(e => e.AussDat)
                     .HasColumnName("AUSS_DAT")
@@ -364,9 +326,7 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("BEMERKUNG")
                     .HasColumnType("CLOB");
 
-                entity.Property(e => e.HwkonfigId)
-                    .HasColumnName("HWKONFIG_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.HwkonfigId).HasColumnName("HWKONFIG_ID");
 
                 entity.Property(e => e.InvNr)
                     .HasColumnName("INV_NR")
@@ -412,18 +372,13 @@ namespace hb.SbsdbServer.Model {
                     .HasName("EXTPROG_PK")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApklasseId)
-                    .HasColumnName("APKLASSE_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.ApklasseId).HasColumnName("APKLASSE_ID");
 
-                entity.Property(e => e.Extprog1)
+                entity.Property(e => e.Bezeichnung)
                     .IsRequired()
-                    .HasColumnName("EXTPROG")
+                    .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(255)");
 
                 entity.Property(e => e.ExtprogName)
@@ -435,9 +390,7 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("EXTPROG_PAR")
                     .HasColumnType("VARCHAR2(255)");
 
-                entity.Property(e => e.Flag)
-                    .HasColumnName("FLAG")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
 
                 entity.HasOne(d => d.Apklasse)
                     .WithMany(p => p.Extprog)
@@ -467,10 +420,7 @@ namespace hb.SbsdbServer.Model {
                     .HasName("HW_SMBIOSGUID_UN")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.AnschDat)
                     .HasColumnName("ANSCH_DAT")
@@ -478,19 +428,15 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.AnschWert)
                     .HasColumnName("ANSCH_WERT")
-                    .HasColumnType("NUMBER");
+                    .HasColumnType("NUMBER(19,2)");
 
-                entity.Property(e => e.ApId)
-                    .HasColumnName("AP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.ApId).HasColumnName("AP_ID");
 
                 entity.Property(e => e.Bemerkung)
                     .HasColumnName("BEMERKUNG")
                     .HasColumnType("CLOB");
 
-                entity.Property(e => e.HwkonfigId)
-                    .HasColumnName("HWKONFIG_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.HwkonfigId).HasColumnName("HWKONFIG_ID");
 
                 entity.Property(e => e.InvNr)
                     .HasColumnName("INV_NR")
@@ -523,6 +469,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasOne(d => d.Hwkonfig)
                     .WithMany(p => p.Hw)
                     .HasForeignKey(d => d.HwkonfigId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("HW_HWKONFIG_FK");
             });
 
@@ -530,8 +477,8 @@ namespace hb.SbsdbServer.Model {
             {
                 entity.ToTable("HWHISTORY");
 
-                entity.HasIndex(e => e.ApName)
-                    .HasName("HWHISTORY_AP_NAME_IDX");
+                entity.HasIndex(e => e.Apname)
+                    .HasName("HWHISTORY_APNAME_IDX");
 
                 entity.HasIndex(e => e.Direction)
                     .HasName("HWHISTORY_DIRECTION_IDX");
@@ -546,21 +493,16 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.Shiftdate)
                     .HasName("HWHISTORY_SHIFTDATE_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.ApBezeichnung)
                     .HasColumnName("AP_BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(55)");
 
-                entity.Property(e => e.ApId)
-                    .HasColumnName("AP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.ApId).HasColumnName("AP_ID");
 
-                entity.Property(e => e.ApName)
-                    .HasColumnName("AP_NAME")
+                entity.Property(e => e.Apname)
+                    .HasColumnName("APNAME")
                     .HasColumnType("VARCHAR2(50)");
 
                 entity.Property(e => e.Betriebsstelle)
@@ -572,9 +514,7 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("DIRECTION")
                     .HasColumnType("VARCHAR2(2)");
 
-                entity.Property(e => e.HwId)
-                    .HasColumnName("HW_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.HwId).HasColumnName("HW_ID");
 
                 entity.Property(e => e.Shiftdate)
                     .HasColumnName("SHIFTDATE")
@@ -585,6 +525,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasOne(d => d.Hw)
                     .WithMany(p => p.Hwhistory)
                     .HasForeignKey(d => d.HwId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("HWHISTORY_HW_FK");
             });
 
@@ -605,10 +546,10 @@ namespace hb.SbsdbServer.Model {
                     .HasName("HWKONFIG_PK")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.HasIndex(e => e.Nonasset)
+                    .HasName("HWKONFIG_NONASSET_IDX");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -624,9 +565,9 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("HERSTELLER")
                     .HasColumnType("VARCHAR2(50)");
 
-                entity.Property(e => e.HwtypId)
-                    .HasColumnName("HWTYP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.HwtypId).HasColumnName("HWTYP_ID");
+
+                entity.Property(e => e.Nonasset).HasColumnName("NONASSET");
 
                 entity.Property(e => e.Prozessor)
                     .HasColumnName("PROZESSOR")
@@ -647,6 +588,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasOne(d => d.Hwtyp)
                     .WithMany(p => p.Hwkonfig)
                     .HasForeignKey(d => d.HwtypId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("HWKONFIG_HWTYP_FK");
             });
 
@@ -657,44 +599,42 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.AptypId)
                     .HasName("HWTYP_APTYP_ID_IDX");
 
+                entity.HasIndex(e => e.Bezeichnung)
+                    .HasName("HWTYP_BEZEICHNUNG_UN")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Flag)
                     .HasName("HWTYP_FLAG_IDX");
-
-                entity.HasIndex(e => e.Hwtyp1)
-                    .HasName("HWTYP_HWTYP_UN")
-                    .IsUnique();
 
                 entity.HasIndex(e => e.Id)
                     .HasName("HWTYP_PK")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.AptypId)
-                    .HasColumnName("APTYP_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
 
-                entity.Property(e => e.Flag)
-                    .HasColumnName("FLAG")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Hwtyp1)
+                entity.Property(e => e.Bezeichnung)
                     .IsRequired()
-                    .HasColumnName("HWTYP")
+                    .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(50)");
+
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
 
                 entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Hwtyp)
                     .HasForeignKey(d => d.AptypId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("HWTYP_APTYP_FK");
             });
 
             modelBuilder.Entity<Issuetyp>(entity =>
             {
                 entity.ToTable("ISSUETYP");
+
+                entity.HasIndex(e => e.Bezeichnung)
+                    .HasName("ISSUETYP_BEZEICHNUNG_UN")
+                    .IsUnique();
 
                 entity.HasIndex(e => e.Flag)
                     .HasName("ISSUETYP_FLAG_IDX");
@@ -703,56 +643,39 @@ namespace hb.SbsdbServer.Model {
                     .HasName("ISSUETYP_PK")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Issuetyp1)
-                    .HasName("ISSUETYP_ISSUETYP_IDX");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Flag)
-                    .HasColumnName("FLAG")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Issuetyp1)
+                entity.Property(e => e.Bezeichnung)
                     .IsRequired()
-                    .HasColumnName("ISSUETYP")
+                    .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(100)");
+
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
             });
 
             modelBuilder.Entity<Mac>(entity =>
             {
                 entity.ToTable("MAC");
 
+                entity.HasIndex(e => e.Adresse)
+                    .HasName("MAC_ADRESSE_IDX");
+
                 entity.HasIndex(e => e.Id)
                     .HasName("MAC_PK")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Mac1)
-                    .HasName("MAC_MAC_IDX");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(e => e.HwId)
-                    .HasColumnName("HW_ID")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Ip)
-                    .HasColumnName("IP")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Mac1)
+                entity.Property(e => e.Adresse)
                     .IsRequired()
-                    .HasColumnName("MAC")
+                    .HasColumnName("ADRESSE")
                     .HasColumnType("VARCHAR2(12)");
 
-                entity.Property(e => e.VlanVlanId)
-                    .HasColumnName("VLAN_VLAN_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.HwId).HasColumnName("HW_ID");
+
+                entity.Property(e => e.Ip).HasColumnName("IP");
+
+                entity.Property(e => e.VlanId).HasColumnName("VLAN_ID");
 
                 entity.HasOne(d => d.Hw)
                     .WithMany(p => p.Mac)
@@ -760,9 +683,9 @@ namespace hb.SbsdbServer.Model {
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("MAC_HW_FK");
 
-                entity.HasOne(d => d.VlanVlan)
+                entity.HasOne(d => d.Vlan)
                     .WithMany(p => p.Mac)
-                    .HasForeignKey(d => d.VlanVlanId)
+                    .HasForeignKey(d => d.VlanId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("MAC_VLAN_FK");
             });
@@ -787,35 +710,24 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.OeId)
                     .HasName("OE_OE_ID_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                  /*  .ValueGeneratedOnAdd()*/;
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.AdresseId)
-                    .HasColumnName("ADRESSE_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.AdresseId).HasColumnName("ADRESSE_ID");
 
-                entity.Property(e => e.Ap)
-                    .HasColumnName("AP")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Ap).HasColumnName("AP");
 
                 entity.Property(e => e.Betriebsstelle)
                     .IsRequired()
                     .HasColumnName("BETRIEBSSTELLE")
                     .HasColumnType("VARCHAR2(100)");
 
-                entity.Property(e => e.Bst)
-                    .HasColumnName("BST")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Bst).HasColumnName("BST");
 
                 entity.Property(e => e.Fax)
                     .HasColumnName("FAX")
                     .HasColumnType("VARCHAR2(50)");
 
-                entity.Property(e => e.OeId)
-                    .HasColumnName("OE_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.OeId).HasColumnName("OE_ID");
 
                 entity.Property(e => e.Oeff)
                     .HasColumnName("OEFF")
@@ -828,6 +740,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasOne(d => d.Adresse)
                     .WithMany(p => p.Oe)
                     .HasForeignKey(d => d.AdresseId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("OE_ADRESSE_FK");
 
                 entity.HasOne(d => d.OeNavigation)
@@ -848,10 +761,7 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.Key)
                     .HasName("PROGRAM_SETTINGS_KEY_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Key)
                     .IsRequired()
@@ -870,34 +780,27 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.ApklasseId)
                     .HasName("TAGTYP_APTYP_ID_IDX");
 
+                entity.HasIndex(e => e.Bezeichnung)
+                    .HasName("TAGTYP_BEZEICHNUNG_IDX");
+
                 entity.HasIndex(e => e.Id)
                     .HasName("TAGTYP_PK")
                     .IsUnique();
 
-                entity.HasIndex(e => e.TagTyp1)
-                    .HasName("TAGTYP_TAG_TYP_IDX");
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.ApklasseId).HasColumnName("APKLASSE_ID");
 
-                entity.Property(e => e.ApklasseId)
-                    .HasColumnName("APKLASSE_ID")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Bezeichnung)
+                    .IsRequired()
+                    .HasColumnName("BEZEICHNUNG")
+                    .HasColumnType("VARCHAR2(50)");
 
-                entity.Property(e => e.Flag)
-                    .HasColumnName("FLAG")
-                    .HasColumnType("NUMBER(38)");
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
 
                 entity.Property(e => e.Param)
                     .HasColumnName("PARAM")
                     .HasColumnType("VARCHAR2(200)");
-
-                entity.Property(e => e.TagTyp1)
-                    .IsRequired()
-                    .HasColumnName("TAG_TYP")
-                    .HasColumnType("VARCHAR2(50)");
 
                 entity.HasOne(d => d.Apklasse)
                     .WithMany(p => p.Tagtyp)
@@ -917,12 +820,8 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.Userid)
                     .HasName("USER_SETTINGS_USERID_IDX");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-              // Objekt UserSession als JSON-String speichern
                 entity.Property(e => e.Settings)
                     .HasColumnName("SETTINGS")
                     .HasColumnType("CLOB")
@@ -940,6 +839,10 @@ namespace hb.SbsdbServer.Model {
             {
                 entity.ToTable("VLAN");
 
+                entity.HasIndex(e => e.Bezeichnung)
+                    .HasName("VLAN_BEZEICHNUNG_UN")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Id)
                     .HasName("VLAN_PK")
                     .IsUnique();
@@ -947,27 +850,16 @@ namespace hb.SbsdbServer.Model {
                 entity.HasIndex(e => e.Ip)
                     .HasName("VLAN_IP_IDX");
 
-                entity.HasIndex(e => e.Vlan1)
-                    .HasName("VLAN_VLAN_UN")
-                    .IsUnique();
+                entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("ID")
-                    .HasColumnType("NUMBER(38)")
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(e => e.Ip)
-                    .HasColumnName("IP")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Netmask)
-                    .HasColumnName("NETMASK")
-                    .HasColumnType("NUMBER(38)");
-
-                entity.Property(e => e.Vlan1)
+                entity.Property(e => e.Bezeichnung)
                     .IsRequired()
-                    .HasColumnName("VLAN")
+                    .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(100)");
+
+                entity.Property(e => e.Ip).HasColumnName("IP");
+
+                entity.Property(e => e.Netmask).HasColumnName("NETMASK");
             });
 
         }

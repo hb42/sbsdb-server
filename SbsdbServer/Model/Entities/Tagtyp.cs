@@ -10,11 +10,11 @@ namespace hb.SbsdbServer.Model.Entities
             ApTag = new HashSet<ApTag>();
         }
 
-        public decimal Id { get; set; }
-        public string TagTyp1 { get; set; }
-        public decimal? Flag { get; set; }
+        public long Id { get; set; }
+        public string Bezeichnung { get; set; }
+        public long? Flag { get; set; }
         public string Param { get; set; }
-        public decimal ApklasseId { get; set; }
+        public long ApklasseId { get; set; }
 
         public virtual Apklasse Apklasse { get; set; }
         public virtual ICollection<ApTag> ApTag { get; set; }

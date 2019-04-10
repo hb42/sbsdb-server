@@ -10,9 +10,9 @@ namespace hb.SbsdbServer.Model.Entities
             ApIssue = new HashSet<ApIssue>();
         }
 
-        public decimal Id { get; set; }
-        public decimal? Flag { get; set; }
-        public string Issuetyp1 { get; set; }
+        public long Id { get; set; }
+        public string Bezeichnung { get; set; }
+        public long? Flag { get; set; }
 
         public virtual ICollection<ApIssue> ApIssue { get; set; }
     }

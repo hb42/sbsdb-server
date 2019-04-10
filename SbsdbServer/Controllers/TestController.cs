@@ -81,6 +81,7 @@ namespace hb.SbsdbServer.Controllers {
     [ActionName("migration")]
     public ActionResult<string> Migrate() {
       LOG.LogDebug("v4 Migration");
+      // Aktion laeuft zu lange => timeout/ Server-Error 502 -> async?
       return testService.Migrate();
     }
 

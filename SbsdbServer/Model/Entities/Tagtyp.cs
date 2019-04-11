@@ -14,9 +14,9 @@ namespace hb.SbsdbServer.Model.Entities
         public string Bezeichnung { get; set; }
         public long? Flag { get; set; }
         public string Param { get; set; }
-        public long ApklasseId { get; set; }
+        public long AptypId { get; set; }
 
-        public virtual Apklasse Apklasse { get; set; }
+        public virtual Aptyp Aptyp { get; set; }
         public virtual ICollection<ApTag> ApTag { get; set; }
     }
 }

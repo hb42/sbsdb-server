@@ -1,4 +1,6 @@
-﻿namespace hb.SbsdbServer.Model.ViewModel {
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace hb.SbsdbServer.Model.ViewModel {
   /*
    * Programmeinstellungen des Benutzers
    *   
@@ -13,6 +15,8 @@
       UID = uid;
     }
 
+    [Required(AllowEmptyStrings = false, ErrorMessage = "Benutzerkennung muss für UserSession angegeben werden.")]
+    [StringLength(20, ErrorMessage = "Benutzerkennung darf nicht länger als 20 Stellen sein.")]
     public string UID { get; set; }
     public string Path { get; set; }
 

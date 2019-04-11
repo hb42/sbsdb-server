@@ -8,7 +8,6 @@ namespace hb.SbsdbServer.Model
 {
     public partial class SbsdbContext : DbContext
     {
-
         public SbsdbContext(DbContextOptions<SbsdbContext> options)
             : base(options)
         {
@@ -777,7 +776,7 @@ namespace hb.SbsdbServer.Model
             {
                 entity.ToTable("TAGTYP");
 
-                entity.HasIndex(e => e.ApklasseId)
+                entity.HasIndex(e => e.AptypId)
                     .HasName("TAGTYP_APTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Bezeichnung)
@@ -789,7 +788,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApklasseId).HasColumnName("APKLASSE_ID");
+                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -802,11 +801,11 @@ namespace hb.SbsdbServer.Model
                     .HasColumnName("PARAM")
                     .HasColumnType("VARCHAR2(200)");
 
-                entity.HasOne(d => d.Apklasse)
+                entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Tagtyp)
-                    .HasForeignKey(d => d.ApklasseId)
+                    .HasForeignKey(d => d.AptypId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TAGTYP_APKLASSE_FK");
+                    .HasConstraintName("TAGTYP_APTYP_FK");
             });
 
             modelBuilder.Entity<UserSettings>(entity =>
@@ -861,7 +860,6 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Netmask).HasColumnName("NETMASK");
             });
-
         }
     }
 }

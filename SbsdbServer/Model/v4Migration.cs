@@ -10,14 +10,83 @@ namespace hb.SbsdbServer.Model {
 
   /*
    * ALte v4-DB auf neues Format migrieren
+   */
+
+  /* TODO Abhaengigkeiten, die bei der DB-Erstellung beruecksichtigt werden muessen, d.h.
+   *      beim Programm-Start muessen diese Dinge ueberprueft und ggf. korrigiert werden.
    * 
-   * .ValueGeneratedOnAdd() muss fuer die IDs angeschaltet werden, sonst
-   * wird ein vorhandener Index "0" nicht eingefuegt.
-   * betrifft Aptyp, Apklasse, Oe
+   *      OE
+   *      Die Ueber- Unterordnung wird mit dem Feld parent abgebildet. Das Feld
+   *      bekommt die ID der naechsthoeheren OE. Der root-Knoten muss ID 0 und
+   *      parent 0 bekommen (Name "Sparkasse" || "Gesamthaus" ...).   
+   *      
+   *      APTYP/ APKLASSE
+   *      Peripherie hat Index 0 (koennte zusaetzlichen Wert in flag sparen)
+   *      
+   *      KONFIG
+   *      Fuer jeden HWTYP eine Konfig anlegen, mit NONASSET=true + Bezeichnung/Hersteller
+   *      "fremde HW" o.ae.
+   */
+
+  /* Migration
+   * *********
+   * 1. DDL aus Data Modeler in Oracle ausfuehren -> leere Tabellen
+   *    (identity column muss jeweils im physical model eingestellt werden)
+   *    
+   * 2. Code-Generierung
+   *    > dotnet ef dbcontext scaffold "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=e077spwmve2131n)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=E077SPKP)));User ID=SBSDB_MASTER;Password=sbsdbpwd;", "Oracle.EntityFrameworkCore" --context SbsdbContext --context-dir Model --output-dir Model/Entities --no-build --force
+
+   *    Anpassungen in automatisch erstellten Entites/Context
    * 
-   * Am Ende koennte die DB fix auf auto increment umgestellt werden.
+   *    SbsdbContext.cs
+   *    - leeren c'tor raus
+   *   
+   *    - Namespace aendern (.Model statt .Model.Entities)
+   *   
+   *    - modelBuilder.Entity<UserSettings>(entity => {
+   *        ...
+   *        entity.Property(e => e.Settings)
+   *             .HasColumnName("SETTINGS")
+   *             .HasColumnType("clob")
+                 .HasConversion(
+                   v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                   v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+   * 
+   *    - .ValueGeneratedOnAdd() muss fuer die IDs angeschaltet werden, sonst
+   *      wird ein vorhandener Index "0" bei der Migration nicht eingefuegt.
+   *      betrifft Aptyp, 
+   *               Apklasse, 
+   *               Oe,
+   *               Vlan
+   *      Alt.: identity column mit "START WITH 0 MINVALUE 0" anlegen  
+   *      [aus igrendeinem Grund wird .ValueGeneratedOnAdd() nicht mehr generiert,
+   *       EF scheint aber trotzdem den auto increment zu beruecksichtigen (wenn id == 0 || id == null
+   *       wird das Feld nicht im insert angegeben => seq.nextval). 
+   *       Das ist noch genau auszutesten, dto. die fn .UseOracleIdentityColumn().]
+   *            
+   *    - Sequences koennen raus         
+   *   
+   *    UserSettings.cs
+           // gueltiges Objekt sicherstellen
+           private UserSession _settings;
+           public UserSession Settings {
+             get => _settings ?? new UserSession(Userid);
+             set => _settings = value ?? new UserSession(Userid);
+   * 
+   * 3. Migration
+   *    -> 791/sbsdb/ws/test/migration
+   *    
+   *    
+   * 4. Nach der Migration
+   * 
+   *    Nach Import die identity columns auf Automatik und den hoechsten aktuellen Wert stellen:
+   * 
+   *      ALTER TABLE <table> MODIFY id
+   *      GENERATED ALWAYS AS IDENTITY (START WITH LIMIT VALUE);
    * 
    */
+
+
   public class v4Migration {
 
     private readonly Sbsdbv4Context v4dbContext;
@@ -39,7 +108,6 @@ namespace hb.SbsdbServer.Model {
       MigHwkonfig();
       MigAussond();
       MigVlan();
-      MigMac();
       MigIssuetyp();
       MigAdresse();
       MigOe();
@@ -50,8 +118,11 @@ namespace hb.SbsdbServer.Model {
       MigAptag();
       MigHw();
       MigHwhistory();
+      MigMac();
 
-      return "not yet implemented";
+      // TODO Statistik -> Tag
+
+      return "done";
     }
 
     private void MigAptyp() {
@@ -152,31 +223,151 @@ namespace hb.SbsdbServer.Model {
       LOG.LogDebug("Aussond OK");
     }
     private void MigVlan() {
-      // segment.index 0 -> id 1 mappen
-
-    }
-    private void MigMac() {
-
+      var old = v4dbContext.SbsSegment
+        .OrderBy(k => k.SegmentIndex).ToList();
+      foreach (var o in old) {
+        var n = new Vlan {
+          Id = o.SegmentIndex,
+          Bezeichnung = o.SegmentName,
+          Ip = o.Tcp,
+          Netmask = o.Netmask
+        };
+        LOG.LogDebug("Vlan add #" + n.Id);
+        v5dbContext.Vlan.Add(n);
+      }
+      LOG.LogDebug("Vlan saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("Vlan OK");
     }
     private void MigIssuetyp() {
+      var old = v4dbContext.SbsTtKategorie.ToList();
+      foreach (var o in old) {
+        var n = new Issuetyp {
+          Id = o.KategorieIndex,
+          Bezeichnung = o.Kategorie,
+          Flag = o.Flag
+        };
+        LOG.LogDebug("IssueTyp add #" + n.Id);
+        v5dbContext.Issuetyp.Add(n);
+      }
+      LOG.LogDebug("IssueTyp saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("IssueTyp OK");
 
     }
     private void MigAdresse() {
+      var old = v4dbContext.SbsFiliale.ToList();
+      foreach (var o in old) {
+        var n = new Adresse {
+          Id = o.FilialeIndex,
+          Hausnr = o.Hausnr,
+          Ort = o.Ort,
+          Plz = o.Plz,
+          Strasse = o.Strasse
+        };
+        LOG.LogDebug("Adresse add #" + n.Id);
+        v5dbContext.Adresse.Add(n);
+      }
+      LOG.LogDebug("Adresse saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("Adresse OK");
 
     }
     private void MigOe() {
-      // order by oeindex!
+      var old = v4dbContext.SbsOe
+        .OrderBy(k => k.OeIndex).ToList();
+      foreach (var o in old) {
+        var n = new Oe {
+          Id = o.OeIndex,
+          AdresseId = (long)o.FilialeIndex,
+          Ap = (o.Ap ?? 0) > 0 ? true : false,
+          Betriebsstelle = o.Betriebsstelle,
+          Bst = o.Bst,
+          Fax = o.Fax,
+          Oeff = o.Oeff,
+          OeId = o.ParentOe,
+          Tel = o.Tel,
+        };
+        LOG.LogDebug("OE add #" + n.Id);
+        v5dbContext.Oe.Add(n);
+      }
+      LOG.LogDebug("Oe saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("Oe OK");
     }
     private void MigExtprog() {
+      var old = v4dbContext.SbsExtprog.ToList();
+      foreach (var o in old) {
+        var n = new Extprog {
+          Id = o.ExtprogIndex,
+          Bezeichnung = o.Extprog,
+          ApklasseId = (long)o.ApklasseIndex,
+          ExtprogName = o.ExtprogName,
+          ExtprogPar = o.ExtprogPar,
+          Flag = o.Flag
+        };
+        LOG.LogDebug("ExtProg add #" + n.Id);
+        v5dbContext.Extprog.Add(n);
+      }
+      LOG.LogDebug("ExtProg saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("ExtProg OK");
 
     }
     private void MigTagtyp() {
-
+      var old = v4dbContext.SbsAdrtyp.ToList();
+      foreach (var o in old) {
+        var n = new Tagtyp {
+          Id = o.AdrIndex,
+          Bezeichnung = o.AdrTyp,
+          AptypId = (long)o.AptypIndex,
+          Flag = o.Flag,
+          Param = o.Param
+        };
+        LOG.LogDebug("TagTyp add #" + n.Id);
+        v5dbContext.Tagtyp.Add(n);
+      }
+      LOG.LogDebug("TagTyp saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("TagTyp OK");
     }
     private void MigAp() {
-
+      var old = v4dbContext.SbsAp.ToList();
+      foreach (var o in old) {
+        var n = new Ap {
+          Id = o.ApIndex,
+          Bezeichnung = o.Bezeichnung,
+          ApklasseId = (long)o.ApklasseIndex,
+          Apname = o.ApName,
+          Bemerkung = o.Bemerkung,
+          OeId = (long)o.StandortIndex,
+          OeIdVerOe = o.OeIndex
+        };
+        LOG.LogDebug("AP add #" + n.Id);
+        v5dbContext.Ap.Add(n);
+      }
+      LOG.LogDebug("AP saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("AP OK");
     }
     private void MigApissue() {
+      var old = v4dbContext.SbsAp.ToList();
+      foreach (var o in old) {
+        var n = new Ap {
+          Id = o.ApIndex,
+          Bezeichnung = o.Bezeichnung,
+          ApklasseId = (long)o.ApklasseIndex,
+          Apname = o.ApName,
+          Bemerkung = o.Bemerkung,
+          OeId = (long)o.StandortIndex,
+          OeIdVerOe = o.OeIndex
+        };
+        LOG.LogDebug("AP add #" + n.Id);
+        v5dbContext.Ap.Add(n);
+      }
+      LOG.LogDebug("AP saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("AP OK");
 
     }
     private void MigAptag() {
@@ -186,6 +377,9 @@ namespace hb.SbsdbServer.Model {
 
     }
     private void MigHwhistory() {
+
+    }
+    private void MigMac() {
 
     }
 

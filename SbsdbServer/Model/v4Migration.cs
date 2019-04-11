@@ -141,7 +141,7 @@ namespace hb.SbsdbServer.Model {
       v5dbContext.SaveChanges();
       LOG.LogDebug("ApTyp OK");
     }
-    private void MigApklasse() {
+    private void MigApklasse() {  // geht's auch ohne -> als Tag abbilden (Param nutzen)
       var old = v4dbContext.SbsApklasse
         .OrderBy(k => k.ApklasseIndex).ToList();
       foreach (var o in old) {
@@ -371,12 +371,66 @@ namespace hb.SbsdbServer.Model {
 
     }
     private void MigAptag() {
+      var old = v4dbContext.SbsApAdr.ToList();
+      foreach (var o in old) {
+        var n = new ApTag {
+          Id = o.ApadrIndex,
+          ApId = o.ApIndex,
+          TagtypId = o.AdrIndex,
+          Text = o.AdrText
+        };
+        LOG.LogDebug("ApTag add #" + n.Id);
+        v5dbContext.ApTag.Add(n);
+      }
+      LOG.LogDebug("ApTag saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("ApTag OK");
 
     }
     private void MigHw() {
+      var old = v4dbContext.SbsHw.ToList();
+      foreach (var o in old) {
+        var n = new Hw {
+          Id = o.HwIndex,
+          ApId = o.ApIndex,
+          AnschDat = o.AnschDat,
+          AnschWert = (decimal)o.AnschWert,
+          Bemerkung = o.WartungBem,
+          HwkonfigId = (long)o.KonfigIndex,
+          InvNr = o.InvNr,
+          Pri = o.Pri == "J",
+          SerNr = o.SerNr,
+          Smbiosguid = o.Netbootguid,
+          WartungFa = o.WartungFa,  // ?
+          WartungBem = o.WartungBem  // ?
+        };
+        LOG.LogDebug("Hw add #" + n.Id);
+        v5dbContext.Hw.Add(n);
+      }
+      LOG.LogDebug("Hw saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("Hw OK");
 
     }
     private void MigHwhistory() {
+      var old = v4dbContext.SbsHwshift.ToList();
+      foreach (var o in old) {
+        var n = new Hwhistory {
+          Id = o.HwshiftIndex,
+          ApId = o.ApIndex,
+          ApBezeichnung = o.Bezeichnung,
+          Apname = o.Host,
+          Betriebsstelle = o.Betriebsstelle,
+          Direction = o.Direction,
+          Shiftdate = o.Shiftdate,
+          HwId = (long)o.HwIndex
+        };
+        LOG.LogDebug("HwHistory add #" + n.Id);
+        v5dbContext.Hwhistory.Add(n);
+      }
+      LOG.LogDebug("HwHistory saving...");
+      v5dbContext.SaveChanges();
+      LOG.LogDebug("HwHistory OK");
 
     }
     private void MigMac() {

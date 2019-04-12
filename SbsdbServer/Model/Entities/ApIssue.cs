@@ -11,7 +11,7 @@ namespace hb.SbsdbServer.Model.Entities
         public DateTime Open { get; set; }
         public DateTime? Close { get; set; }
         public string Userid { get; set; }
-        public long ApId { get; set; }
+        public long? ApId { get; set; }
         public long IssuetypId { get; set; }
 
         public virtual Ap Ap { get; set; }

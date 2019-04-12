@@ -545,9 +545,6 @@ namespace hb.SbsdbServer.Model
                     .HasName("HWKONFIG_PK")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Nonasset)
-                    .HasName("HWKONFIG_NONASSET_IDX");
-
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Bezeichnung)
@@ -565,8 +562,6 @@ namespace hb.SbsdbServer.Model
                     .HasColumnType("VARCHAR2(50)");
 
                 entity.Property(e => e.HwtypId).HasColumnName("HWTYP_ID");
-
-                entity.Property(e => e.Nonasset).HasColumnName("NONASSET");
 
                 entity.Property(e => e.Prozessor)
                     .HasColumnName("PROZESSOR")
@@ -860,6 +855,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Netmask).HasColumnName("NETMASK");
             });
+
         }
     }
 }

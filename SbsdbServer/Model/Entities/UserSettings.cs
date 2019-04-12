@@ -12,6 +12,7 @@ namespace hb.SbsdbServer.Model.Entities
     public UserSession Settings {
       get => _settings ?? new UserSession(Userid);
       set => _settings = value ?? new UserSession(Userid);
+
     }
   }
 }

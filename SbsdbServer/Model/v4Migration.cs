@@ -1,9 +1,11 @@
 ﻿using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.sbsdbv4.model;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace hb.SbsdbServer.Model {
@@ -92,6 +94,8 @@ namespace hb.SbsdbServer.Model {
     private readonly Sbsdbv4Context v4dbContext;
     private readonly SbsdbContext v5dbContext;
     private readonly ILogger LOG;
+
+    private readonly string macRegex = @"([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})";
 
     public v4Migration(Sbsdbv4Context sbsdbv4, SbsdbContext sbsdbv5, ILogger<v4Migration> log) {
       v4dbContext = sbsdbv4;
@@ -186,7 +190,7 @@ namespace hb.SbsdbServer.Model {
           Ram = o.Ram,
           Sonst = o.Sonst,
           Video = o.Video,
-          Nonasset = false,
+//          Nonasset = false,
           HwtypId = (long)o.HwtypIndex
         };
         LOG.LogDebug("HwKonfig add #" + n.Id);
@@ -351,23 +355,24 @@ namespace hb.SbsdbServer.Model {
       LOG.LogDebug("AP OK");
     }
     private void MigApissue() {
-      var old = v4dbContext.SbsAp.ToList();
+      var old = v4dbContext.SbsTtIssue.Include(t => t.UserIndexNavigation).ToList();
       foreach (var o in old) {
-        var n = new Ap {
-          Id = o.ApIndex,
-          Bezeichnung = o.Bezeichnung,
-          ApklasseId = (long)o.ApklasseIndex,
-          Apname = o.ApName,
-          Bemerkung = o.Bemerkung,
-          OeId = (long)o.StandortIndex,
-          OeIdVerOe = o.OeIndex
+        var n = new ApIssue {
+          Id = o.TtissueIndex,
+          ApId = o.ApIndex,
+          Close = o.Close,
+          Issue = o.Ticket,
+          IssuetypId = o.KategorieIndex,
+          Open = o.Open,
+          Prio = o.Prio,
+          Userid = o.UserIndexNavigation.UserId
         };
-        LOG.LogDebug("AP add #" + n.Id);
-        v5dbContext.Ap.Add(n);
+        LOG.LogDebug("ApIssue add #" + n.Id);
+        v5dbContext.ApIssue.Add(n);
       }
-      LOG.LogDebug("AP saving...");
+      LOG.LogDebug("ApIssue saving...");
       v5dbContext.SaveChanges();
-      LOG.LogDebug("AP OK");
+      LOG.LogDebug("ApIssue OK");
 
     }
     private void MigAptag() {
@@ -434,7 +439,117 @@ namespace hb.SbsdbServer.Model {
 
     }
     private void MigMac() {
+      // AP mit zugeordneter HW
+      var hws = v4dbContext.SbsHw
+        .Where(h => h.ApIndex != null && h.Pri == "J" && h.Mac != null)
+        .Select(h => new { mac = h.Mac,
+                           ip = h.ApIndexNavigation.Tcp,
+                           seg = h.ApIndexNavigation.SegmentIndex,
+                           hw = h.HwIndex})
+        .ToList();
+      foreach(var o in hws) {
+        var n = new Mac {
+          Adresse = NormalizeMac(o.mac, false),
+          Ip = o.ip,
+          HwId = o.hw,
+          VlanId = (long)o.seg
+        };
+        LOG.LogDebug("MAC add " + n.Adresse);
+        v5dbContext.Mac.Add(n);
+      }
+      LOG.LogDebug("MAC saving ...");
+      v5dbContext.SaveChanges();
 
+      // sonstige MACs
+      //      new HWTYP "Fremde HW - {aptyp.bezeichnung}" je APTYP, flag = 1
+      long idx = 100;
+      var aptyp = v5dbContext.Aptyp.ToList();
+      foreach (var at in aptyp) {
+        var n = new Hwtyp {
+          Id = idx++,
+          Bezeichnung = "Fremde HW - " + at.Bezeichnung,
+          Flag = 1,
+          AptypId = at.Id
+        };
+        LOG.LogDebug("new HwTyp add " + n.Bezeichnung);
+        v5dbContext.Hwtyp.Add(n);
+      }
+      LOG.LogDebug("new HwTyp saving ...");
+      v5dbContext.SaveChanges();
+      //      new HWKONFIG Hersteller="Fremde Hardware", Bezeichnung=aptyp.bezeichnung je HWTYP.where(flag == 1)
+      var hwtyp = v5dbContext.Hwtyp
+        .Where(h => h.Flag == 1)
+        .Select(h => new {
+          hwtyp = h.Id,
+          aptyp = h.Aptyp.Bezeichnung
+        })
+        .ToList();
+      foreach (var ht in hwtyp) {
+        var n = new Hwkonfig {
+          Id = ht.hwtyp,
+          Hersteller = "Fremde Hardware",
+          Bezeichnung = ht.aptyp,
+          HwtypId = ht.hwtyp
+        };
+        LOG.LogDebug("new HwKonfig " + n.Bezeichnung);
+        v5dbContext.Hwkonfig.Add(n);
+      }
+      LOG.LogDebug("ne HwKonfig saving ...");
+      v5dbContext.SaveChanges();
+      //      liste v5Konfig.where(konfig.hwtyp.flag == 1).select(konfigID, konfig.hwtyp.aptypID)
+      var konfigs = v5dbContext.Hwkonfig
+        .Where(k => k.Hwtyp.Flag == 1)
+        .Select(k => new {
+          konfig = k.Id,
+          aptyp = k.Hwtyp.AptypId
+        })
+        .ToList();
+      //      liste ap.where(hws.pri != 'J' and ip > 0)
+      idx = 300;
+      var aps = v4dbContext.SbsAp.Include(a => a.SbsHw).Include(a => a.ApklasseIndexNavigation);
+      foreach (var ap in aps) {
+        if (ap.SbsHw == null && ap.SegmentIndex != 0) {
+          //          new Hw pri=true, ap=ap.apID, hwkonfig=liste(where aptyp = ap.aptyp), sernr=apname
+          var h = new Hw {
+            Id = idx++,
+            Pri = true,
+            ApId = ap.ApIndex,
+            HwkonfigId = konfigs.Where(k => k.aptyp == ap.ApklasseIndexNavigation.AptypIndex).First().konfig,
+            SerNr = ap.ApName
+          };
+          LOG.LogDebug("new Hw" + h.SerNr);
+          v5dbContext.Hw.Add(h);
+          v5dbContext.SaveChanges();
+          //          new mac ip=ap.ip, vlan=ap.seg, adresse=searchMac(ap.bemerkung)|0, hw=(new Hw)
+          var m = new Mac {
+            Adresse = NormalizeMac(ap.Bemerkung, false),
+            Ip = ap.Tcp,
+            HwId = h.Id,
+            VlanId = (long)ap.SegmentIndex
+          };
+          LOG.LogDebug("new MAC " + m.Adresse);
+          v5dbContext.Mac.Add(m);
+          v5dbContext.SaveChanges();
+        }
+      }
+
+    }
+
+    private string NormalizeMac(string mac, bool friendly) {
+      string spacer = "";
+      var m = Regex.Match(mac, macRegex);
+      if (m.Success) {
+        if (friendly) {
+          spacer = "-";
+        }
+        return (m.Groups[1].Value + spacer + 
+                m.Groups[2].Value + spacer + 
+                m.Groups[3].Value + spacer + 
+                m.Groups[4].Value + spacer + 
+                m.Groups[5].Value + spacer + 
+                m.Groups[6].Value).ToUpper();
+      }
+      return "000000000000";
     }
 
   }

@@ -19,7 +19,6 @@ namespace hb.SbsdbServer.Model.Entities
         public string Ram { get; set; }
         public string Sonst { get; set; }
         public string Video { get; set; }
-        public bool? Nonasset { get; set; }
         public long HwtypId { get; set; }
 
         public virtual Hwtyp Hwtyp { get; set; }

@@ -10,8 +10,8 @@ namespace hb.SbsdbServer.Model.Entities
         public string ExtprogName { get; set; }
         public string ExtprogPar { get; set; }
         public long? Flag { get; set; }
-        public long ApklasseId { get; set; }
+        public long AptypId { get; set; }
 
-        public virtual Apklasse Apklasse { get; set; }
+        public virtual Aptyp Aptyp { get; set; }
     }
 }

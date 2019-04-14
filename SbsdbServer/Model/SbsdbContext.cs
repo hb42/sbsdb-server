@@ -76,11 +76,11 @@ namespace hb.SbsdbServer.Model
             {
                 entity.ToTable("AP");
 
-                entity.HasIndex(e => e.ApklasseId)
-                    .HasName("AP_APTYP_ID_IDX");
-
                 entity.HasIndex(e => e.Apname)
                     .HasName("AP_APNAME_IDX");
+
+                entity.HasIndex(e => e.AptypId)
+                    .HasName("AP_APTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
                     .HasName("AP_PK")
@@ -94,12 +94,12 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApklasseId).HasColumnName("APKLASSE_ID");
-
                 entity.Property(e => e.Apname)
                     .IsRequired()
                     .HasColumnName("APNAME")
                     .HasColumnType("VARCHAR2(50)");
+
+                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
 
                 entity.Property(e => e.Bemerkung)
                     .HasColumnName("BEMERKUNG")
@@ -114,11 +114,11 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.OeIdVerOe).HasColumnName("OE_ID_VER_OE");
 
-                entity.HasOne(d => d.Apklasse)
+                entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Ap)
-                    .HasForeignKey(d => d.ApklasseId)
+                    .HasForeignKey(d => d.AptypId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("AP_APKLASSE_FK");
+                    .HasConstraintName("AP_APTYP_FK");
 
                 entity.HasOne(d => d.Oe)
                     .WithMany(p => p.ApOe)
@@ -187,7 +187,6 @@ namespace hb.SbsdbServer.Model
                 entity.HasOne(d => d.Ap)
                     .WithMany(p => p.ApIssue)
                     .HasForeignKey(d => d.ApId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("AP_ISSUE_AP_FK");
 
                 entity.HasOne(d => d.Issuetyp)
@@ -251,7 +250,9 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
+                entity.Property(e => e.AptypId)
+                    .HasColumnName("APTYP_ID")
+                    .HasColumnType("NUMBER");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -259,12 +260,6 @@ namespace hb.SbsdbServer.Model
                     .HasColumnType("VARCHAR2(50)");
 
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
-
-                entity.HasOne(d => d.Aptyp)
-                    .WithMany(p => p.Apklasse)
-                    .HasForeignKey(d => d.AptypId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("APKLASSE_APTYP_FK");
             });
 
             modelBuilder.Entity<Aptyp>(entity =>
@@ -373,7 +368,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApklasseId).HasColumnName("APKLASSE_ID");
+                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -391,11 +386,11 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
 
-                entity.HasOne(d => d.Apklasse)
+                entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Extprog)
-                    .HasForeignKey(d => d.ApklasseId)
+                    .HasForeignKey(d => d.AptypId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("EXTPROG_APKLASSE_FK");
+                    .HasConstraintName("EXTPROG_APTYP_FK");
             });
 
             modelBuilder.Entity<Hw>(entity =>
@@ -496,7 +491,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.ApBezeichnung)
                     .HasColumnName("AP_BEZEICHNUNG")
-                    .HasColumnType("VARCHAR2(55)");
+                    .HasColumnType("VARCHAR2(200)");
 
                 entity.Property(e => e.ApId).HasColumnName("AP_ID");
 
@@ -506,7 +501,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Betriebsstelle)
                     .HasColumnName("BETRIEBSSTELLE")
-                    .HasColumnType("VARCHAR2(50)");
+                    .HasColumnType("VARCHAR2(100)");
 
                 entity.Property(e => e.Direction)
                     .IsRequired()

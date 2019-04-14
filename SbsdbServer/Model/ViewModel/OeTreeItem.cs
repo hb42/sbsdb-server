@@ -4,8 +4,8 @@ using System.Collections.Generic;
 namespace hb.SbsdbServer.Model.ViewModel {
   public class OeTreeItem {
 
-    public long OeIndex { get; set; }
-    public long ParentOe { get; set; }
+    public long Id { get; set; }
+    public long ParentId { get; set; }
     public bool Ap { get; set; }
 //    [Column("BETRIEBSSTELLE", TypeName = "varchar(50)")]
     public string Betriebsstelle { get; set; }
@@ -18,7 +18,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
   //  [Column("TEL", TypeName = "varchar(50)")]
     public string Tel { get; set; }
 
-    public long? FilialeIndex { get; set; } // ??
+    public long? AdresseId { get; set; } // ??
   //  [Column("HAUSNR", TypeName = "varchar(50)")]
     public string Hausnr { get; set; }
   //  [Column("ORT", TypeName = "varchar(50)")]

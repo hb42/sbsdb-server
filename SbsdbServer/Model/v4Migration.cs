@@ -95,8 +95,6 @@ namespace hb.SbsdbServer.Model {
     private readonly SbsdbContext v5dbContext;
     private readonly ILogger LOG;
 
-    private readonly string macRegex = @"([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})";
-
     public v4Migration(Sbsdbv4Context sbsdbv4, SbsdbContext sbsdbv5, ILogger<v4Migration> log) {
       v4dbContext = sbsdbv4;
       v5dbContext = sbsdbv5;
@@ -107,7 +105,7 @@ namespace hb.SbsdbServer.Model {
       LOG.LogDebug("Start migrating v4-DB");
 
       MigAptyp();
-      MigApklasse();
+      //MigApklasse();
       MigHwtyp();
       MigHwkonfig();
       MigAussond();
@@ -123,9 +121,11 @@ namespace hb.SbsdbServer.Model {
       MigHw();
       MigHwhistory();
       MigMac();
+      MigKlasseStatistik();
 
-      // TODO Statistik -> Tag
+      // TODO Statistik + Klasse -> Tag
 
+      LOG.LogDebug("Migration DONE");
       return "done";
     }
 
@@ -300,12 +300,12 @@ namespace hb.SbsdbServer.Model {
       LOG.LogDebug("Oe OK");
     }
     private void MigExtprog() {
-      var old = v4dbContext.SbsExtprog.ToList();
+      var old = v4dbContext.SbsExtprog.Include(e => e.ApklasseIndexNavigation).ToList();
       foreach (var o in old) {
         var n = new Extprog {
           Id = o.ExtprogIndex,
           Bezeichnung = o.Extprog,
-          ApklasseId = (long)o.ApklasseIndex,
+          AptypId = (long)o.ApklasseIndexNavigation.AptypIndex,
           ExtprogName = o.ExtprogName,
           ExtprogPar = o.ExtprogPar,
           Flag = o.Flag
@@ -325,7 +325,7 @@ namespace hb.SbsdbServer.Model {
           Id = o.AdrIndex,
           Bezeichnung = o.AdrTyp,
           AptypId = (long)o.AptypIndex,
-          Flag = o.Flag,
+          Flag = 0,
           Param = o.Param
         };
         LOG.LogDebug("TagTyp add #" + n.Id);
@@ -336,12 +336,12 @@ namespace hb.SbsdbServer.Model {
       LOG.LogDebug("TagTyp OK");
     }
     private void MigAp() {
-      var old = v4dbContext.SbsAp.ToList();
+      var old = v4dbContext.SbsAp.Include(a => a.ApklasseIndexNavigation).ToList();
       foreach (var o in old) {
         var n = new Ap {
           Id = o.ApIndex,
           Bezeichnung = o.Bezeichnung,
-          ApklasseId = (long)o.ApklasseIndex,
+          AptypId = (long)o.ApklasseIndexNavigation.AptypIndex,
           Apname = o.ApName,
           Bemerkung = o.Bemerkung,
           OeId = (long)o.StandortIndex,
@@ -494,8 +494,9 @@ namespace hb.SbsdbServer.Model {
         LOG.LogDebug("new HwKonfig " + n.Bezeichnung);
         v5dbContext.Hwkonfig.Add(n);
       }
-      LOG.LogDebug("ne HwKonfig saving ...");
+      LOG.LogDebug("new HwKonfig saving ...");
       v5dbContext.SaveChanges();
+
       //      liste v5Konfig.where(konfig.hwtyp.flag == 1).select(konfigID, konfig.hwtyp.aptypID)
       var konfigs = v5dbContext.Hwkonfig
         .Where(k => k.Hwtyp.Flag == 1)
@@ -506,15 +507,15 @@ namespace hb.SbsdbServer.Model {
         .ToList();
       //      liste ap.where(hws.pri != 'J' and ip > 0)
       idx = 300;
-      var aps = v4dbContext.SbsAp.Include(a => a.SbsHw).Include(a => a.ApklasseIndexNavigation);
+      var aps = v4dbContext.SbsAp.Include(a => a.SbsHw).Include(a => a.ApklasseIndexNavigation).ToList();
       foreach (var ap in aps) {
-        if (ap.SbsHw == null && ap.SegmentIndex != 0) {
+        if (ap.SbsHw.Count == 0 && ap.SegmentIndex != 0) {
           //          new Hw pri=true, ap=ap.apID, hwkonfig=liste(where aptyp = ap.aptyp), sernr=apname
           var h = new Hw {
             Id = idx++,
             Pri = true,
             ApId = ap.ApIndex,
-            HwkonfigId = konfigs.Where(k => k.aptyp == ap.ApklasseIndexNavigation.AptypIndex).First().konfig,
+            HwkonfigId = konfigs.First(k => k.aptyp == ap.ApklasseIndexNavigation.AptypIndex).konfig,
             SerNr = ap.ApName
           };
           LOG.LogDebug("new Hw" + h.SerNr);
@@ -535,6 +536,90 @@ namespace hb.SbsdbServer.Model {
 
     }
 
+    private class conv {
+      public long oldId { get; set; }
+      public long newId { get; set; }
+      public string text { get; set; }
+    }
+
+    private void MigKlasseStatistik() {
+      List<conv> klasse = new List<conv>();
+      List<conv> statistik = new List<conv>();
+      long idx = 100;
+      var klas = v4dbContext.SbsApklasse.Include(k => k.AptypIndexNavigation).ToList();
+      foreach (var k in klas) {
+        var n = new Tagtyp {
+          Id = idx++,
+          Flag = 1,
+          Bezeichnung = k.Apklasse,
+          AptypId = (long)k.AptypIndex
+        };
+        LOG.LogDebug("TagTyp add ApKlasse " + n.Bezeichnung);
+        v5dbContext.Tagtyp.Add(n);
+        klasse.Add(new conv {
+          oldId = k.ApklasseIndex,
+          newId = n.Id,
+          text = k.AptypIndexNavigation.Aptyp
+        });
+      }
+      var stat = v4dbContext.SbsApstatistik.Include(s => s.AptypIndexNavigation).ToList();
+      foreach (var s in stat) {
+        var n = new Tagtyp {
+          Id = idx++,
+          Flag = 1,
+          Bezeichnung = s.Apstatistik,
+          AptypId = (long)s.AptypIndex
+        };
+        LOG.LogDebug("TagTyp add ApStatistik" + n.Bezeichnung);
+        v5dbContext.Tagtyp.Add(n);
+        statistik.Add(new conv {
+          oldId = s.ApstatistikIndex,
+          newId = n.Id,
+          text = s.AptypIndexNavigation.Aptyp
+        });
+      }
+      LOG.LogDebug("TagTyp for Klasse/Statistik saving ...");
+      v5dbContext.SaveChanges();
+
+      // get v4.AP apklasse + apstatistik -> new 
+      var aps = v4dbContext.SbsAp.ToList();
+      foreach (var ap in aps) {
+        var k = new ApTag {
+          ApId = ap.ApIndex,
+          TagtypId = klasse.First(kl => kl.oldId == ap.ApklasseIndex).newId,
+          Text = klasse.First(kl => kl.oldId == ap.ApklasseIndex).text
+        };
+        LOG.LogDebug("ApTag add apklasse");
+        v5dbContext.ApTag.Add(k);
+      }
+      foreach (var ap in aps) {
+        var s = new ApTag {
+          ApId = ap.ApIndex,
+          TagtypId = statistik.First(st => st.oldId == ap.ApstatistikIndex).newId,
+          Text = statistik.First(st => st.oldId == ap.ApstatistikIndex).text
+        };
+        LOG.LogDebug("ApTag add apstatistik");
+        v5dbContext.ApTag.Add(s);
+      }
+      LOG.LogDebug("ApTag for Klasse/Statistik saving ...");
+      v5dbContext.SaveChanges();
+    }
+
+    // TODO die fn nach Common auslagern (ggf. zusammen mit IP-Adressen-Umrechnungen)
+
+    private readonly string macRegex = @"\b([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})\b";
+
+    /*
+     * MAC-Adresse aus einem String extrahieren und in einen 
+     * Hex-String (friendly == false) oder einen
+     * MAC-String getrennt durch "-" (friendly == true)
+     * umwandeln.
+     * 
+     * Sofern keine MAC-Adresse gefunden werden kann, wird "000000000000"
+     * zurueckgegeben.    
+     * 
+     * Eine SMBIOSGUID wuerde hier ebenfalls als MAC-Adresse erkannt werden!    
+     */
     private string NormalizeMac(string mac, bool friendly) {
       string spacer = "";
       var m = Regex.Match(mac, macRegex);

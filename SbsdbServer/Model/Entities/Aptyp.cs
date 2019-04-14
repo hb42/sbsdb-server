@@ -7,7 +7,8 @@ namespace hb.SbsdbServer.Model.Entities
     {
         public Aptyp()
         {
-            Apklasse = new HashSet<Apklasse>();
+            Ap = new HashSet<Ap>();
+            Extprog = new HashSet<Extprog>();
             Hwtyp = new HashSet<Hwtyp>();
             Tagtyp = new HashSet<Tagtyp>();
         }
@@ -16,7 +17,8 @@ namespace hb.SbsdbServer.Model.Entities
         public string Bezeichnung { get; set; }
         public long? Flag { get; set; }
 
-        public virtual ICollection<Apklasse> Apklasse { get; set; }
+        public virtual ICollection<Ap> Ap { get; set; }
+        public virtual ICollection<Extprog> Extprog { get; set; }
         public virtual ICollection<Hwtyp> Hwtyp { get; set; }
         public virtual ICollection<Tagtyp> Tagtyp { get; set; }
     }

@@ -7,12 +7,11 @@ using System.Linq;
 namespace hb.SbsdbServer.Model.Repositories {
 
   public class TreeRepository: ITreeRepository {
-
-    // TODO v4
-    private readonly Sbsdbv4Context dbContext;
+  
+    private readonly SbsdbContext dbContext;
     private readonly ILogger<TreeRepository> LOG;
 
-    public TreeRepository(Sbsdbv4Context context, ILogger<TreeRepository> log) {
+    public TreeRepository(SbsdbContext context, ILogger<TreeRepository> log) {
       dbContext = context;
       LOG = log;
     }
@@ -29,28 +28,28 @@ namespace hb.SbsdbServer.Model.Repositories {
 
       // Hierarchische Abfragen machen mit EF nur Aerger. Das hier ist ein ueberschaubarer
       // Datenbestand => flache Abfrage und den Rest im Programm zusammenbauen.
-      List<OeTreeItem> bst = dbContext.SbsOe
+      List<OeTreeItem> bst = dbContext.Oe
         .Select(b => new OeTreeItem {
-          OeIndex = b.OeIndex,
-          ParentOe = b.ParentOe,
-          Ap = b.Ap > 0,
+          Id = b.Id,
+          ParentId = b.OeId,
+          Ap = (bool)b.Ap,
           Betriebsstelle = b.Betriebsstelle,
           Bst = b.Bst,
           Fax = b.Fax,
           Oeff = b.Oeff,
           Tel = b.Tel,
-          FilialeIndex = b.FilialeIndex,
-          Hausnr = b.FilialeIndexNavigation.Hausnr,
-          Ort = b.FilialeIndexNavigation.Ort,
-          Plz = b.FilialeIndexNavigation.Plz,
-          Strasse = b.FilialeIndexNavigation.Strasse,
-          Leaf = b.InverseParentOeNavigation.Count == 0
+          AdresseId = b.AdresseId,
+          Hausnr = b.Adresse.Hausnr,
+          Ort = b.Adresse.Ort,
+          Plz = b.Adresse.Plz,
+          Strasse = b.Adresse.Strasse,
+          Leaf = b.InverseOeNavigation.Count == 0
         })
         .ToList();
 
-      OeTreeItem root = bst.First(b => b.OeIndex == 0 && b.ParentOe == 0);
+      OeTreeItem root = bst.First(b => b.Id == 0 && b.ParentId == 0);
       List<OeTreeItem> children = bst
-        .Where(b => b.ParentOe == 0 && b.OeIndex != 0)
+        .Where(b => b.ParentId == 0 && b.Id != 0)
         .OrderBy(b => b.Betriebsstelle)
         .ToList();
       return MakeOeTree(root, children, bst);
@@ -60,22 +59,22 @@ namespace hb.SbsdbServer.Model.Repositories {
      * Flacher OE-Baum
      */
     public List<OeTreeItem> GetBstTree() {
-      List<OeTreeItem> bst = dbContext.SbsOe
+      List<OeTreeItem> bst = dbContext.Oe
         .Select(b => new OeTreeItem {
-          OeIndex = b.OeIndex,
-          ParentOe = b.ParentOe,
-          Ap = b.Ap > 0,
+          Id = b.Id,
+          ParentId = b.OeId,
+          Ap = (bool)b.Ap,
           Betriebsstelle = b.Betriebsstelle,
           Bst = b.Bst,
           Fax = b.Fax,
           Oeff = b.Oeff,
           Tel = b.Tel,
-          FilialeIndex = b.FilialeIndex,
-          Hausnr = b.FilialeIndexNavigation.Hausnr,
-          Ort = b.FilialeIndexNavigation.Ort,
-          Plz = b.FilialeIndexNavigation.Plz,
-          Strasse = b.FilialeIndexNavigation.Strasse,
-          Leaf = b.InverseParentOeNavigation.Count == 0
+          AdresseId = b.AdresseId,
+          Hausnr = b.Adresse.Hausnr,
+          Ort = b.Adresse.Ort,
+          Plz = b.Adresse.Plz,
+          Strasse = b.Adresse.Strasse,
+          Leaf = b.InverseOeNavigation.Count == 0
         })
         .Where(b => b.Ap == true)
         .OrderBy(b => b.Betriebsstelle)
@@ -84,11 +83,11 @@ namespace hb.SbsdbServer.Model.Repositories {
     }
 
     public IEnumerable<object> GetVlans() {
-      var vlan = dbContext.SbsSegment
+      var vlan = dbContext.Vlan
         .Select(v => new {
-          v.SegmentIndex,
-          v.SegmentName,
-          v.Tcp,
+          v.Id,
+          v.Bezeichnung,
+          v.Ip,
           v.Netmask
         })
         .ToList();
@@ -110,7 +109,7 @@ namespace hb.SbsdbServer.Model.Repositories {
     }
     // Hierarchischer Baum: alles unterhalb root rekursiv zusammensetzen
     private void AddOes(OeTreeItem parent, List<OeTreeItem> list) {
-      List<OeTreeItem> children = list.Where(b => b.ParentOe == parent.OeIndex)
+      List<OeTreeItem> children = list.Where(b => b.ParentId == parent.Id)
         .OrderBy(b => b.Betriebsstelle).ToList();
       foreach (OeTreeItem item in children) {
      //   item.Children = new List<OeTreeItem>();

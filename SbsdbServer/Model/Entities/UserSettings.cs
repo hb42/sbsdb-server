@@ -1,6 +1,6 @@
-﻿using hb.SbsdbServer.Model.ViewModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using hb.SbsdbServer.Model.ViewModel;
 
 namespace hb.SbsdbServer.Model.Entities
 {
@@ -12,7 +12,6 @@ namespace hb.SbsdbServer.Model.Entities
     public UserSession Settings {
       get => _settings ?? new UserSession(Userid);
       set => _settings = value ?? new UserSession(Userid);
-
     }
   }
 }

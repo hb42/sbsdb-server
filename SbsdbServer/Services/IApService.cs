@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace hb.SbsdbServer.Services {
   public interface IApService {
     Arbeitsplatz GetAp(long id);
+    List<Arbeitsplatz> GetAps(string search);
     List<Arbeitsplatz> QueryAps(ApQuery query);
   }
 }

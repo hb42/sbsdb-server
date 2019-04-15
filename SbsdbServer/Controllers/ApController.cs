@@ -19,9 +19,14 @@ namespace SbsdbServer.Controllers
     }
 
     [HttpGet("{id}")]
-    [ActionName("ap")]
+    [ActionName("one")]
     public ActionResult<Arbeitsplatz> ApById(long id) {
       return apService.GetAp(id);
+    }
+    [HttpGet("{search}")]
+    [ActionName("search")]
+    public ActionResult<List<Arbeitsplatz>> ApSearch(string search) {
+      return apService.GetAps(search);
     }
 
     [HttpPost]

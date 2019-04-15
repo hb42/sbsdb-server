@@ -12,7 +12,7 @@ namespace hb.SbsdbServer.Model.Entities
 
         public long Id { get; set; }
         public string Bezeichnung { get; set; }
-        public long? Flag { get; set; }
+        public long Flag { get; set; }
         public string Param { get; set; }
         public long AptypId { get; set; }
 

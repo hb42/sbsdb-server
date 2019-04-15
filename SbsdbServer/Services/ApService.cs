@@ -13,8 +13,13 @@ namespace hb.SbsdbServer.Services {
     public ApService(IApRepository repo) {
       apRepository = repo;
     }
+
     public Arbeitsplatz GetAp(long id) {
       return apRepository.GetAp(id);
+    }
+
+    public List<Arbeitsplatz> GetAps(string search) {
+      return apRepository.GetAps(search);
     }
 
     public List<Arbeitsplatz> QueryAps(ApQuery query) {

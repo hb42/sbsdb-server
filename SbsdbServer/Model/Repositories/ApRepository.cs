@@ -4,18 +4,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Model.Repositories {
   public class ApRepository : IApRepository {
 
     private readonly SbsdbContext dbContext;
+    private readonly ILogger<ApRepository> LOG;
 
-    public ApRepository(SbsdbContext context) {
+    public ApRepository(SbsdbContext context, ILogger<ApRepository> log) {
       dbContext = context;
+      LOG = log;
     }
 
     public Arbeitsplatz GetAp(long id) {
       return GetArbeitsplatz(dbContext.Ap.Find(id));
+    }
+
+    public List<Arbeitsplatz> GetAps(string search) {
+      //string like = "%" + search + "%";
+      string like = search.ToUpper();
+      var aps = dbContext.Ap
+        //.Where(a => EF.Functions.Like(a.Apname, like) || EF.Functions.Like(a.Bezeichnung, like))
+        .Where(a => a.Apname.ToUpper().Contains(like) || a.Bezeichnung.ToUpper().Contains(like))
+        .ToList();
+      List<Arbeitsplatz> rc = new List<Arbeitsplatz>();
+      foreach (Ap ap in aps) {
+        rc.Add(GetArbeitsplatz(ap));
+      }
+      return rc;
     }
 
     public List<Arbeitsplatz> QueryAps(ApQuery query) {
@@ -70,15 +87,19 @@ namespace hb.SbsdbServer.Model.Repositories {
         }
         rc.Tags = new List<Tag>();
         foreach (ApTag t in ap.ApTag) {
+          long tmp = t.Tagtyp.Flag;
+          LOG.LogDebug("tag " + t.Tagtyp.Id + " " + t.Id + " flag=" + tmp);
           Tag tag = new Tag {
             ApTagId = t.Id,
             TagId = t.TagtypId,
             Bezeichnung = t.Tagtyp.Bezeichnung,
             Text = t.Text,
-            Flag = t.Tagtyp.Flag,
-            Param = t.Tagtyp.Param,
+            Flag = 2, //t.Tagtyp.Flag,
+            Param = t.Tagtyp.Param ?? "",
             AptypId = t.Tagtyp.AptypId
-          });
+          };
+          //LOG.LogDebug("tag.Flag=" + tag.Flag + " tmp=" + tmp);
+          //tag.Flag = tmp * 1;
           if (tag.Flag == 1) {
             rc.TypTags.Add(tag);
           } else {

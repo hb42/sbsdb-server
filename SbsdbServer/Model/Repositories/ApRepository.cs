@@ -89,21 +89,20 @@ namespace hb.SbsdbServer.Model.Repositories {
         foreach (ApTag t in ap.ApTag) {
           long tmp = t.Tagtyp.Flag;
           LOG.LogDebug("tag " + t.Tagtyp.Id + " " + t.Id + " flag=" + tmp);
-          Tag tag = new Tag {
+          Tag tg = new Tag {
             ApTagId = t.Id,
             TagId = t.TagtypId,
             Bezeichnung = t.Tagtyp.Bezeichnung,
             Text = t.Text,
-            Flag = 2, //t.Tagtyp.Flag,
             Param = t.Tagtyp.Param ?? "",
+            // wenn Flag == 1 gibt's eine NPE -> was soll der Scheiß?????
+            Flag = t.Tagtyp.Flag,
             AptypId = t.Tagtyp.AptypId
           };
-          //LOG.LogDebug("tag.Flag=" + tag.Flag + " tmp=" + tmp);
-          //tag.Flag = tmp * 1;
-          if (tag.Flag == 1) {
-            rc.TypTags.Add(tag);
+          if (tg.Flag == 1) {
+            rc.TypTags.Add(tg);
           } else {
-            rc.Tags.Add(tag);
+            rc.Tags.Add(tg);
           }
         }
         return rc;

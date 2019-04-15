@@ -16,17 +16,17 @@ namespace hb.SbsdbServer.Services {
       Migration = mig;
     }
 
-    public IEnumerable<Ap> GetAps(string query) {
+    public IEnumerable<Arbeitsplatz> GetAps(string query) {
       var aps = v4dbContext.SbsAp.Where(b => b.ApName.Contains(query))
-                              .Select(a => new Ap {
+                              .Select(a => new Arbeitsplatz {
                                 Apname = a.ApName,
                                 Bezeichnung = a.Bezeichnung,
-                                Apklasse = a.ApklasseIndexNavigation.Apklasse,
+                                Aptyp = a.ApklasseIndexNavigation.Apklasse,
                                 Hw = a.SbsHw.Select(h => new Hardware{
                                   Hersteller = h.KonfigIndexNavigation.Hersteller,
                                   Bezeichnung = h.KonfigIndexNavigation.Bezeichnung,
                                   Sernr = h.SerNr
-                                }).ToArray()
+                                }).ToList()
                               });
 
       return aps.ToList();

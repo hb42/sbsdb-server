@@ -36,14 +36,14 @@ namespace hb.SbsdbServer.Controllers {
     //     }
     [HttpGet]
     [ActionName("all")]
-    public ActionResult<IEnumerable<Ap>> Get() {
+    public ActionResult<IEnumerable<Arbeitsplatz>> Get() {
       //user = configuration.GetSection("Groups").GetValue<string>("admin");
       //if (!User.IsInRole(user)) {
       //  return StatusCode(403);
       //}
 
       LOG.LogDebug("start query");
-      IEnumerable<Ap> aps = testService.GetAps("2W0");
+      IEnumerable<Arbeitsplatz> aps = testService.GetAps("2W0");
       LOG.LogDebug("end query");
 
       // NTLM-User

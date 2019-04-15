@@ -72,7 +72,7 @@ namespace hb.SbsdbServer {
 
       // neuer Bestand - Oracle/EF
       services.AddDbContextPool<SbsdbContext>(
-               options => options/*.UseLazyLoadingProxies() */  // sofern lazy loading gewuenscht
+               options => options.UseLazyLoadingProxies()   // sofern lazy loading gewuenscht
                  .UseOracle(connStr)
       );
 
@@ -88,6 +88,8 @@ namespace hb.SbsdbServer {
       services.AddTransient<IUserRepository, UserRepository>();
       services.AddTransient<ITreeService, TreeService>();
       services.AddTransient<ITreeRepository, TreeRepository>();
+      services.AddTransient<IApService, ApService>();
+      services.AddTransient<IApRepository, ApRepository>();
 
       services.AddTransient<v4Migration, v4Migration>();
 

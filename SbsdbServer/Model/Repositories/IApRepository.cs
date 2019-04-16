@@ -8,6 +8,7 @@ namespace hb.SbsdbServer.Model.Repositories {
   public interface IApRepository {
     Arbeitsplatz GetAp(long id);
     List<Arbeitsplatz> GetAps(string search);
+    List<Arbeitsplatz> GetAps2(string search);
     List<Arbeitsplatz> QueryAps(ApQuery query);
   }
 }

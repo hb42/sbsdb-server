@@ -21,6 +21,9 @@ namespace hb.SbsdbServer.Services {
     public List<Arbeitsplatz> GetAps(string search) {
       return apRepository.GetAps(search);
     }
+    public List<Arbeitsplatz> GetAps2(string search) {
+      return apRepository.GetAps2(search);
+    }
 
     public List<Arbeitsplatz> QueryAps(ApQuery query) {
       return apRepository.QueryAps(query);

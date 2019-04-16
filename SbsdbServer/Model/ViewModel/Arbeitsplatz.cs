@@ -8,7 +8,6 @@ namespace hb.SbsdbServer.Model.ViewModel {
     public string Aptyp { get; set; }
     public Betrst Oe { get; set; }
     public Betrst VerantwOe { get; set; }
-    public List<Tag> TypTags { get; set; }
     public List<Tag> Tags { get; set; }
     public List<Hardware> Hw { get; set; }
   }

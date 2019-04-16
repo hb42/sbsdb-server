@@ -28,6 +28,11 @@ namespace SbsdbServer.Controllers
     public ActionResult<List<Arbeitsplatz>> ApSearch(string search) {
       return apService.GetAps(search);
     }
+    [HttpGet("{search}")]
+    [ActionName("search2")]
+    public ActionResult<List<Arbeitsplatz>> ApSearch2(string search) {
+      return apService.GetAps2(search);
+    }
 
     [HttpPost]
     [ActionName("aps")]

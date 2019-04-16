@@ -72,7 +72,7 @@ namespace hb.SbsdbServer {
 
       // neuer Bestand - Oracle/EF
       services.AddDbContextPool<SbsdbContext>(
-               options => options.UseLazyLoadingProxies()   // sofern lazy loading gewuenscht
+               options => options/*.UseLazyLoadingProxies()*/   // sofern lazy loading gewuenscht
                  .UseOracle(connStr)
       );
 

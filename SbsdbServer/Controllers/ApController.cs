@@ -19,24 +19,26 @@ namespace SbsdbServer.Controllers
     }
 
     [HttpGet("{id}")]
-    [ActionName("one")]
+    [ActionName("id")]
     public ActionResult<Arbeitsplatz> ApById(long id) {
       return apService.GetAp(id);
     }
+
     [HttpGet("{search}")]
     [ActionName("search")]
     public ActionResult<List<Arbeitsplatz>> ApSearch(string search) {
       return apService.GetAps(search);
     }
-    [HttpGet("{search}")]
-    [ActionName("search2")]
-    public ActionResult<List<Arbeitsplatz>> ApSearch2(string search) {
-      return apService.GetAps2(search);
+
+    [HttpGet("{oeid}")]
+    [ActionName("oe")]
+    public ActionResult<List<Arbeitsplatz>> ApForOe(long oeid) {
+      return apService.ApsForOe(oeid);
     }
 
     [HttpPost]
     [ActionName("aps")]
-    public ActionResult<IEnumerable<object>> ApQuery([FromBody] string query) {
+    public ActionResult<List<Arbeitsplatz>> ApQuery([FromBody] string query) {
 
       return Ok();
     }

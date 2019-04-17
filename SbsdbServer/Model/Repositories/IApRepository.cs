@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace hb.SbsdbServer.Model.Repositories {
   public interface IApRepository {
-    Arbeitsplatz GetAp(long id);
+    List<Arbeitsplatz> GetAp(long id);
     List<Arbeitsplatz> GetAps(string search);
-    List<Arbeitsplatz> GetAps2(string search);
+    List<Arbeitsplatz> ApsForOe(long oeid);
     List<Arbeitsplatz> QueryAps(ApQuery query);
   }
 }

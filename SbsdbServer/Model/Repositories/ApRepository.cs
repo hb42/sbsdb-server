@@ -8,6 +8,27 @@ using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Model.Repositories {
   public class ApRepository : IApRepository {
+    private class tmpHw {
+      public long Id { get; set; }
+      public string Hersteller { get; set; }
+      public string Bezeichnung { get; set; }
+      public string Sernr { get; set; }
+      public bool Pri { get; set; }
+      public string Hwtyp { get; set; }
+      public long HwtypFlag { get; set; }
+      public List<Netzwerk> Vlan { get; set; }
+    }
+    private class tmpAp {
+      public long ApId { get; set; }
+      public string Apname { get; set; }
+      public string Bezeichnung { get; set; }
+      public string Aptyp { get; set; }
+      public Betrst Oe { get; set; }
+      public Betrst VerantwOe { get; set; }
+      public List<Tag> Tags { get; set; }
+      public List<tmpHw> Hw { get; set; }
+    }
+
 
     private readonly SbsdbContext dbContext;
     private readonly ILogger<ApRepository> LOG;
@@ -23,9 +44,11 @@ namespace hb.SbsdbServer.Model.Repositories {
      * Liefert Liste: check auf leere Liste muss aufrufende Routine erledigen.
      */
     public List<Arbeitsplatz> GetAp(long id) {
-      return GetArbeitsplatzQuery(
-        dbContext.Ap.Where(ap => ap.Id == id)
-      ).ToList();
+      return Convert(
+        GetArbeitsplatzQuery(
+          dbContext.Ap.Where(ap => ap.Id == id)
+        ).ToList()
+      );
         
     }
 
@@ -35,15 +58,20 @@ namespace hb.SbsdbServer.Model.Repositories {
     public List<Arbeitsplatz> GetAps(string search) {
       var watch = System.Diagnostics.Stopwatch.StartNew();
       string like = search.ToUpper();
-      List<Arbeitsplatz> aps = GetArbeitsplatzQuery(
-        dbContext.Ap.Where(a => a.Apname.ToUpper().Contains(like) || a.Bezeichnung.ToUpper().Contains(like))
-      ).ToList();
+      List<Arbeitsplatz> aps = Convert(
+        GetArbeitsplatzQuery(
+          dbContext.Ap.Where(a => a.Apname.ToUpper().Contains(like) || a.Bezeichnung.ToUpper().Contains(like))
+        ).ToList()
+      );
       watch.Stop();
       long delta = watch.ElapsedMilliseconds;
       LOG.LogDebug("--- select-query for search '" + like + "' took " + delta + "ms");
       return aps;
     }
 
+    /*
+     * Alle APs einer OE, sowie der untergeordneten OEs
+     */
     public List<Arbeitsplatz> ApsForOe(long oeid) {
       var watch = System.Diagnostics.Stopwatch.StartNew();
       List<OeTreeItem> lookup = new List<OeTreeItem>();
@@ -55,16 +83,19 @@ namespace hb.SbsdbServer.Model.Repositories {
       lookup.AddRange(oe);
       lookup.AddRange(FindChildren(oe, oes));
       long[] oeids = lookup.Select(o => o.Id).ToArray();
-
-      List<Arbeitsplatz> aps = GetArbeitsplatzQuery(
-        dbContext.Ap.Where(ap => oeids.Contains(ap.OeId))
-      ).ToList();
+      long delta1 = watch.ElapsedMilliseconds;
+      List<tmpAp> tmp = GetArbeitsplatzQuery(
+          dbContext.Ap.Where(ap => oeids.Contains(ap.OeId))
+        ).ToList();
+      long delta2 = watch.ElapsedMilliseconds;
+      List<Arbeitsplatz> aps = Convert(tmp);
       watch.Stop();
-      long delta = watch.ElapsedMilliseconds;
-      LOG.LogDebug("--- select-query for OE " + delta + "ms");
+      long delta3 = watch.ElapsedMilliseconds;
+      LOG.LogDebug("--- select-query for OE pre=" + delta1 + "ms/ query=" + (delta2 - delta1) + "ms/ post=" + (delta3 - delta2) + "ms/ sum=" + delta3 + "ms" );
       return aps;
     }
 
+    // rekursiv alle untergeordneten OEs holen
     private List<OeTreeItem> FindChildren(List<OeTreeItem> parents, List<OeTreeItem> all) {
       List<OeTreeItem> found = new List<OeTreeItem>();
       foreach(OeTreeItem oe in parents) {
@@ -79,19 +110,27 @@ namespace hb.SbsdbServer.Model.Repositories {
       return found;
     }
 
+    /*
+     * AP anhand der Kriterien in query holen
+     */
     public List<Arbeitsplatz> QueryAps(ApQuery query) {
       throw new NotImplementedException();
     }
 
     /*
-     * Abfrage auf Ap in Arbeitsplatz umwandeln
+     * Alle benoetigten Daten fuer einen Arbeitsplatz aus der DB holen
      * 
      * IN: Query auf Ap mit den notwendigen Bedingungen
-     * OUT: Query ergaenzt um Select fuer Arbeitsplatz
+     * OUT: Query ergaenzt um Select fuer die AP-Daten
+     * 
+     * Die Abfrage liefert eine tmpAP-Objekte, da das die effizienteste DB-Abfrage
+     * ist. Anschließend muss das Objekt noch in ein Arbeitsplatz-Objekt 
+     * umgewandelt werden.
      */
-    private IQueryable<Arbeitsplatz> GetArbeitsplatzQuery(IQueryable<Ap> apq) {
+    private IQueryable<tmpAp> GetArbeitsplatzQuery(IQueryable<Ap> apq) {
       return apq
-        .Select(ap => new Arbeitsplatz {
+        .AsNoTracking()
+        .Select(ap => new tmpAp {
           ApId = ap.Id,
           Apname = ap.Apname,
           Bezeichnung = ap.Bezeichnung,
@@ -125,11 +164,14 @@ namespace hb.SbsdbServer.Model.Repositories {
               Strasse = ap.OeIdVerOeNavigation.Adresse.Strasse,
               Hausnr = ap.OeIdVerOeNavigation.Adresse.Hausnr
             },
-          Hw = ap.Hw.Select(hw => new Hardware {
+          Hw = ap.Hw.Select(hw => new tmpHw {
+            Id = hw.Id,
             Hersteller = hw.Hwkonfig.Hersteller,
             Bezeichnung = hw.Hwkonfig.Bezeichnung,
             Sernr = hw.SerNr,
-            /* ?? hier anhaengen ??
+            Pri = hw.Pri,
+            Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
+            HwtypFlag = (long)hw.Hwkonfig.Hwtyp.Flag,
             Vlan = hw.Mac.Select(m => new Netzwerk {
               VlanId = m.VlanId,
               Bezeichnung = m.Vlan.Bezeichnung,
@@ -137,8 +179,7 @@ namespace hb.SbsdbServer.Model.Repositories {
               Netmask = m.Vlan.Netmask,
               Ip = (long)m.Ip,
               Mac = m.Adresse
-            }).ToList()
-            */
+            }).ToList() 
           }).ToList(),
           Tags = ap.ApTag.Select(t => new Tag {
             ApTagId = t.Id,
@@ -148,19 +189,43 @@ namespace hb.SbsdbServer.Model.Repositories {
             Param = t.Tagtyp.Param,
             Flag = t.Tagtyp.Flag,
             AptypId = t.Tagtyp.AptypId
-          }).ToList(),
-          // TODO so wird das nix -> zu langsam! Unter Hw? var in Arbeitsplatz konvertieren?
-          Vlan = ap.Hw.Where(hw => hw.Pri == true).Count() == 1 
-            ? ap.Hw.Where(hw => hw.Pri == true).First().Mac.Select(m => new Netzwerk {
-                VlanId = m.VlanId,
-                Bezeichnung = m.Vlan.Bezeichnung,
-                Vlan = m.Vlan.Ip,
-                Netmask = m.Vlan.Netmask,
-                Ip = (long)m.Ip,
-                Mac = m.Adresse
-              }).ToList() 
-            : new List<Netzwerk>()
+          }).ToList()
         });
+    }
+
+    /*
+     * tmpAp-Liste in Liste mit Arbeitsplatz-Objekten umwandeln.
+     */
+    private List<Arbeitsplatz> Convert(List<tmpAp> tmp) {
+      List<Arbeitsplatz> aps = new List<Arbeitsplatz>();
+      foreach (tmpAp t in tmp) {
+        Arbeitsplatz ap = new Arbeitsplatz {
+          ApId = t.ApId,
+          Apname = t.Apname,
+          Bezeichnung = t.Bezeichnung,
+          Aptyp = t.Aptyp,
+          Oe = t.Oe,
+          VerantwOe = t.VerantwOe,
+          Tags = t.Tags
+        };
+        foreach (tmpHw h in t.Hw) {
+          Hardware hw = new Hardware {
+            Id = h.Id,
+            Hersteller = h.Hersteller,
+            Bezeichnung = h.Bezeichnung,
+            Sernr = h.Sernr,
+            Pri = h.Pri,
+            Hwtyp = h.Hwtyp,
+            HwtypFlag = h.HwtypFlag
+          };
+          if (h.Pri) {
+            ap.Vlan = h.Vlan;
+          }
+          ap.Hw.Add(hw);
+        }
+        aps.Add(ap);
+      }
+      return aps;
     }
   }
 }

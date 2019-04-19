@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class Oe
-    {
-        public Oe()
-        {
+namespace hb.SbsdbServer.Model.Entities {
+    public class Oe {
+        public Oe() {
             ApOe = new HashSet<Ap>();
             ApOeIdVerOeNavigation = new HashSet<Ap>();
             InverseOeNavigation = new HashSet<Oe>();

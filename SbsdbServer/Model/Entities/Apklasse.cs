@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class Apklasse
-    {
+﻿namespace hb.SbsdbServer.Model.Entities {
+    public class Apklasse {
         public long Id { get; set; }
         public string Bezeichnung { get; set; }
         public long? Flag { get; set; }

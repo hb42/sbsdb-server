@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class Aptyp
-    {
-        public Aptyp()
-        {
+namespace hb.SbsdbServer.Model.Entities {
+    public class Aptyp {
+        public Aptyp() {
             Ap = new HashSet<Ap>();
             Extprog = new HashSet<Extprog>();
             Hwtyp = new HashSet<Hwtyp>();

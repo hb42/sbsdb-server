@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class Hw
-    {
-        public Hw()
-        {
+namespace hb.SbsdbServer.Model.Entities {
+    public class Hw {
+        public Hw() {
             Hwhistory = new HashSet<Hwhistory>();
             Mac = new HashSet<Mac>();
         }

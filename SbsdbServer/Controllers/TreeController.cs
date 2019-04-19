@@ -1,37 +1,34 @@
-﻿using hb.SbsdbServer.Services;
+﻿using System.Collections.Generic;
+using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Controllers {
+    public class TreeController : AbstractControllerBase<TreeController> {
+        private readonly ITreeService _treeService;
 
-  public class TreeController: AbstractControllerBase<TreeController> {
+        public TreeController(ITreeService ts) {
+            _treeService = ts;
+        }
 
-    private readonly ITreeService treeService;
+        [HttpGet]
+        [ActionName("oe")]
+        public ActionResult<IEnumerable<object>> OeTree() {
+            var tree = _treeService.GetOeTree();
+            return Ok(tree);
+        }
 
-    public TreeController(ITreeService ts) {
-      treeService = ts;
+        [HttpGet]
+        [ActionName("bst")]
+        public ActionResult<IEnumerable<object>> BstTree() {
+            var tree = _treeService.GetBstTree();
+            return Ok(tree);
+        }
+
+        [HttpGet]
+        [ActionName("vlan")]
+        public ActionResult<IEnumerable<object>> VlanTree() {
+            var tree = _treeService.GetVlanTree();
+            return Ok(tree);
+        }
     }
-
-    [HttpGet]
-    [ActionName("oe")]
-    public ActionResult<IEnumerable<object>> OeTree() {
-      var tree = treeService.GetOeTree();
-      return Ok(tree);
-    }
-
-    [HttpGet]
-    [ActionName("bst")]
-    public ActionResult<IEnumerable<object>> BstTree() {
-      var tree = treeService.GetBstTree();
-      return Ok(tree);
-    }
-
-    [HttpGet]
-    [ActionName("vlan")]
-    public ActionResult<IEnumerable<object>> VlanTree() {
-      var tree = treeService.GetVlanTree();
-      return Ok(tree);
-    }
-
-  }
 }

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class Ap
-    {
-        public Ap()
-        {
+namespace hb.SbsdbServer.Model.Entities {
+    public class Ap {
+        public Ap() {
             ApIssue = new HashSet<ApIssue>();
             ApTag = new HashSet<ApTag>();
             Hw = new HashSet<Hw>();

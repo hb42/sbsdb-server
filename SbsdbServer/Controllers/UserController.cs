@@ -1,39 +1,36 @@
-﻿using hb.SbsdbServer.Model.ViewModel;
+﻿using System.Linq;
+using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 
 namespace hb.SbsdbServer.Controllers {
+    public class UserController : AbstractControllerBase<UserController> {
+        private readonly IUserService _userService;
 
-  public class UserController : AbstractControllerBase<UserController> {
+        public UserController(IUserService userservice) {
+            _userService = userservice;
+        }
 
-    private readonly IUserService userService;
+        [HttpGet]
+        public UserSession Get() {
+            return _userService.GetUser(GetUserId());
+        }
 
-    public UserController(IUserService userservice) {
-      userService = userservice;
+        [HttpPost]
+        public void Set([FromBody] UserSession user) {
+            _userService.SetUser(GetUserId(), user);
+        }
+
+        [Authorize(Roles = Const.ROLE_ADMIN)]
+        [HttpDelete("{id}")]
+        public void Delete(long id) {
+            _userService.DeleteUser(id);
+        }
+
+        private string GetUserId() {
+            var u = User.Identity.Name.Split(@"\");
+            return u[u.Count() - 1].ToUpper();
+        }
     }
-
-    [HttpGet]
-    public UserSession Get() {
-      return userService.GetUser(GetUserId());
-    }
-
-    [HttpPost]
-    public void Set([FromBody]UserSession user) {
-      userService.SetUser(GetUserId(), user);
-    }
-
-    [Authorize(Roles = Const.ROLE_ADMIN)]
-    [HttpDelete("{id}")]
-    public void Delete(long id) {
-      userService.DeleteUser(id);
-    }
-
-    private string GetUserId() {
-      string[] u = User.Identity.Name.Split(@"\");
-      return u[u.Count() - 1].ToUpper();
-    }
-
-  }
 }

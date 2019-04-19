@@ -1,38 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
 
 namespace hb.SbsdbServer.Services {
-  public class ApService : IApService {
+    public class ApService : IApService {
+        private readonly IApRepository _apRepository;
 
-    private readonly IApRepository apRepository;
+        public ApService(IApRepository repo) {
+            _apRepository = repo;
+        }
 
-    public ApService(IApRepository repo) {
-      apRepository = repo;
+        public Arbeitsplatz GetAp(long id) {
+            var aps = _apRepository.GetAp(id);
+            return aps.Count == 1 ? aps[0] : null;
+        }
+
+        public List<Arbeitsplatz> GetAps(string search) {
+            return _apRepository.GetAps(search);
+        }
+
+        public List<Arbeitsplatz> ApsForOe(long oeid) {
+            return _apRepository.ApsForOe(oeid);
+        }
+
+        public List<Arbeitsplatz> QueryAps(ApQuery query) {
+            return _apRepository.QueryAps(query);
+        }
     }
-
-    public Arbeitsplatz GetAp(long id) {
-      List<Arbeitsplatz> aps = apRepository.GetAp(id);
-      if (aps.Count == 1) {
-        return aps[0];
-      } else {
-        return null; // Fehler Alt.: leere Liste bis zum Client liefern?
-      }
-    }
-
-    public List<Arbeitsplatz> GetAps(string search) {
-      return apRepository.GetAps(search);
-    }
-
-    public List<Arbeitsplatz> ApsForOe(long oeid) {
-      return apRepository.ApsForOe(oeid);
-    }
-
-    public List<Arbeitsplatz> QueryAps(ApQuery query) {
-      return apRepository.QueryAps(query);
-    }
-  }
 }

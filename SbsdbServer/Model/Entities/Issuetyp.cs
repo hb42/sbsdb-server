@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities
-{
-    public partial class Issuetyp
-    {
-        public Issuetyp()
-        {
+namespace hb.SbsdbServer.Model.Entities {
+    public class Issuetyp {
+        public Issuetyp() {
             ApIssue = new HashSet<ApIssue>();
         }
 

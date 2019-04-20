@@ -91,7 +91,7 @@ namespace hb.SbsdbServer.Model {
         private readonly ILogger LOG;
 
         private readonly string macRegex =
-            @"\b([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})\b";
+            @"(?<=\W|^)([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})[-:]?([0-9,a-f,A-F]{2})(\W|$)";
 
         private readonly Sbsdbv4Context v4dbContext;
         private readonly SbsdbContext v5dbContext;

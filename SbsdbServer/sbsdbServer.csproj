@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <VersionPrefix>0.0.3</VersionPrefix>
-    <VersionSuffix>alpha.89</VersionSuffix>
+    <VersionPrefix>0.0.4</VersionPrefix>
+    <VersionSuffix>alpha.101</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2019 Hartmut Bauer</Copyright>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/hb42/sbsdb-server</RepositoryUrl>
     <RootNamespace>hb.SbsdbServer</RootNamespace>
+    <Authors>hb42@gmx.de</Authors>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -32,8 +33,15 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="config\" />
+    <Folder Include="wwwroot" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
+  <ItemGroup>
+    <ClientFiles Include="..\..\sbsdb\dist\sbsdb\**\*.*" />
+  </ItemGroup>
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(ClientFiles)" DestinationFiles="@(ClientFiles-&gt;'$(PublishDir)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>

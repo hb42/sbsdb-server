@@ -19,6 +19,17 @@ namespace hb.SbsdbServer.Model.Repositories {
         }
 
         public UserSession GetUser(string uid) {
+            return GetUserRecord(uid).Settings;
+        }
+
+        public void SetUser(UserSession user) {
+            UserSettings settings = GetUserRecord(user.UID);
+            settings.Settings = user;
+            _dbContext.Update(settings);
+            _dbContext.SaveChanges(); // throws on error
+        }
+        
+        private UserSettings GetUserRecord(string uid) {
             var user = _dbContext.UserSettings.FirstOrDefault(u => u.Userid == uid);
             if (user == null) {
                 user = new UserSettings {
@@ -31,12 +42,8 @@ namespace hb.SbsdbServer.Model.Repositories {
                 _dbContext.SaveChanges();
             }
 
-            return user.Settings;
+            return user;
         }
-
-        public void SetUser(UserSession user) {
-            _dbContext.Update(user);
-            _dbContext.SaveChanges(); // throws on error
-        }
+        
     }
 }

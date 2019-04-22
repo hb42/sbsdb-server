@@ -15,7 +15,8 @@ namespace hb.Common.Version {
      * - product:      Projekt-Name/Namespace  
      * 
      * Zusaetzlich wird der Versions-String in seine Einzelteile gemaess
-     * semver zerlegt (s. https://semver.org/).  
+     * semver zerlegt (s. https://semver.org/).
+     *
      */
     public class VersionResource {
         // interne Konvention: pre-release hat das Format <alpha|beta|rc>.<lfd. Nr.>, z.B. beta.22
@@ -62,6 +63,22 @@ namespace hb.Common.Version {
         public string Pretype { get; }
         public int Prenumber { get; }
 
+        /**
+         * Versions-Info im package.json-Format
+         */
+        public object Package() {
+            return new {
+                version = Version,
+                name = Product,
+                displayname = Title,
+                description = Description,
+                copyright = Copyright,
+                author = "",  // <authors> wird anscheinend nicht in assembly geschrieben
+                license = "MIT", // erst mal fix
+                githash = "", // TODO generieren und hier einbauen
+                versions = new string[0] //{ "a", "b"}  // TODO dotnet version + iis version + ggf. windows version
+            };
+        }
         public override string ToString() {
             return $"{Title} {Version} {Copyright}";
         }

@@ -12,7 +12,7 @@ namespace hb.SbsdbServer {
     public class Program {
         private const string NLOG_CONF = "./config/nlog.config";
 
-        // Die folgende Datei enthaelt Internas, wie z.B. Passwoeerter.
+        // Die folgende Datei enthaelt Internas, wie z.B. Passwoerter.
         // Nicht auf Github replizieren! (.gitignore -> **/config/config_*.json)
         private const string PRIVATE_CONF = "./config/config_internal.json";
 

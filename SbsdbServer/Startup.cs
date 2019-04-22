@@ -90,6 +90,7 @@ namespace hb.SbsdbServer {
             services.AddTransient<ITreeRepository, TreeRepository>();
             services.AddTransient<IApService, ApService>();
             services.AddTransient<IApRepository, ApRepository>();
+            services.AddTransient<IConfigService, ConfigService>();
 
             services.AddTransient<v4Migration, v4Migration>();
 
@@ -115,7 +116,8 @@ namespace hb.SbsdbServer {
             app.UseExceptionHandler(a => a.Run(async context => {
                 var feature = context.Features.Get<IExceptionHandlerPathFeature>();
                 var exception = feature.Error;
-                var result = JsonConvert.SerializeObject((exception: exception.GetType().Name,
+                var result = JsonConvert.SerializeObject(
+                    (exception: exception.GetType().Name,
                     message: exception.Message,
                     stacktrace: exception.StackTrace));
                 context.Response.ContentType = "application/json";
@@ -127,6 +129,7 @@ namespace hb.SbsdbServer {
             app.UseMvc();
             app.UseDefaultFiles(); // wg. index.html
             app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot
+            app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
         }
     }
 }

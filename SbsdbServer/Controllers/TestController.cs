@@ -76,6 +76,13 @@ namespace hb.SbsdbServer.Controllers {
         }
 
         [HttpGet]
+        [ActionName("test")]
+        public ActionResult<object> GetTest() {
+
+            return _version.Package();
+        }
+
+        [HttpGet]
         [ActionName("migration")]
         public ActionResult<string> Migrate() {
             Log.LogDebug("v4 Migration");

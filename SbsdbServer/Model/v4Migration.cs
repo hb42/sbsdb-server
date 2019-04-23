@@ -51,7 +51,7 @@ namespace hb.SbsdbServer.Model {
                    .HasConversion(
                      v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
                      v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
-     * 
+     *
      *    - .ValueGeneratedOnAdd() muss fuer die IDs angeschaltet werden, sonst
      *      wird ein vorhandener Index "0" bei der Migration nicht eingefuegt.
      *      betrifft Aptyp, 
@@ -72,7 +72,7 @@ namespace hb.SbsdbServer.Model {
              public UserSession Settings {
                get => _settings ?? new UserSession(Userid);
                set => _settings = value ?? new UserSession(Userid);
-     * 
+     *
      * 3. Migration
      *    -> 791/sbsdb/ws/test/migration
      *    

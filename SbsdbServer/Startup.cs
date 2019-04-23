@@ -91,6 +91,7 @@ namespace hb.SbsdbServer {
             services.AddTransient<IApService, ApService>();
             services.AddTransient<IApRepository, ApRepository>();
             services.AddTransient<IConfigService, ConfigService>();
+            services.AddTransient<IConfigRepository, ConfigRepository>();
 
             services.AddTransient<v4Migration, v4Migration>();
 

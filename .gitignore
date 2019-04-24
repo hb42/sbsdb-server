@@ -1,8 +1,10 @@
-#
+# *hb*
 # config files mit internen Daten, von github ausnehmen
-#
 **/config/config_*.json
+# Verzeichnisse die nur lokal genutzt werden
+/div
 logs/
+
 
 # globs
 Makefile.in

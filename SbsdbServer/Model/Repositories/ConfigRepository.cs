@@ -1,14 +1,17 @@
 using System.Linq;
 using hb.SbsdbServer.Model.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Model.Repositories
 {
     public class ConfigRepository: IConfigRepository {
         
         private readonly SbsdbContext _dbContext;
+        private readonly ILogger<ConfigRepository> _log;
 
-        public ConfigRepository(SbsdbContext context) {
+        public ConfigRepository(SbsdbContext context, ILogger<ConfigRepository> log) {
             _dbContext = context;
+            _log = log;
         }
         
         public string GetConfig(string config) {
@@ -18,7 +21,7 @@ namespace hb.SbsdbServer.Model.Repositories
         public string SetConfig(string config, string value) {
             var setting = FindConfig(config);
             setting.Value = value;
-//            _dbContext.ProgramSettings.Add(setting);
+            _dbContext.ProgramSettings.Update(setting);
             _dbContext.SaveChanges();
             return setting.Value;
         }
@@ -32,7 +35,7 @@ namespace hb.SbsdbServer.Model.Repositories
         private ProgramSettings FindConfig(string config) {
             var setting = _dbContext.ProgramSettings.FirstOrDefault(s => s.Key.ToLower().Equals(config.ToLower()));
             if (setting == null) {
-                setting = new ProgramSettings() {
+                setting = new ProgramSettings {
                     Key = config.ToLower(),
                     Value = ""
                 };

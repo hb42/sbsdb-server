@@ -4,7 +4,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
     /*
      * Programmeinstellungen des Benutzers
      *   
-     * Keine eigene Tabelle, werden in UserSettings als JSON gespeichert.
+     * Keine eigene Tabelle, dieses Objekt wird in UserSettings als JSON gespeichert.
      * Dadurch muss nicht bei jedem zusaetzlichen Wert aus der Benutzeroberflaeche
      * die DB-Tabelle geaendert werden, sondern nur diese Klasse.  
      */
@@ -20,6 +20,13 @@ namespace hb.SbsdbServer.Model.ViewModel {
         [StringLength(20, ErrorMessage = "Benutzerkennung darf nicht länger als 20 Stellen sein.")]
         public string UID { get; set; }
 
+        // Zugriffsrechte, werden jeweils im Controller gesetzt
+        public bool IsAdmin { get; set; }
+        public bool IsReadonly { get; set; }
+        public bool IsHotline { get; set; }
+        
+        // Benutzereinstellungen
+        
         public string Path { get; set; }
     }
 }

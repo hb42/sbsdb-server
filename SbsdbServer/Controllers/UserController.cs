@@ -3,6 +3,7 @@ using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
@@ -15,12 +16,34 @@ namespace hb.SbsdbServer.Controllers {
 
         [HttpGet]
         public UserSession Get() {
-            return _userService.GetUser(GetUserId());
+            UserSession user = _userService.GetUser(GetUserId());
+            if (User.IsInRole(Const.ROLE_ADMIN)) {
+                user.IsAdmin = true;
+                user.IsReadonly = true;
+                user.IsHotline = true;
+            } else if (User.IsInRole(Const.ROLE_READONLY)) {
+                user.IsAdmin = false;
+                user.IsReadonly = true;
+                user.IsHotline = true;
+            } else if (User.IsInRole(Const.ROLE_HOTLINE)) {
+                user.IsAdmin = false;
+                user.IsReadonly = false;
+                user.IsHotline = true;
+            }
+            else {
+                user.IsAdmin = false;
+                user.IsReadonly = false;
+                user.IsHotline = false;
+            }
+            return user;
         }
 
         [HttpPost]
         public void Set([FromBody] UserSession user) {
             Log.LogDebug("set user " + (user != null ? user.Path : "null"));
+            user.IsAdmin = false;
+            user.IsReadonly = false;
+            user.IsHotline = false;
             _userService.SetUser(GetUserId(), user);
         }
 

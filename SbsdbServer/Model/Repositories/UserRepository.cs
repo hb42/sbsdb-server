@@ -41,7 +41,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                 _dbContext.UserSettings.Add(user);
                 _dbContext.SaveChanges();
             }
-
             return user;
         }
         

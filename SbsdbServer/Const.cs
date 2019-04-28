@@ -4,7 +4,15 @@
         public const string API_PATH = "ws/[controller]/[action]";
 
         // Roles
-        public const string ROLE_USER = "e077ggx-sbsdb-user";
-        public const string ROLE_ADMIN = "e077ggx-sbsdb-admin";
+        // Vollzugriff
+//        public const string ROLE_ADMIN = "e077ggx-sbsdb-admin";
+        // darf alles sehen, aber nichts aendern
+//        public const string ROLE_READONLY = "e077ggx-sbsdb-readonly";
+        // sieht APs + Remotezugriff
+//        public const string ROLE_HOTLINE = "e077ggx-sbsdb-hotline";
+// TODO fuer die Entwicklung erst mal mit vorhandenen Rollen arbeiten
+        public const string ROLE_ADMIN = "e077ggx-791-it-service";
+        public const string ROLE_READONLY = "e077ggx-sbsdb-readonly";
+        public const string ROLE_HOTLINE = "e077ggx-000-institut";
     }
 }

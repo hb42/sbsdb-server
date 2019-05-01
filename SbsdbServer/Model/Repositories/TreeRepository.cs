@@ -16,7 +16,7 @@ namespace hb.SbsdbServer.Model.Repositories {
         /*
          * Hierachischer OE-Baum
          */
-        public OeTreeItem GetOeTree() {
+        public List<OeTreeItem> GetOeTree() {
             // vollstaendiger BST-Baum mit beliebiger Tiefe
             // Verlinkung via parent == parent.id, wobei id 0 der root-Knoten ist
             // => es muss ein root-Knoten existieren mit ID == 0 + parent == 0
@@ -48,7 +48,9 @@ namespace hb.SbsdbServer.Model.Repositories {
                 bst.Where(b => b.ParentId == 0 && b.Id != 0)
                 .OrderBy(b => b.Betriebsstelle)
                 .ToList();
-            return MakeOeTree(root, children, bst);
+            var oetree = MakeOeTree(root, children, bst);
+            var rc = new List<OeTreeItem> {oetree};
+            return rc;
         }
 
         /*

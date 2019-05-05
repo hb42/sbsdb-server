@@ -17,6 +17,13 @@ namespace hb.SbsdbServer.Model.Repositories {
             _log = log;
         }
 
+        public List<Arbeitsplatz> GetAll() {
+            return Convert(
+                GetArbeitsplatzQuery(
+                    _dbContext.Ap
+                ).ToList()
+            );
+        }
         /*
          * Einzelnen AP anhand der ID holen
          * 

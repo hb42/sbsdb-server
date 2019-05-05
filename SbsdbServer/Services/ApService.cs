@@ -10,6 +10,10 @@ namespace hb.SbsdbServer.Services {
             _apRepository = repo;
         }
 
+        public List<Arbeitsplatz> GetAll() {
+            return _apRepository.GetAll();
+        }
+
         public Arbeitsplatz GetAp(long id) {
             var aps = _apRepository.GetAp(id);
             return aps.Count == 1 ? aps[0] : null;

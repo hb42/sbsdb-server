@@ -11,6 +11,11 @@ namespace hb.SbsdbServer.Controllers {
             _apService = service;
         }
 
+        [HttpGet]
+        public ActionResult<List<Arbeitsplatz>> All() {
+            return _apService.GetAll();
+        }
+
         [HttpGet("{id}")]
         [ActionName("id")]
         public ActionResult<Arbeitsplatz> ApById(long id) {

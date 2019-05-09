@@ -24,6 +24,16 @@ namespace hb.SbsdbServer.Model.Repositories {
                 ).ToList()
             );
         }
+        public List<Arbeitsplatz> GetPage(int page, int pageSize) {
+            int skipRows = page * pageSize;  // page is zero based!
+            var tmp = Convert(
+                GetArbeitsplatzQuery(
+                    _dbContext.Ap
+                ).Skip(skipRows).Take(pageSize).ToList()
+            );
+            _log.LogDebug("GetPage " + page + " skip=" + skipRows + " take=" + pageSize + " length=" + tmp.Count());
+            return tmp;
+        }
         /*
          * Einzelnen AP anhand der ID holen
          * 
@@ -118,6 +128,7 @@ namespace hb.SbsdbServer.Model.Repositories {
         private IQueryable<TmpAp> GetArbeitsplatzQuery(IQueryable<Ap> apq) {
             return apq
                 .AsNoTracking()
+                .OrderBy(ap => ap.Id)
                 .Select(ap => new TmpAp {
                     ApId = ap.Id,
                     Apname = ap.Apname,

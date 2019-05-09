@@ -14,5 +14,9 @@
         public const string ROLE_ADMIN = "e077ggx-791-it-service";
         public const string ROLE_READONLY = "e077ggx-sbsdb-readonly";
         public const string ROLE_HOTLINE = "e077ggx-000-institut";
+        
+        // Name in der Config-DB
+        public const string AP_PAGE_SIZE = "ap.pagesize";
+        
     }
 }

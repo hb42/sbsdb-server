@@ -99,6 +99,17 @@ namespace hb.SbsdbServer.Model.Repositories {
             throw new NotImplementedException();
         }
 
+        public List<TypTag> GetTypTags() {
+            return _dbContext.Tagtyp.Where(t => t.Flag == 1)
+                .Select(t => new TypTag {
+                  Id = t.Id,
+                  ApTyp = t.Aptyp.Bezeichnung,
+                  TagTyp = t.Bezeichnung
+                })
+                .OrderBy(t => t.ApTyp).ThenBy(t => t.TagTyp)
+                .ToList();
+        }
+        
         // rekursiv alle untergeordneten OEs holen
         private List<OeTreeItem> FindChildren(List<OeTreeItem> parents, List<OeTreeItem> all) {
             var found = new List<OeTreeItem>();

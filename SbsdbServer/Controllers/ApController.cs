@@ -44,5 +44,11 @@ namespace hb.SbsdbServer.Controllers {
         public ActionResult<List<Arbeitsplatz>> ApQuery([FromBody] string query) {
             return Ok();
         }
+
+        [HttpGet] 
+        public ActionResult<List<TypTag>> TypTags() {
+            return _apService.GetTypTags();
+        }
+        
     }
 }

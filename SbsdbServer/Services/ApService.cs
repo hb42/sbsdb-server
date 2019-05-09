@@ -42,5 +42,9 @@ namespace hb.SbsdbServer.Services {
         public List<Arbeitsplatz> QueryAps(ApQuery query) {
             return _apRepository.QueryAps(query);
         }
+
+        public List<TypTag> GetTypTags() {
+            return _apRepository.GetTypTags();
+        }
     }
 }

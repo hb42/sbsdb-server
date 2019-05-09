@@ -9,5 +9,6 @@ namespace hb.SbsdbServer.Model.Repositories {
         List<Arbeitsplatz> GetAps(string search);
         List<Arbeitsplatz> ApsForOe(long oeid);
         List<Arbeitsplatz> QueryAps(ApQuery query);
+        List<TypTag> GetTypTags();
     }
 }

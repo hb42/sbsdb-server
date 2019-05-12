@@ -145,6 +145,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Apname = ap.Apname,
                     Bezeichnung = ap.Bezeichnung,
                     Aptyp = ap.Aptyp.Bezeichnung,
+                    Bemerkung = ap.Bemerkung,
                     Oe = new Betrst {
                         BstId = ap.Oe.Id,
                         Betriebsstelle = ap.Oe.Betriebsstelle,
@@ -214,6 +215,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     ApId = t.ApId,
                     Apname = t.Apname,
                     Bezeichnung = t.Bezeichnung,
+                    Bemerkung = t.Bemerkung,
                     Aptyp = t.Aptyp,
                     Oe = t.Oe,
                     VerantwOe = t.VerantwOe,
@@ -257,6 +259,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             public string Aptyp { get; set; }
             public Betrst Oe { get; set; }
             public Betrst VerantwOe { get; set; }
+            public string Bemerkung { get; set; }
             public List<Tag> Tags { get; set; }
             public List<TmpHw> Hw { get; set; }
         }

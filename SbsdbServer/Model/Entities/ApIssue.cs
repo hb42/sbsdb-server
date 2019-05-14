@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities {
-    public class ApIssue {
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class ApIssue
+    {
         public long Id { get; set; }
         public string Issue { get; set; }
         public long Prio { get; set; }

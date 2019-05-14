@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities {
-    public class Aussond {
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class Aussond
+    {
         public long Id { get; set; }
         public string SerNr { get; set; }
         public DateTime? AnschDat { get; set; }

@@ -1,5 +1,10 @@
-﻿namespace hb.SbsdbServer.Model.Entities {
-    public class Mac {
+﻿using System;
+using System.Collections.Generic;
+
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class Mac
+    {
         public long Id { get; set; }
         public string Adresse { get; set; }
         public long? Ip { get; set; }

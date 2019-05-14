@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities {
-    public class Adresse {
-        public Adresse() {
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class Adresse
+    {
+        public Adresse()
+        {
             Oe = new HashSet<Oe>();
         }
 

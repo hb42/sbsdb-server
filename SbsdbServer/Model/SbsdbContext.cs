@@ -1,18 +1,23 @@
-﻿using hb.SbsdbServer.Model.Entities;
-using hb.SbsdbServer.Model.ViewModel;
+﻿using System;
+using hb.SbsdbServer.Model.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
 
-namespace hb.SbsdbServer.Model {
-    public class SbsdbContext : DbContext {
+namespace hb.SbsdbServer.Model
+{
+    public partial class SbsdbContext : DbContext
+    {
         public SbsdbContext(DbContextOptions<SbsdbContext> options)
-            : base(options) {
+            : base(options)
+        {
         }
 
         public virtual DbSet<Adresse> Adresse { get; set; }
         public virtual DbSet<Ap> Ap { get; set; }
         public virtual DbSet<ApIssue> ApIssue { get; set; }
         public virtual DbSet<ApTag> ApTag { get; set; }
+        public virtual DbSet<Apkategorie> Apkategorie { get; set; }
         public virtual DbSet<Apklasse> Apklasse { get; set; }
         public virtual DbSet<Aptyp> Aptyp { get; set; }
         public virtual DbSet<Aussond> Aussond { get; set; }
@@ -29,16 +34,20 @@ namespace hb.SbsdbServer.Model {
         public virtual DbSet<UserSettings> UserSettings { get; set; }
         public virtual DbSet<Vlan> Vlan { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            if (!optionsBuilder.IsConfigured) {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854")
                 .HasAnnotation("Relational:DefaultSchema", "SBSDB_MASTER");
 
-            modelBuilder.Entity<Adresse>(entity => {
+            modelBuilder.Entity<Adresse>(entity =>
+            {
                 entity.ToTable("ADRESSE");
 
                 entity.HasIndex(e => e.Id)
@@ -64,7 +73,8 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnType("VARCHAR2(100)");
             });
 
-            modelBuilder.Entity<Ap>(entity => {
+            modelBuilder.Entity<Ap>(entity =>
+            {
                 entity.ToTable("AP");
 
                 entity.HasIndex(e => e.Apname)
@@ -123,7 +133,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("AP_OE_FK_VER_OE");
             });
 
-            modelBuilder.Entity<ApIssue>(entity => {
+            modelBuilder.Entity<ApIssue>(entity =>
+            {
                 entity.ToTable("AP_ISSUE");
 
                 entity.HasIndex(e => e.ApId)
@@ -186,7 +197,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("AP_ISSUE_ISSUETYP_FK");
             });
 
-            modelBuilder.Entity<ApTag>(entity => {
+            modelBuilder.Entity<ApTag>(entity =>
+            {
                 entity.ToTable("AP_TAG");
 
                 entity.HasIndex(e => e.ApId)
@@ -226,7 +238,30 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("AP_TAG_TAGTYP_FK");
             });
 
-            modelBuilder.Entity<Apklasse>(entity => {
+            modelBuilder.Entity<Apkategorie>(entity =>
+            {
+                entity.ToTable("APKATEGORIE");
+
+                entity.HasIndex(e => e.Bezeichnung)
+                    .HasName("APKATEGORIE_BEZEICHNUNG_UN")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Id)
+                    .HasName("APKATEGORIE_PK")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Bezeichnung)
+                    .IsRequired()
+                    .HasColumnName("BEZEICHNUNG")
+                    .HasColumnType("VARCHAR2(50)");
+
+                entity.Property(e => e.Flag).HasColumnName("FLAG");
+            });
+
+            modelBuilder.Entity<Apklasse>(entity =>
+            {
                 entity.ToTable("APKLASSE");
 
                 entity.HasIndex(e => e.AptypId)
@@ -250,7 +285,8 @@ namespace hb.SbsdbServer.Model {
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
             });
 
-            modelBuilder.Entity<Aptyp>(entity => {
+            modelBuilder.Entity<Aptyp>(entity =>
+            {
                 entity.ToTable("APTYP");
 
                 entity.HasIndex(e => e.Bezeichnung)
@@ -263,15 +299,24 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
+                entity.Property(e => e.ApkategorieId).HasColumnName("APKATEGORIE_ID");
+
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
                     .HasColumnName("BEZEICHNUNG")
                     .HasColumnType("VARCHAR2(50)");
 
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
+
+                entity.HasOne(d => d.Apkategorie)
+                    .WithMany(p => p.Aptyp)
+                    .HasForeignKey(d => d.ApkategorieId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("APTYP_APKATEGORIE_FK");
             });
 
-            modelBuilder.Entity<Aussond>(entity => {
+            modelBuilder.Entity<Aussond>(entity =>
+            {
                 entity.ToTable("AUSSOND");
 
                 entity.HasIndex(e => e.AussDat)
@@ -344,7 +389,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("AUSSOND_HWKONFIG_FK");
             });
 
-            modelBuilder.Entity<Extprog>(entity => {
+            modelBuilder.Entity<Extprog>(entity =>
+            {
                 entity.ToTable("EXTPROG");
 
                 entity.HasIndex(e => e.Id)
@@ -378,7 +424,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("EXTPROG_APTYP_FK");
             });
 
-            modelBuilder.Entity<Hw>(entity => {
+            modelBuilder.Entity<Hw>(entity =>
+            {
                 entity.ToTable("HW");
 
                 entity.HasIndex(e => e.ApId)
@@ -451,7 +498,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("HW_HWKONFIG_FK");
             });
 
-            modelBuilder.Entity<Hwhistory>(entity => {
+            modelBuilder.Entity<Hwhistory>(entity =>
+            {
                 entity.ToTable("HWHISTORY");
 
                 entity.HasIndex(e => e.Apname)
@@ -506,7 +554,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("HWHISTORY_HW_FK");
             });
 
-            modelBuilder.Entity<Hwkonfig>(entity => {
+            modelBuilder.Entity<Hwkonfig>(entity =>
+            {
                 entity.ToTable("HWKONFIG");
 
                 entity.HasIndex(e => e.Bezeichnung)
@@ -563,10 +612,11 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("HWKONFIG_HWTYP_FK");
             });
 
-            modelBuilder.Entity<Hwtyp>(entity => {
+            modelBuilder.Entity<Hwtyp>(entity =>
+            {
                 entity.ToTable("HWTYP");
 
-                entity.HasIndex(e => e.AptypId)
+                entity.HasIndex(e => e.ApkategorieId)
                     .HasName("HWTYP_APTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Bezeichnung)
@@ -582,7 +632,7 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
+                entity.Property(e => e.ApkategorieId).HasColumnName("APKATEGORIE_ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -591,14 +641,14 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
 
-                entity.HasOne(d => d.Aptyp)
+                entity.HasOne(d => d.Apkategorie)
                     .WithMany(p => p.Hwtyp)
-                    .HasForeignKey(d => d.AptypId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("HWTYP_APTYP_FK");
+                    .HasForeignKey(d => d.ApkategorieId)
+                    .HasConstraintName("HWTYP_APKATEGORIE_FK");
             });
 
-            modelBuilder.Entity<Issuetyp>(entity => {
+            modelBuilder.Entity<Issuetyp>(entity =>
+            {
                 entity.ToTable("ISSUETYP");
 
                 entity.HasIndex(e => e.Bezeichnung)
@@ -622,7 +672,8 @@ namespace hb.SbsdbServer.Model {
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
             });
 
-            modelBuilder.Entity<Mac>(entity => {
+            modelBuilder.Entity<Mac>(entity =>
+            {
                 entity.ToTable("MAC");
 
                 entity.HasIndex(e => e.Adresse)
@@ -658,7 +709,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("MAC_VLAN_FK");
             });
 
-            modelBuilder.Entity<Oe>(entity => {
+            modelBuilder.Entity<Oe>(entity =>
+            {
                 entity.ToTable("OE");
 
                 entity.HasIndex(e => e.AdresseId)
@@ -717,7 +769,8 @@ namespace hb.SbsdbServer.Model {
                     .HasConstraintName("OE_OE_FK");
             });
 
-            modelBuilder.Entity<ProgramSettings>(entity => {
+            modelBuilder.Entity<ProgramSettings>(entity =>
+            {
                 entity.ToTable("PROGRAM_SETTINGS");
 
                 entity.HasIndex(e => e.Id)
@@ -739,11 +792,12 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnType("VARCHAR2(2000)");
             });
 
-            modelBuilder.Entity<Tagtyp>(entity => {
+            modelBuilder.Entity<Tagtyp>(entity =>
+            {
                 entity.ToTable("TAGTYP");
 
-                entity.HasIndex(e => e.AptypId)
-                    .HasName("TAGTYP_APTYP_ID_IDX");
+                entity.HasIndex(e => e.ApkategorieId)
+                    .HasName("TAGTYP_APKATEGORIE_ID_IDX");
 
                 entity.HasIndex(e => e.Bezeichnung)
                     .HasName("TAGTYP_BEZEICHNUNG_IDX");
@@ -754,7 +808,7 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
+                entity.Property(e => e.ApkategorieId).HasColumnName("APKATEGORIE_ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -767,14 +821,15 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("PARAM")
                     .HasColumnType("VARCHAR2(200)");
 
-                entity.HasOne(d => d.Aptyp)
+                entity.HasOne(d => d.Apkategorie)
                     .WithMany(p => p.Tagtyp)
-                    .HasForeignKey(d => d.AptypId)
+                    .HasForeignKey(d => d.ApkategorieId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("TAGTYP_APTYP_FK");
+                    .HasConstraintName("TAGTYP_APKATEGORIE_FK");
             });
 
-            modelBuilder.Entity<UserSettings>(entity => {
+            modelBuilder.Entity<UserSettings>(entity =>
+            {
                 entity.ToTable("USER_SETTINGS");
 
                 entity.HasIndex(e => e.Id)
@@ -790,10 +845,9 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnName("SETTINGS")
                     .HasColumnType("CLOB")
                     .HasConversion(
-                        v => JsonConvert.SerializeObject(v,
-                            new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}),
-                        v => JsonConvert.DeserializeObject<UserSession>(v,
-                            new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
+                        v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                        v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+                    ;
 
                 entity.Property(e => e.Userid)
                     .IsRequired()
@@ -801,7 +855,8 @@ namespace hb.SbsdbServer.Model {
                     .HasColumnType("VARCHAR2(20)");
             });
 
-            modelBuilder.Entity<Vlan>(entity => {
+            modelBuilder.Entity<Vlan>(entity =>
+            {
                 entity.ToTable("VLAN");
 
                 entity.HasIndex(e => e.Bezeichnung)
@@ -826,6 +881,7 @@ namespace hb.SbsdbServer.Model {
 
                 entity.Property(e => e.Netmask).HasColumnName("NETMASK");
             });
+
         }
     }
 }

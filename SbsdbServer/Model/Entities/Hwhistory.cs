@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities {
-    public class Hwhistory {
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class Hwhistory
+    {
         public long Id { get; set; }
         public long ApId { get; set; }
         public string Betriebsstelle { get; set; }

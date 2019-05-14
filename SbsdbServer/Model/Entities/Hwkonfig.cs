@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace hb.SbsdbServer.Model.Entities {
-    public class Hwkonfig {
-        public Hwkonfig() {
+namespace hb.SbsdbServer.Model.Entities
+{
+    public partial class Hwkonfig
+    {
+        public Hwkonfig()
+        {
             Aussond = new HashSet<Aussond>();
             Hw = new HashSet<Hw>();
         }

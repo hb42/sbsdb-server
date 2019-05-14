@@ -103,10 +103,10 @@ namespace hb.SbsdbServer.Model.Repositories {
             return _dbContext.Tagtyp.Where(t => t.Flag == 1)
                 .Select(t => new TypTag {
                   Id = t.Id,
-                  ApTyp = t.Aptyp.Bezeichnung,
+                  Apkategorie = t.Apkategorie.Bezeichnung,
                   TagTyp = t.Bezeichnung
                 })
-                .OrderBy(t => t.ApTyp).ThenBy(t => t.TagTyp)
+                .OrderBy(t => t.Apkategorie).ThenBy(t => t.TagTyp)
                 .ToList();
         }
         
@@ -200,7 +200,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                         Text = t.Text,
                         Param = t.Tagtyp.Param,
                         Flag = t.Tagtyp.Flag,
-                        AptypId = t.Tagtyp.AptypId
+                        ApkategorieId = t.Tagtyp.ApkategorieId
                     }).ToList()
                 });
         }

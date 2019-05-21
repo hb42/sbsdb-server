@@ -46,7 +46,15 @@ namespace hb.SbsdbServer {
 
             // NTLM via IIS
             services.AddAuthentication(IISDefaults.AuthenticationScheme);
-
+            
+            // json komprimieren
+            services.AddResponseCompression(options => {
+                options.EnableForHttps = true;
+                options.MimeTypes = new[] {"application/json"};
+//                                            "application/json; charset=utf-8",
+//                                            "application/json;charset=utf-8" };
+            });
+            
             // connection strings holen
             string connStr;
             string connStrv4;
@@ -126,6 +134,7 @@ namespace hb.SbsdbServer {
                 await context.Response.WriteAsync(result);
             }));
 
+            app.UseResponseCompression();
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
             app.UseMvc();
             app.UseDefaultFiles(); // wg. index.html

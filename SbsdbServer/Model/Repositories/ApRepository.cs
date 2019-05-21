@@ -19,12 +19,12 @@ namespace hb.SbsdbServer.Model.Repositories {
 
         public List<Arbeitsplatz> GetAll() {
             return Convert(
-                GetArbeitsplatzQuery(
+                GetArbeitsplatzListQuery(
                     _dbContext.Ap
                 ).ToList()
             );
         }
-        public List<Arbeitsplatz> GetPage(int page, int pageSize) {
+        public List<Arbeitsplatz> GetPage(int page, int pageSize) {  // DEBUG raus?
             int skipRows = page * pageSize;  // page is zero based!
             var tmp = Convert(
                 GetArbeitsplatzQuery(
@@ -132,7 +132,7 @@ namespace hb.SbsdbServer.Model.Repositories {
          * IN: Query auf Ap mit den notwendigen Bedingungen
          * OUT: Query ergaenzt um Select fuer die AP-Daten
          * 
-         * Die Abfrage liefert eine tmpAP-Objekte, da das die effizienteste DB-Abfrage
+         * Die Abfrage liefert tmpAP-Objekte, da das die effizienteste DB-Abfrage
          * ist. Anschließend muss das Objekt noch in ein Arbeitsplatz-Objekt 
          * umgewandelt werden.
          */
@@ -206,6 +206,49 @@ namespace hb.SbsdbServer.Model.Repositories {
         }
 
         /*
+         * Liste der Arbeitsplaetze, es werden nur die Felder befuellt, die fuer
+         * die Listendarstellung benoetigt werden. Der Rest muss mit Einzelabfragen
+         * auf den jeweiligen AP geholt werden.
+         */
+        private IQueryable<TmpAp> GetArbeitsplatzListQuery(IQueryable<Ap> apq) {
+            return apq
+                .AsNoTracking()
+                .OrderBy(ap => ap.Id)
+                .Select(ap => new TmpAp {
+                    ApId = ap.Id,
+                    Apname = ap.Apname,
+                    Bezeichnung = ap.Bezeichnung,
+                    Aptyp = ap.Aptyp.Bezeichnung,
+                    Oe = new Betrst {
+                        Betriebsstelle = ap.Oe.Betriebsstelle,
+                        BstNr = ap.Oe.Bst,
+                    },
+                    VerantwOe = ap.OeIdVerOe == null || ap.OeIdVerOe == ap.OeId
+                        ? null
+                        : new Betrst {
+                            Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
+                            BstNr = ap.OeIdVerOeNavigation.Bst,
+                        },
+                    Hw = ap.Hw.Where(hw => hw.Pri).Select(hw => new TmpHw {
+                        Hersteller = hw.Hwkonfig.Hersteller,
+                        Bezeichnung = hw.Hwkonfig.Bezeichnung,
+                        Sernr = hw.SerNr,
+                        Pri = hw.Pri,
+                        Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
+                        HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
+                        Vlan = hw.Mac.Select(m => new Netzwerk {
+                            VlanId = m.VlanId,
+                            Bezeichnung = m.Vlan.Bezeichnung,
+                            Vlan = m.Vlan.Ip,
+                            Netmask = m.Vlan.Netmask,
+                            Ip = (long) m.Ip,
+                            Mac = m.Adresse
+                        }).ToList()
+                    }).ToList()
+                });
+        }
+
+        /*
          * tmpAp-Liste in Liste mit Arbeitsplatz-Objekten umwandeln.
          */
         private List<Arbeitsplatz> Convert(List<TmpAp> tmp) {
@@ -219,7 +262,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Aptyp = t.Aptyp,
                     Oe = t.Oe,
                     VerantwOe = t.VerantwOe,
-                    Tags = t.Tags
+                    Tags = t.Tags ?? new List<Tag>()
                 };
                 foreach (var h in t.Hw) {
                     var hw = new Hardware {

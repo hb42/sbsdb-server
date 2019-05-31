@@ -28,5 +28,18 @@ namespace hb.SbsdbServer.Model.ViewModel {
         // Benutzereinstellungen
         
         public string Path { get; set; }
+        
+        // AP-Page
+        public bool ShowStandort { get; set; }
+        public ColumnFilter AptypFilter { get; set; }
+        public ColumnFilter ApnameFilter { get; set; }
+        public ColumnFilter BetrstFilter { get; set; }
+        public ColumnFilter BezFilter { get; set; }
+        public ColumnFilter IpFilter { get; set; }
+        public ColumnFilter HwFilter { get; set; }
+        public string ApSortColumn { get; set; }
+        public string ApSortDirection { get; set; }
+        public int ApPageSize { get; set; }
+
     }
 }

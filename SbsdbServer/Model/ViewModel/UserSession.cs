@@ -32,9 +32,11 @@ namespace hb.SbsdbServer.Model.ViewModel {
         // AP-Page
         public bool ShowStandort { get; set; }
         public ColumnFilter[] ApFilters { get; set; }
+        public string ApExtFilter { get; set; }
         public string ApSortColumn { get; set; }
         public string ApSortDirection { get; set; }
         public int ApPageSize { get; set; }
+        public bool SearchSonstHw { get; set; }
 
     }
 }

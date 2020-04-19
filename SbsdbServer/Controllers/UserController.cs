@@ -40,9 +40,6 @@ namespace hb.SbsdbServer.Controllers {
 
         [HttpPost]
         public void Set([FromBody] UserSession user) {
-            user.IsAdmin = false;
-            user.IsReadonly = false;
-            user.IsHotline = false;
             _userService.SetUser(GetUserId(), user);
         }
 

@@ -844,9 +844,9 @@ namespace hb.SbsdbServer.Model
                 entity.Property(e => e.Settings)
                     .HasColumnName("SETTINGS")
                     .HasColumnType("CLOB")
-                    .HasConversion(
-                        v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-                        v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
+                    // .HasConversion(
+                    //     v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                    //     v => JsonConvert.DeserializeObject<ViewModel.UserSession>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
                     ;
 
                 entity.Property(e => e.Userid)

@@ -13,14 +13,12 @@ namespace hb.SbsdbServer.Services {
         public UserSession GetUser(string uid) {
             if (string.IsNullOrWhiteSpace(uid)) throw new Exception("UID for get user settings cannot be empty!");
             var u = _userRepository.GetUser(uid);
-            u.UID = u.UID.ToUpper();
             return u;
         }
 
         public void SetUser(string uid, UserSession user) {
             if (string.IsNullOrWhiteSpace(uid)) throw new Exception("UID for set user settings cannot be empty!");
             uid = uid.ToUpper();
-            user.UID = user.UID.ToUpper();
             if (user.UID.Equals(uid))
                 _userRepository.SetUser(user); // throws on error
             else

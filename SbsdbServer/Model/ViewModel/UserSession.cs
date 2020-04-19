@@ -4,9 +4,10 @@ namespace hb.SbsdbServer.Model.ViewModel {
     /*
      * Programmeinstellungen des Benutzers
      *   
-     * Keine eigene Tabelle, dieses Objekt wird in UserSettings als JSON gespeichert.
+     * Keine eigene Tabelle, dieses Objekt dient dem Austausch mit dem Client.
+     * Die Einstellungen werden in UserSettings als JSON gespeichert (Feld Settings).
      * Dadurch muss nicht bei jedem zusaetzlichen Wert aus der Benutzeroberflaeche
-     * die DB-Tabelle geaendert werden, sondern nur diese Klasse.  
+     * die DB-Tabelle geaendert werden.  
      */
     public class UserSession {
         public UserSession() {
@@ -16,6 +17,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
             UID = uid;
         }
 
+        // UserID wird im Repository eingetragen
         [Required(AllowEmptyStrings = false, ErrorMessage = "Benutzerkennung muss für UserSession angegeben werden.")]
         [StringLength(20, ErrorMessage = "Benutzerkennung darf nicht länger als 20 Stellen sein.")]
         public string UID { get; set; }
@@ -25,18 +27,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
         public bool IsReadonly { get; set; }
         public bool IsHotline { get; set; }
         
-        // Benutzereinstellungen
-        
-        public string Path { get; set; }
-        
-        // AP-Page
-        public bool ShowStandort { get; set; }
-        public ColumnFilter[] ApFilters { get; set; }
-        public string ApExtFilter { get; set; }
-        public string ApSortColumn { get; set; }
-        public string ApSortDirection { get; set; }
-        public int ApPageSize { get; set; }
-        public bool SearchSonstHw { get; set; }
-
+        // Benutzereinstellungen als JSON-BLOB
+        public string Settings { get; set; }
     }
 }

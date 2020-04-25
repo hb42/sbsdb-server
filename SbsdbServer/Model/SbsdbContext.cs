@@ -789,7 +789,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Value)
                     .HasColumnName("VALUE")
-                    .HasColumnType("VARCHAR2(2000)");
+                    .HasColumnType("CLOB");
             });
 
             modelBuilder.Entity<Tagtyp>(entity =>

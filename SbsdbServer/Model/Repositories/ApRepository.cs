@@ -24,7 +24,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                 ).ToList()
             );
         }
-        public List<Arbeitsplatz> GetPage(int page, int pageSize) {  // DEBUG raus?
+        public List<Arbeitsplatz> GetPage(int page, int pageSize) {  
             int skipRows = page * pageSize;  // page is zero based!
             var tmp = Convert(
                 GetArbeitsplatzQuery(
@@ -109,7 +109,11 @@ namespace hb.SbsdbServer.Model.Repositories {
                 .OrderBy(t => t.Apkategorie).ThenBy(t => t.TagTyp)
                 .ToList();
         }
-        
+
+        public int GetCount() {
+            return _dbContext.Ap.Count();
+        }
+
         // rekursiv alle untergeordneten OEs holen
         private List<OeTreeItem> FindChildren(List<OeTreeItem> parents, List<OeTreeItem> all) {
             var found = new List<OeTreeItem>();

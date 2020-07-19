@@ -17,12 +17,12 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.GetAll();
         }
 
-        public List<Arbeitsplatz> GetPage(int page) {
-            var ps = _configRepository.GetConfig(Const.AP_PAGE_SIZE);
-            var pagesize = 0;
-            if (!int.TryParse(ps, out pagesize) || pagesize == 0) {
-                pagesize = 100;
-            }
+        public List<Arbeitsplatz> GetPage(int page, int pagesize) {
+            // var ps = _configRepository.GetConfig(Const.AP_PAGE_SIZE);
+            // var pagesize = 0;
+            // if (!int.TryParse(ps, out pagesize) || pagesize == 0) {
+            //     pagesize = 100;
+            // }
             return _apRepository.GetPage(page, pagesize);
         }
 
@@ -45,6 +45,10 @@ namespace hb.SbsdbServer.Services {
 
         public List<TypTag> GetTypTags() {
             return _apRepository.GetTypTags();
+        }
+
+        public int GetCount() {
+            return _apRepository.GetCount();
         }
     }
 }

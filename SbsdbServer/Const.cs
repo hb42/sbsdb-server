@@ -11,7 +11,7 @@
         // sieht APs + Remotezugriff
 //        public const string ROLE_HOTLINE = "e077ggx-sbsdb-hotline";
 // TODO fuer die Entwicklung erst mal mit vorhandenen Rollen arbeiten
-        public const string ROLE_ADMIN = "e077ggx-791-it-service";
+        public const string ROLE_ADMIN = "e077ggx-791-it-service-basis";
         public const string ROLE_READONLY = "e077ggx-sbsdb-readonly";
         public const string ROLE_HOTLINE = "e077ggx-000-institut";
         

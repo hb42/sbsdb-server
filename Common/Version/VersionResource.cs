@@ -75,8 +75,7 @@ namespace hb.Common.Version {
                 copyright = Copyright,
                 author = "",  // <authors> wird anscheinend nicht in assembly geschrieben
                 license = "MIT", // erst mal fix
-                githash = "", // TODO generieren und hier einbauen
-                versions = new string[0] //{ "a", "b"}  // TODO dotnet version + iis version + ggf. windows version
+                versions = new string[0] //{ "component", "version"}  // TODO dotnet version + iis version + ggf. windows version
             };
         }
         public override string ToString() {

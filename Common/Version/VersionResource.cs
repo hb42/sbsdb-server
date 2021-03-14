@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace hb.Common.Version {
@@ -30,8 +31,8 @@ namespace hb.Common.Version {
             var myAssembly = Assembly.GetCallingAssembly();
             
             try {
-                Version = myAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-                Title = myAssembly.GetCustomAttribute<AssemblyTitleAttribute>().Title;
+                Version = myAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "ß.0.0";
+                Title = myAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? "";
                 Description = myAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
                 Copyright = myAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
                 Product = myAssembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
@@ -86,22 +87,39 @@ namespace hb.Common.Version {
                 copyright = Copyright,
                 author = "",  // <authors> wird anscheinend nicht in assembly geschrieben
                 license = "MIT", // erst mal fix
-                versions = new string[] {"ASP.NET Core " + AspNetCoreMvcVersion()} // TODO + iis version + ggf. windows version
+                versions = new string[] {"ASP.NET Core " + AspNetCoreVersion(), OsVersion()} // TODO + iis version 
             };
         }
         public override string ToString() {
             return $"{Title} {Version} {Copyright}";
         }
-        public string AspNetCoreMvcVersion() {
-            // unknown mvc core version
-            string mvcCoreVersion = "0";
+        /**
+         * ASP.NET Core-Version ermitteln
+         * Wird anhand der grundsaetzlich vorhandenen Klasse Microsoft.AspNetCore.Mvc.Controller geholt.
+         */
+        public string AspNetCoreVersion() {
+            string coreVersion;
             try {
-                string mvcCoreClass = "Microsoft.AspNetCore.Mvc.Controller, Microsoft.AspNetCore.Mvc.ViewFeatures";
-                mvcCoreVersion = Type.GetType(mvcCoreClass).Assembly.GetName().Version.ToString();
+                var coreClass = "Microsoft.AspNetCore.Mvc.Controller, Microsoft.AspNetCore.Mvc.ViewFeatures";
+                coreVersion = Type.GetType(coreClass)?.Assembly.GetName().Version?.ToString() ?? "n/a";
             } catch (Exception) {
-                // the mvc core Controller class does not exist in the app
+                // Klasse nicht gefunden, anderer Fehler
+                coreVersion = "n/a";
             }
-            return mvcCoreVersion;
+            return coreVersion;
+        }
+        /**
+         * Betriebssystem-Version
+         */
+        public string OsVersion() {
+            // fuer Windows ist dieser String ausreichend
+            var desc = RuntimeInformation.OSDescription;
+            // fuer macOS wird nur die Kernel-Version geliefert, daher zusaetzliche Info anhaengen
+            // TODO Abfrage fuer macOS + Linux, die besser lesbare Infos liefert
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+                desc = RuntimeInformation.RuntimeIdentifier + " " + desc;
+            }
+            return desc;
         }
     }
 }

@@ -16,7 +16,7 @@
         public const string ROLE_HOTLINE = "e077ggx-000-institut";
         
         // Name in der Config-DB
-        public const string AP_PAGE_SIZE = "ap.pagesize"; // *deprecated*
+        // public const string AP_PAGE_SIZE = "ap.pagesize"; // *deprecated*
         
     }
 }

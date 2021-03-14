@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Net.WebSockets;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog;
+// using NLog;
 using NLog.Web;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -20,10 +22,11 @@ namespace hb.SbsdbServer {
             // -- Nlog als Logging-Framework einbauen
             // NLog: setup the logger first to catch all errors
             var logger = NLogBuilder.ConfigureNLog(NLOG_CONF).GetCurrentClassLogger();
+                // NLogBuilder.ConfigureNLog(NLOG_CONF).GetCurrentClassLogger();
             try {
-                logger.Info("*** INIT MAIN ***");
+                logger.Info("*** INIT MAIN *** ");
                 // -- Host starten
-                CreateWebHostBuilder(args).Build().Run();
+                CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex) {
                 //NLog: catch setup errors
@@ -32,14 +35,14 @@ namespace hb.SbsdbServer {
             }
             finally {
                 // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-                LogManager.Shutdown();
+                NLog.LogManager.Shutdown();
             }
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args) {
-            return WebHost.CreateDefaultBuilder(args)
-                .CaptureStartupErrors(true)
-                .UseSetting("detailedErrors", "true")
+        public static IHostBuilder CreateHostBuilder(string[] args) {
+            return Host.CreateDefaultBuilder(args)
+                // .CaptureStartupErrors(true)  // #3.0# 
+                // .UseSetting("detailedErrors", "true")  // #3.0#
 
                 //-- zusaetzliche config-Datei laden 
                 // -> wird in IConfguration integriert  
@@ -47,7 +50,9 @@ namespace hb.SbsdbServer {
                     config.SetBasePath(Directory.GetCurrentDirectory());
                     config.AddJsonFile(PRIVATE_CONF, false, false);
                 })
-                .UseStartup<Startup>()
+                .ConfigureWebHostDefaults(webBuilder => {
+                    webBuilder.UseStartup<Startup>();
+                })
                 // -- NLog
                 .ConfigureLogging(logging => {
                     logging.ClearProviders();

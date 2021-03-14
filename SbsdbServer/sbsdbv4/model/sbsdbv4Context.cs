@@ -46,10 +46,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.AdrTyp)
-                    .HasName("sbsadrtyp_index1");
+                    .HasDatabaseName("sbsadrtyp_index1");
 
                 entity.HasIndex(e => e.AptypIndex)
-                    .HasName("FK2FB5A0379E420B01");
+                    .HasDatabaseName("FK2FB5A0379E420B01");
 
                 entity.HasOne(d => d.AptypIndexNavigation)
                     .WithMany(p => p.SbsAdrtyp)
@@ -62,25 +62,25 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.ApName)
-                    .HasName("sbsap_index1");
+                    .HasDatabaseName("sbsap_index1");
 
                 entity.HasIndex(e => e.ApklasseIndex)
-                    .HasName("FK916B726A31F69485");
+                    .HasDatabaseName("FK916B726A31F69485");
 
                 entity.HasIndex(e => e.ApstatistikIndex)
-                    .HasName("FK916B726A1B5248DB");
+                    .HasDatabaseName("FK916B726A1B5248DB");
 
                 entity.HasIndex(e => e.OeIndex)
-                    .HasName("FK916B726AE6978689");
+                    .HasDatabaseName("FK916B726AE6978689");
 
                 entity.HasIndex(e => e.SegmentIndex)
-                    .HasName("FK916B726ABF666AF");
+                    .HasDatabaseName("FK916B726ABF666AF");
 
                 entity.HasIndex(e => e.StandortIndex)
-                    .HasName("FK916B726A5CA9D44E");
+                    .HasDatabaseName("FK916B726A5CA9D44E");
 
                 entity.HasIndex(e => e.Tcp)
-                    .HasName("sbsap_index2");
+                    .HasDatabaseName("sbsap_index2");
 
                 entity.HasOne(d => d.ApklasseIndexNavigation)
                     .WithMany(p => p.SbsAp)
@@ -113,13 +113,13 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.AdrIndex)
-                    .HasName("FK3064593A807B9F48");
+                    .HasDatabaseName("FK3064593A807B9F48");
 
                 entity.HasIndex(e => e.AdrText)
-                    .HasName("sbsapadr_index1");
+                    .HasDatabaseName("sbsapadr_index1");
 
                 entity.HasIndex(e => e.ApIndex)
-                    .HasName("FK3064593A7E2B9C7B");
+                    .HasDatabaseName("FK3064593A7E2B9C7B");
 
                 entity.HasOne(d => d.AdrIndexNavigation)
                     .WithMany(p => p.SbsApAdr)
@@ -139,10 +139,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.ApIndex)
-                    .HasName("FKA6B8EC597E2B9C7B");
+                    .HasDatabaseName("FKA6B8EC597E2B9C7B");
 
                 entity.HasIndex(e => e.SwIndex)
-                    .HasName("FKA6B8EC593E4C6525");
+                    .HasDatabaseName("FKA6B8EC593E4C6525");
 
                 entity.HasOne(d => d.ApIndexNavigation)
                     .WithMany(p => p.SbsApSw)
@@ -162,7 +162,7 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.AptypIndex)
-                    .HasName("FK872BB9CF9E420B01");
+                    .HasDatabaseName("FK872BB9CF9E420B01");
 
                 entity.HasOne(d => d.AptypIndexNavigation)
                     .WithMany(p => p.SbsApklasse)
@@ -175,13 +175,13 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.AptypIndex)
-                    .HasName("FKDBC82E0E9E420B01");
+                    .HasDatabaseName("FKDBC82E0E9E420B01");
 
                 entity.HasIndex(e => e.Flag)
-                    .HasName("sbsapstatistik_index2");
+                    .HasDatabaseName("sbsapstatistik_index2");
 
                 entity.HasIndex(e => e.Sort)
-                    .HasName("sbsapstatistik_index1");
+                    .HasDatabaseName("sbsapstatistik_index1");
 
                 entity.HasOne(d => d.AptypIndexNavigation)
                     .WithMany(p => p.SbsApstatistik)
@@ -194,11 +194,11 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Aptyp)
-                    .HasName("APTYP")
+                    .HasDatabaseName("APTYP")
                     .IsUnique();
 
                 entity.HasIndex(e => e.LfdNr)
-                    .HasName("sbsaptyp_index1");
+                    .HasDatabaseName("sbsaptyp_index1");
             });
 
             modelBuilder.Entity<SbsAussond>(entity => {
@@ -206,10 +206,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.AussDat)
-                    .HasName("sbsaussond_index2");
+                    .HasDatabaseName("sbsaussond_index2");
 
                 entity.HasIndex(e => e.SerNr)
-                    .HasName("sbsaussond_index1");
+                    .HasDatabaseName("sbsaussond_index1");
             });
 
             modelBuilder.Entity<SbsCron>(entity => {
@@ -217,7 +217,7 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Cron)
-                    .HasName("sbscron_index1");
+                    .HasDatabaseName("sbscron_index1");
             });
 
             modelBuilder.Entity<SbsExtprog>(entity => {
@@ -225,7 +225,7 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.ApklasseIndex)
-                    .HasName("FKBCD2838031F69485");
+                    .HasDatabaseName("FKBCD2838031F69485");
 
                 entity.HasOne(d => d.ApklasseIndexNavigation)
                     .WithMany(p => p.SbsExtprog)
@@ -243,13 +243,13 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.ApIndex)
-                    .HasName("FK916B734A7E2B9C7B");
+                    .HasDatabaseName("FK916B734A7E2B9C7B");
 
                 entity.HasIndex(e => e.KonfigIndex)
-                    .HasName("FK916B734AF6F4CB51");
+                    .HasDatabaseName("FK916B734AF6F4CB51");
 
                 entity.HasIndex(e => e.SerNr)
-                    .HasName("sbshw_index1");
+                    .HasDatabaseName("sbshw_index1");
 
                 entity.HasOne(d => d.ApIndexNavigation)
                     .WithMany(p => p.SbsHw)
@@ -267,16 +267,16 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Direction)
-                    .HasName("sbshwshift_index3");
+                    .HasDatabaseName("sbshwshift_index3");
 
                 entity.HasIndex(e => e.Host)
-                    .HasName("sbshwshift_index2");
+                    .HasDatabaseName("sbshwshift_index2");
 
                 entity.HasIndex(e => e.HwIndex)
-                    .HasName("FK59BE7F58C79F763B");
+                    .HasDatabaseName("FK59BE7F58C79F763B");
 
                 entity.HasIndex(e => e.Shiftdate)
-                    .HasName("sbshwshift_index1");
+                    .HasDatabaseName("sbshwshift_index1");
 
                 entity.Property(e => e.Shiftdate)
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
@@ -293,7 +293,7 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.AptypIndex)
-                    .HasName("FKA71E96E19E420B01");
+                    .HasDatabaseName("FKA71E96E19E420B01");
 
                 entity.HasOne(d => d.AptypIndexNavigation)
                     .WithMany(p => p.SbsHwtyp)
@@ -306,13 +306,13 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("sbskonfig_index2");
+                    .HasDatabaseName("sbskonfig_index2");
 
                 entity.HasIndex(e => e.Hersteller)
-                    .HasName("sbskonfig_index1");
+                    .HasDatabaseName("sbskonfig_index1");
 
                 entity.HasIndex(e => e.HwtypIndex)
-                    .HasName("FK415F10F55EEAD941");
+                    .HasDatabaseName("FK415F10F55EEAD941");
 
                 entity.HasOne(d => d.HwtypIndexNavigation)
                     .WithMany(p => p.SbsKonfig)
@@ -330,16 +330,16 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Betriebsstelle)
-                    .HasName("sbsoe_index2");
+                    .HasDatabaseName("sbsoe_index2");
 
                 entity.HasIndex(e => e.Bst)
-                    .HasName("sbsoe_index1");
+                    .HasDatabaseName("sbsoe_index1");
 
                 entity.HasIndex(e => e.FilialeIndex)
-                    .HasName("FK916B7411427CC73D");
+                    .HasDatabaseName("FK916B7411427CC73D");
 
                 entity.HasIndex(e => e.ParentOe)
-                    .HasName("FK916B7411D06ED6EB");
+                    .HasDatabaseName("FK916B7411D06ED6EB");
 
                 entity.HasOne(d => d.FilialeIndexNavigation)
                     .WithMany(p => p.SbsOe)
@@ -358,10 +358,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Preference)
-                    .HasName("sbsprefs_index1");
+                    .HasDatabaseName("sbsprefs_index1");
 
                 entity.HasIndex(e => e.UserIndex)
-                    .HasName("FKA78CD275A65A7C33");
+                    .HasDatabaseName("FKA78CD275A65A7C33");
 
                 entity.HasOne(d => d.UserIndexNavigation)
                     .WithMany(p => p.SbsPrefs)
@@ -374,7 +374,7 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.FilialeIndex)
-                    .HasName("FK8044EDB8427CC73D");
+                    .HasDatabaseName("FK8044EDB8427CC73D");
 
                 //entity.HasOne(d => d.FilialeIndexNavigation)
                 //.WithMany(p => p.SbsSegment)
@@ -387,25 +387,25 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("sbssw_index2");
+                    .HasDatabaseName("sbssw_index2");
 
                 entity.HasIndex(e => e.Einsatz)
-                    .HasName("sbssw_index4");
+                    .HasDatabaseName("sbssw_index4");
 
                 entity.HasIndex(e => e.Hersteller)
-                    .HasName("sbssw_index1");
+                    .HasDatabaseName("sbssw_index1");
 
                 entity.HasIndex(e => e.LiztypIndex)
-                    .HasName("FK916B749F6C0A7979");
+                    .HasDatabaseName("FK916B749F6C0A7979");
 
                 entity.HasIndex(e => e.OeIndex)
-                    .HasName("FK916B749FE6978689");
+                    .HasDatabaseName("FK916B749FE6978689");
 
                 entity.HasIndex(e => e.SmsPaket)
-                    .HasName("sbssw_index3");
+                    .HasDatabaseName("sbssw_index3");
 
                 entity.HasIndex(e => e.VollzErkl)
-                    .HasName("sbssw_index5");
+                    .HasDatabaseName("sbssw_index5");
 
                 entity.HasOne(d => d.LiztypIndexNavigation)
                     .WithMany(p => p.SbsSw)
@@ -423,7 +423,7 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.SwIndex)
-                    .HasName("FKB99A81B33E4C6525");
+                    .HasDatabaseName("FKB99A81B33E4C6525");
 
                 entity.HasOne(d => d.SwIndexNavigation)
                     .WithMany(p => p.SbsSwBestand)
@@ -436,10 +436,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Datum)
-                    .HasName("sbsswopdv_index1");
+                    .HasDatabaseName("sbsswopdv_index1");
 
                 entity.HasIndex(e => e.SwIndex)
-                    .HasName("FKA04F6DD33E4C6525");
+                    .HasDatabaseName("FKA04F6DD33E4C6525");
 
                 entity.HasOne(d => d.SwIndexNavigation)
                     .WithMany(p => p.SbsSwOpdv)
@@ -452,10 +452,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Datum)
-                    .HasName("sbsswvv_index1");
+                    .HasDatabaseName("sbsswvv_index1");
 
                 entity.HasIndex(e => e.SwIndex)
-                    .HasName("FKA7B9C2603E4C6525");
+                    .HasDatabaseName("FKA7B9C2603E4C6525");
 
                 entity.HasOne(d => d.SwIndexNavigation)
                     .WithMany(p => p.SbsSwVv)
@@ -468,22 +468,22 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.ApIndex)
-                    .HasName("FK3279D0357E2B9C7B");
+                    .HasDatabaseName("FK3279D0357E2B9C7B");
 
                 entity.HasIndex(e => e.Close)
-                    .HasName("sbsttissue_index3");
+                    .HasDatabaseName("sbsttissue_index3");
 
                 entity.HasIndex(e => e.KategorieIndex)
-                    .HasName("FK3279D035F95D3827");
+                    .HasDatabaseName("FK3279D035F95D3827");
 
                 entity.HasIndex(e => e.Open)
-                    .HasName("sbsttissue_index1");
+                    .HasDatabaseName("sbsttissue_index1");
 
                 entity.HasIndex(e => e.Prio)
-                    .HasName("sbsttissue_index2");
+                    .HasDatabaseName("sbsttissue_index2");
 
                 entity.HasIndex(e => e.UserIndex)
-                    .HasName("FK3279D035A65A7C33");
+                    .HasDatabaseName("FK3279D035A65A7C33");
 
                 entity.HasOne(d => d.ApIndexNavigation)
                     .WithMany(p => p.SbsTtIssue)
@@ -508,10 +508,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Flag)
-                    .HasName("sbsttkategorie_index2");
+                    .HasDatabaseName("sbsttkategorie_index2");
 
                 entity.HasIndex(e => e.Kategorie)
-                    .HasName("sbsttkategorie_index1");
+                    .HasDatabaseName("sbsttkategorie_index1");
             });
 
             modelBuilder.Entity<SbsUser>(entity => {
@@ -519,10 +519,10 @@ namespace hb.SbsdbServer.sbsdbv4.model {
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.Rolle)
-                    .HasName("sbsuser_index1");
+                    .HasDatabaseName("sbsuser_index1");
 
                 entity.HasIndex(e => e.UserId)
-                    .HasName("USER_ID")
+                    .HasDatabaseName("USER_ID")
                     .IsUnique();
             });
 

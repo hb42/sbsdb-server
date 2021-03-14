@@ -51,7 +51,7 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("ADRESSE");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("ADRESSE_PK")
+                    .HasDatabaseName("ADRESSE_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -78,20 +78,20 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("AP");
 
                 entity.HasIndex(e => e.Apname)
-                    .HasName("AP_APNAME_IDX");
+                    .HasDatabaseName("AP_APNAME_IDX");
 
                 entity.HasIndex(e => e.AptypId)
-                    .HasName("AP_APTYP_ID_IDX");
+                    .HasDatabaseName("AP_APTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("AP_PK")
+                    .HasDatabaseName("AP_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.OeId)
-                    .HasName("AP_OE_ID_IDX");
+                    .HasDatabaseName("AP_OE_ID_IDX");
 
                 entity.HasIndex(e => e.OeIdVerOe)
-                    .HasName("AP_OE_ID_VER_OE_IDX");
+                    .HasDatabaseName("AP_OE_ID_VER_OE_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -138,26 +138,26 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("AP_ISSUE");
 
                 entity.HasIndex(e => e.ApId)
-                    .HasName("AP_ISSUE_AP_ID_IDX");
+                    .HasDatabaseName("AP_ISSUE_AP_ID_IDX");
 
                 entity.HasIndex(e => e.Close)
-                    .HasName("AP_ISSUE_CLOSE_IDX");
+                    .HasDatabaseName("AP_ISSUE_CLOSE_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("AP_ISSUE_PK")
+                    .HasDatabaseName("AP_ISSUE_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.IssuetypId)
-                    .HasName("AP_ISSUE_ISSUETYP_ID_IDX");
+                    .HasDatabaseName("AP_ISSUE_ISSUETYP_ID_IDX");
 
                 entity.HasIndex(e => e.Open)
-                    .HasName("AP_ISSUE_OPEN_IDX");
+                    .HasDatabaseName("AP_ISSUE_OPEN_IDX");
 
                 entity.HasIndex(e => e.Prio)
-                    .HasName("AP_ISSUE_PRIO_IDX");
+                    .HasDatabaseName("AP_ISSUE_PRIO_IDX");
 
                 entity.HasIndex(e => e.Userid)
-                    .HasName("AP_ISSUE_USERID_IDX");
+                    .HasDatabaseName("AP_ISSUE_USERID_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -202,17 +202,17 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("AP_TAG");
 
                 entity.HasIndex(e => e.ApId)
-                    .HasName("AP_TAG_AP_ID_IDX");
+                    .HasDatabaseName("AP_TAG_AP_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("AP_TAG_PK")
+                    .HasDatabaseName("AP_TAG_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.TagtypId)
-                    .HasName("AP_TAG_TAGTYP_ID_IDX");
+                    .HasDatabaseName("AP_TAG_TAGTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Text)
-                    .HasName("AP_TAG_TEXT_IDX");
+                    .HasDatabaseName("AP_TAG_TEXT_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -243,11 +243,11 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("APKATEGORIE");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("APKATEGORIE_BEZEICHNUNG_UN")
+                    .HasDatabaseName("APKATEGORIE_BEZEICHNUNG_UN")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("APKATEGORIE_PK")
+                    .HasDatabaseName("APKATEGORIE_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -265,10 +265,10 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("APKLASSE");
 
                 entity.HasIndex(e => e.AptypId)
-                    .HasName("APKLASSE_APTYP_ID_IDX");
+                    .HasDatabaseName("APKLASSE_APTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("APKLASSE_PK")
+                    .HasDatabaseName("APKLASSE_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -290,11 +290,11 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("APTYP");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("APTYP_BEZEICHNUNG_UN")
+                    .HasDatabaseName("APTYP_BEZEICHNUNG_UN")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("APTYP_PK")
+                    .HasDatabaseName("APTYP_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -320,14 +320,14 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("AUSSOND");
 
                 entity.HasIndex(e => e.AussDat)
-                    .HasName("AUSSOND_AUSS_DAT_IDX");
+                    .HasDatabaseName("AUSSOND_AUSS_DAT_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("AUSSOND_PK")
+                    .HasDatabaseName("AUSSOND_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.SerNr)
-                    .HasName("AUSSOND_SER_NR_IDX");
+                    .HasDatabaseName("AUSSOND_SER_NR_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -394,7 +394,7 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("EXTPROG");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("EXTPROG_PK")
+                    .HasDatabaseName("EXTPROG_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -429,20 +429,20 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("HW");
 
                 entity.HasIndex(e => e.ApId)
-                    .HasName("HW_AP_ID_IDX");
+                    .HasDatabaseName("HW_AP_ID_IDX");
 
                 entity.HasIndex(e => e.HwkonfigId)
-                    .HasName("HW_HWKONFIG_ID_IDX");
+                    .HasDatabaseName("HW_HWKONFIG_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("HW_PK")
+                    .HasDatabaseName("HW_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.SerNr)
-                    .HasName("HW_SER_NR_IDX");
+                    .HasDatabaseName("HW_SER_NR_IDX");
 
                 entity.HasIndex(e => e.Smbiosguid)
-                    .HasName("HW_SMBIOSGUID_UN")
+                    .HasDatabaseName("HW_SMBIOSGUID_UN")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -503,20 +503,20 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("HWHISTORY");
 
                 entity.HasIndex(e => e.Apname)
-                    .HasName("HWHISTORY_APNAME_IDX");
+                    .HasDatabaseName("HWHISTORY_APNAME_IDX");
 
                 entity.HasIndex(e => e.Direction)
-                    .HasName("HWHISTORY_DIRECTION_IDX");
+                    .HasDatabaseName("HWHISTORY_DIRECTION_IDX");
 
                 entity.HasIndex(e => e.HwId)
-                    .HasName("HWHISTORY_HW_ID_IDX");
+                    .HasDatabaseName("HWHISTORY_HW_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("HWHISTORY_PK")
+                    .HasDatabaseName("HWHISTORY_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Shiftdate)
-                    .HasName("HWHISTORY_SHIFTDATE_IDX");
+                    .HasDatabaseName("HWHISTORY_SHIFTDATE_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -559,16 +559,16 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("HWKONFIG");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("HWKONFIG_BEZEICHNUNG_IDX");
+                    .HasDatabaseName("HWKONFIG_BEZEICHNUNG_IDX");
 
                 entity.HasIndex(e => e.Hersteller)
-                    .HasName("HWKONFIG_HERSTELLER_IDX");
+                    .HasDatabaseName("HWKONFIG_HERSTELLER_IDX");
 
                 entity.HasIndex(e => e.HwtypId)
-                    .HasName("HWKONFIG_HWTYP_ID_IDX");
+                    .HasDatabaseName("HWKONFIG_HWTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("HWKONFIG_PK")
+                    .HasDatabaseName("HWKONFIG_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -617,17 +617,17 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("HWTYP");
 
                 entity.HasIndex(e => e.ApkategorieId)
-                    .HasName("HWTYP_APTYP_ID_IDX");
+                    .HasDatabaseName("HWTYP_APTYP_ID_IDX");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("HWTYP_BEZEICHNUNG_UN")
+                    .HasDatabaseName("HWTYP_BEZEICHNUNG_UN")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Flag)
-                    .HasName("HWTYP_FLAG_IDX");
+                    .HasDatabaseName("HWTYP_FLAG_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("HWTYP_PK")
+                    .HasDatabaseName("HWTYP_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -652,14 +652,14 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("ISSUETYP");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("ISSUETYP_BEZEICHNUNG_UN")
+                    .HasDatabaseName("ISSUETYP_BEZEICHNUNG_UN")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Flag)
-                    .HasName("ISSUETYP_FLAG_IDX");
+                    .HasDatabaseName("ISSUETYP_FLAG_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("ISSUETYP_PK")
+                    .HasDatabaseName("ISSUETYP_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -677,10 +677,10 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("MAC");
 
                 entity.HasIndex(e => e.Adresse)
-                    .HasName("MAC_ADRESSE_IDX");
+                    .HasDatabaseName("MAC_ADRESSE_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("MAC_PK")
+                    .HasDatabaseName("MAC_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -714,20 +714,20 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("OE");
 
                 entity.HasIndex(e => e.AdresseId)
-                    .HasName("OE_ADRESSE_ID_IDX");
+                    .HasDatabaseName("OE_ADRESSE_ID_IDX");
 
                 entity.HasIndex(e => e.Betriebsstelle)
-                    .HasName("OE_BETRIEBSSTELLE_IDX");
+                    .HasDatabaseName("OE_BETRIEBSSTELLE_IDX");
 
                 entity.HasIndex(e => e.Bst)
-                    .HasName("OE_BST_IDX");
+                    .HasDatabaseName("OE_BST_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("OE_PK")
+                    .HasDatabaseName("OE_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.OeId)
-                    .HasName("OE_OE_ID_IDX");
+                    .HasDatabaseName("OE_OE_ID_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -774,11 +774,11 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("PROGRAM_SETTINGS");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("PROGRAM_SETTINGS_PK")
+                    .HasDatabaseName("PROGRAM_SETTINGS_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Key)
-                    .HasName("PROGRAM_SETTINGS_KEY_IDX");
+                    .HasDatabaseName("PROGRAM_SETTINGS_KEY_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -790,6 +790,7 @@ namespace hb.SbsdbServer.Model
                 entity.Property(e => e.Value)
                     .HasColumnName("VALUE")
                     .HasColumnType("CLOB");
+                    
             });
 
             modelBuilder.Entity<Tagtyp>(entity =>
@@ -797,13 +798,13 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("TAGTYP");
 
                 entity.HasIndex(e => e.ApkategorieId)
-                    .HasName("TAGTYP_APKATEGORIE_ID_IDX");
+                    .HasDatabaseName("TAGTYP_APKATEGORIE_ID_IDX");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("TAGTYP_BEZEICHNUNG_IDX");
+                    .HasDatabaseName("TAGTYP_BEZEICHNUNG_IDX");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("TAGTYP_PK")
+                    .HasDatabaseName("TAGTYP_PK")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
@@ -833,11 +834,11 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("USER_SETTINGS");
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("USER_SETTINGS_PK")
+                    .HasDatabaseName("USER_SETTINGS_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Userid)
-                    .HasName("USER_SETTINGS_USERID_IDX");
+                    .HasDatabaseName("USER_SETTINGS_USERID_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -860,15 +861,15 @@ namespace hb.SbsdbServer.Model
                 entity.ToTable("VLAN");
 
                 entity.HasIndex(e => e.Bezeichnung)
-                    .HasName("VLAN_BEZEICHNUNG_UN")
+                    .HasDatabaseName("VLAN_BEZEICHNUNG_UN")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Id)
-                    .HasName("VLAN_PK")
+                    .HasDatabaseName("VLAN_PK")
                     .IsUnique();
 
                 entity.HasIndex(e => e.Ip)
-                    .HasName("VLAN_IP_IDX");
+                    .HasDatabaseName("VLAN_IP_IDX");
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 

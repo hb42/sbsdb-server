@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace hb.Common.Version {
@@ -27,11 +28,21 @@ namespace hb.Common.Version {
 
         public VersionResource() {
             var myAssembly = Assembly.GetCallingAssembly();
-            Version = myAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
-            Title = myAssembly.GetCustomAttribute<AssemblyTitleAttribute>().Title;
-            Description = myAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
-            Copyright = myAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
-            Product = myAssembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
+            
+            try {
+                Version = myAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+                Title = myAssembly.GetCustomAttribute<AssemblyTitleAttribute>().Title;
+                Description = myAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+                Copyright = myAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
+                Product = myAssembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
+            }
+            catch {
+                Version ??= "0.0.0";
+                Title ??= "title";
+                Description ??= "desc";
+                Copyright ??= "(c)";
+                Product ??= "product";
+            }
 
             var m = Regex.Match(Version, versionRegex);
             if (m.Success) {
@@ -75,11 +86,22 @@ namespace hb.Common.Version {
                 copyright = Copyright,
                 author = "",  // <authors> wird anscheinend nicht in assembly geschrieben
                 license = "MIT", // erst mal fix
-                versions = new string[0] //{ "component", "version"}  // TODO dotnet version + iis version + ggf. windows version
+                versions = new string[] {"ASP.NET Core " + AspNetCoreMvcVersion()} // TODO + iis version + ggf. windows version
             };
         }
         public override string ToString() {
             return $"{Title} {Version} {Copyright}";
+        }
+        public string AspNetCoreMvcVersion() {
+            // unknown mvc core version
+            string mvcCoreVersion = "0";
+            try {
+                string mvcCoreClass = "Microsoft.AspNetCore.Mvc.Controller, Microsoft.AspNetCore.Mvc.ViewFeatures";
+                mvcCoreVersion = Type.GetType(mvcCoreClass).Assembly.GetName().Version.ToString();
+            } catch (Exception) {
+                // the mvc core Controller class does not exist in the app
+            }
+            return mvcCoreVersion;
         }
     }
 }

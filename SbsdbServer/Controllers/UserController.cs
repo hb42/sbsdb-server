@@ -3,8 +3,6 @@ using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
     public class UserController : AbstractControllerBase<UserController> {

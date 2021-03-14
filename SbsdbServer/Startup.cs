@@ -5,6 +5,7 @@ using hb.SbsdbServer.Model;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.Services;
+using Lib.AspNetCore.ServerSentEvents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -14,39 +15,44 @@ using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace hb.SbsdbServer {
     public class Startup {
-        private readonly ILogger<Startup> _log;
+        // private readonly ILogger<Startup> _log;
 
-        public Startup(IConfiguration configuration, ILogger<Startup> logger) {
+        public Startup(IConfiguration configuration) {
             Configuration = configuration;
-            _log = logger;
+            
+            // _log = logger;
+            // _log.LogDebug("Startup c'tor");
         }
 
         private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            services.AddMvc()
-                .AddJsonOptions( // bei der Ausgabe von DB-Objekten Schleifen bei der JSON-Erstellung verhindern
-                    options => options.SerializerSettings.ReferenceLoopHandling =
-                        ReferenceLoopHandling.Ignore)
+            // _log.LogDebug("ConfigureService()");
+            services.AddControllers()  // #3.0# alt AddMvc()
+                .AddNewtonsoftJson(options => 
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 // Validierungsfehler fangen
                 .ConfigureApiBehaviorOptions(o => {
                     o.InvalidModelStateResponseFactory = context => {
-                        _log.LogInformation("Validation Error");
+                        // _log.LogInformation("Validation Error");
                         return new ValidationProblemDetailsResult();
                     };
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
+            // _log.LogDebug("ConfigureService() #1#");
             // NTLM via IIS
-            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);  // #3.0# nicht mehr noetig??
             
+            // _log.LogDebug("ConfigureService() #2#");
             // json komprimieren
             services.AddResponseCompression(options => {
                 options.EnableForHttps = true;
@@ -55,6 +61,7 @@ namespace hb.SbsdbServer {
 //                                            "application/json;charset=utf-8" };
             });
             
+            // _log.LogDebug("ConfigureService() #3#");
             // connection strings holen
             string connStr;
             string connStrv4;
@@ -67,6 +74,7 @@ namespace hb.SbsdbServer {
                 connStrv4 = Configuration.GetConnectionString("sbsdbv4x");
             }
 
+            // _log.LogDebug("ConfigureService() #4#");
             // alter Bestand - MySQL/EF
             // TODO kann raus, sobald alles auf neue Oracle-Struktur ueberfuehrt
             services.AddDbContextPool<Sbsdbv4Context>(
@@ -77,6 +85,7 @@ namespace hb.SbsdbServer {
                     )
             );
 
+            // _log.LogDebug("ConfigureService() #5#");
             // neuer Bestand - Oracle/EF
             services.AddDbContextPool<SbsdbContext>(
                 options => options 
@@ -85,10 +94,13 @@ namespace hb.SbsdbServer {
             );
 
 
+            // _log.LogDebug("ConfigureService() #6#");
             // Versionsinfos werden per .csproj gesetzt, hier aus Assembly auslesen
             var version = new VersionResource();
             services.AddSingleton(version);
+            // _log.LogDebug("ConfigureService() " + version);
 
+            // _log.LogDebug("ConfigureService() #7#");
             // Services und Repositories
             services.AddTransient<TestService, TestService>();
 
@@ -103,11 +115,11 @@ namespace hb.SbsdbServer {
 
             services.AddTransient<v4Migration, v4Migration>();
 
-            _log.LogInformation("Starting  " + version);
+            // _log.LogInformation("Starting  " + version);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
@@ -136,10 +148,17 @@ namespace hb.SbsdbServer {
 
             app.UseResponseCompression();
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
-            app.UseMvc();
+            // app.UseMvc(); // #3.0# 
             app.UseDefaultFiles(); // wg. index.html
             app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
             app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
+            // app.UseServerSentEvents();  // TODO noch zu testen
         }
     }
 }

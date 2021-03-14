@@ -276,15 +276,13 @@ namespace hb.SbsdbServer.Model.Repositories {
                         Sernr = h.Sernr,
                         Pri = h.Pri,
                         Hwtyp = h.Hwtyp,
-                        HwtypFlag = h.HwtypFlag
+                        HwtypFlag = h.HwtypFlag,
+                        Vlan = h.Vlan ?? new List<Netzwerk>()
                     };
-                    if (h.Pri) ap.Vlan = h.Vlan;
                     ap.Hw.Add(hw);
                 }
-
                 aps.Add(ap);
             }
-
             return aps;
         }
 

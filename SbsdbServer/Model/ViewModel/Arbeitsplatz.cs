@@ -5,7 +5,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
         public Arbeitsplatz() {
             Tags = new List<Tag>();
             Hw = new List<Hardware>();
-            Vlan = new List<Netzwerk>();
+            // Vlan = new List<Netzwerk>();
         }
 
         public long ApId { get; set; }
@@ -17,6 +17,6 @@ namespace hb.SbsdbServer.Model.ViewModel {
         public string Bemerkung { get; set; }
         public List<Tag> Tags { get; set; }
         public List<Hardware> Hw { get; set; }
-        public List<Netzwerk> Vlan { get; set; }
+        // public List<Netzwerk> Vlan { get; set; }
     }
 }

@@ -1,5 +1,11 @@
-﻿namespace hb.SbsdbServer.Model.ViewModel {
+﻿using System.Collections.Generic;
+
+namespace hb.SbsdbServer.Model.ViewModel {
     public class Hardware {
+        public Hardware() {
+            Vlan = new List<Netzwerk>();
+        }
+        
         public long Id { get; set; }
         public string Hersteller { get; set; }
         public string Bezeichnung { get; set; }
@@ -7,5 +13,6 @@
         public bool Pri { get; set; }
         public string Hwtyp { get; set; }
         public long HwtypFlag { get; set; }
+        public List<Netzwerk> Vlan { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using hb.Common.Validation;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
@@ -15,6 +17,7 @@ using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -128,9 +131,11 @@ namespace hb.SbsdbServer {
 
             app.UseResponseCompression();
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
-            app.UseDefaultFiles(); // wg. index.html
+            
+            // *IIS*
+            app.UseDefaultFiles(); // wg. index.html - evtl. nicht noetig
             app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot f. Angular-App
-            app.UseRouting();
+            app.UseRouting(); 
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => {
@@ -138,6 +143,36 @@ namespace hb.SbsdbServer {
             });
             app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
             // app.UseServerSentEvents();  // TODO noch zu testen
+            
+            // *kestrel*
+            // https://stackoverflow.com/questions/53833968/how-to-host-angular-application-with-kestrel
+            // -> const.js: public const string API_PATH = "ws/[controller]/[action]";
+            //              um "/791/sbsdb/" erweitern
+            // klappt so noch nicht (REST-API fkt. nicht wg. auth)
+            // fkt. nicht mit IIS 
+            /*
+            string appFolderName = "wwwroot";
+            string prodRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,appFolderName);
+            var fileprovider = new PhysicalFileProvider(prodRoot);
+            DefaultFilesOptions options = new DefaultFilesOptions(){
+                RequestPath = "/791/sbsdb",           // to process request to `/app`
+                FileProvider = fileprovider,    // to check files under `myroot/*#1#**`
+          //      DefaultFileNames = new List<string> { "index.html" },
+            };
+            // app.UseDefaultFiles(options); // wg. index.html
+            app.UseStaticFiles(new StaticFileOptions() {
+                RequestPath = "/791/sbsdb",
+  //              FileProvider = fileprovider,
+            }); // (new StaticFileOptions()); // -> wwwroot f. Angular-App
+            app.UseRouting(); 
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
+            app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
+            // app.UseServerSentEvents();  // TODO noch zu testen
+        */
         }
     }
 }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <VersionPrefix>0.5.1</VersionPrefix>
-    <VersionSuffix>alpha.101</VersionSuffix>
+    <VersionSuffix>alpha.108</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2021 Hartmut Bauer</Copyright>

@@ -130,10 +130,12 @@ namespace hb.SbsdbServer {
             }));
 
             app.UseResponseCompression();
+            app.UsePathBase(new PathString("/791/sbsdb"));  // wg. Kestrel
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
             
             // *IIS*
-            app.UseDefaultFiles(); // wg. index.html - evtl. nicht noetig
+            
+            // app.UseDefaultFiles(); // wg. index.html - evtl. nicht noetig
             app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot f. Angular-App
             app.UseRouting(); 
             app.UseAuthentication();
@@ -150,7 +152,7 @@ namespace hb.SbsdbServer {
             //              um "/791/sbsdb/" erweitern
             // klappt so noch nicht (REST-API fkt. nicht wg. auth)
             // fkt. nicht mit IIS 
-            /*
+          /*
             string appFolderName = "wwwroot";
             string prodRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,appFolderName);
             var fileprovider = new PhysicalFileProvider(prodRoot);
@@ -172,7 +174,7 @@ namespace hb.SbsdbServer {
             });
             app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
             // app.UseServerSentEvents();  // TODO noch zu testen
-        */
+           */
         }
     }
 }

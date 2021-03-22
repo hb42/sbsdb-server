@@ -1,10 +1,14 @@
 ﻿using System;
+using System.DirectoryServices.Protocols;
+using System.Net;
+using System.Runtime.InteropServices;
 using hb.Common.Validation;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.Services;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -37,15 +41,30 @@ namespace hb.SbsdbServer {
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
-            // NTLM via IIS
-            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                // IIS NTLM || Kerberos
+                services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            } else {
+                // Kestrel-Server kann nur Kerberos
+                // TODO: funktionierenden Kerberos unter Linux zum Laufen bekommen fuer Tests ohne Windows
+                //       evtl. kann das helfen: https://hub.docker.com/r/nowsci/samba-domain
+                //       + lokale Einrichtung http://computing.help.inf.ed.ac.uk/kerberos-mac-os-x
+                //       (sonst [Auth*] in Controllern mit bedingter Kompilierung ausblenden)
+                services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+                    .AddNegotiate(); //options => {
+                        // options.EnableLdap("keinekekse.net");//ldap => {
+                        //     ldap.Domain = "keinekekse.net";
+                        //     ldap.LdapConnection = new LdapConnection(new LdapDirectoryIdentifier("sambadc.keinekekse.net"),
+                        //         new NetworkCredential("hb", "fakeuser"));
+                        // });
+
+                    // });
+            }
             
             // json komprimieren
             services.AddResponseCompression(options => {
                 options.EnableForHttps = true;
                 options.MimeTypes = new[] {"application/json"};
-                                            // "application/json; charset=utf-8",
-                                            // "application/json;charset=utf-8" };
             });
             
             // DB-Connection-Strings holen
@@ -81,6 +100,7 @@ namespace hb.SbsdbServer {
             // und fuer alle Services zur Verfuegung stellen
             var version = new VersionResource();
             services.AddSingleton(version);
+            Console.WriteLine(version.Package());
 
             // Services und Repositories
             services.AddTransient<IUserService, UserService>();
@@ -125,11 +145,13 @@ namespace hb.SbsdbServer {
             }));
 
             app.UseResponseCompression();
-            app.UsePathBase(new PathString("/791/sbsdb"));  // wg. Kestrel
+            
+            // wird nur fuer Kestrel-Server (Linux, macOS) gebraucht
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                app.UsePathBase(new PathString("/791/sbsdb")); 
+            }
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
-            
-            // *IIS*
-            
+
             // app.UseDefaultFiles(); // wg. index.html - evtl. nicht noetig
             app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot f. Angular-App
             app.UseRouting(); 
@@ -141,35 +163,6 @@ namespace hb.SbsdbServer {
             app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
             // app.UseServerSentEvents();  // TODO noch zu testen
             
-            // *kestrel*
-            // https://stackoverflow.com/questions/53833968/how-to-host-angular-application-with-kestrel
-            // -> const.js: public const string API_PATH = "ws/[controller]/[action]";
-            //              um "/791/sbsdb/" erweitern
-            // klappt so noch nicht (REST-API fkt. nicht wg. auth)
-            // fkt. nicht mit IIS 
-          /*
-            string appFolderName = "wwwroot";
-            string prodRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,appFolderName);
-            var fileprovider = new PhysicalFileProvider(prodRoot);
-            DefaultFilesOptions options = new DefaultFilesOptions(){
-                RequestPath = "/791/sbsdb",           // to process request to `/app`
-                FileProvider = fileprovider,    // to check files under `myroot/*#1#**`
-          //      DefaultFileNames = new List<string> { "index.html" },
-            };
-            // app.UseDefaultFiles(options); // wg. index.html
-            app.UseStaticFiles(new StaticFileOptions() {
-                RequestPath = "/791/sbsdb",
-  //              FileProvider = fileprovider,
-            }); // (new StaticFileOptions()); // -> wwwroot f. Angular-App
-            app.UseRouting(); 
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseEndpoints(endpoints => {
-                endpoints.MapControllers();
-            });
-            app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
-            // app.UseServerSentEvents();  // TODO noch zu testen
-           */
         }
     }
 }

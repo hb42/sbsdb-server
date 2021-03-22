@@ -15,9 +15,9 @@ namespace hb.SbsdbServer.Controllers {
         
         [HttpGet]
         public ActionResult<object> Version() {
-            Log.LogDebug("*** get version");
+            // Log.LogDebug("*** get version");
             var v = _configService.GetVersion();
-            Log.LogDebug("version " + v);
+            // Log.LogDebug("version " + v);
             
             return Ok(v);
         }

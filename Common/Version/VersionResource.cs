@@ -87,7 +87,7 @@ namespace hb.Common.Version {
                 copyright = Copyright,
                 author = "",  // <authors> wird anscheinend nicht in assembly geschrieben
                 license = "MIT", // erst mal fix
-                versions = new string[] {"ASP.NET Core " + AspNetCoreVersion(), OsVersion()} // TODO + iis version 
+                versions = new string[] {AspNetCoreVersion(), OsVersion()} // TODO + iis version? 
             };
         }
         public override string ToString() {
@@ -95,18 +95,9 @@ namespace hb.Common.Version {
         }
         /**
          * ASP.NET Core-Version ermitteln
-         * Wird anhand der grundsaetzlich vorhandenen Klasse Microsoft.AspNetCore.Mvc.Controller geholt.
          */
         public string AspNetCoreVersion() {
-            string coreVersion;
-            try {
-                var coreClass = "Microsoft.AspNetCore.Mvc.Controller, Microsoft.AspNetCore.Mvc.ViewFeatures";
-                coreVersion = Type.GetType(coreClass)?.Assembly.GetName().Version?.ToString() ?? "n/a";
-            } catch (Exception) {
-                // Klasse nicht gefunden, anderer Fehler
-                coreVersion = "n/a";
-            }
-            return coreVersion;
+            return $"ASP.NET Core {Environment.Version}";
         }
         /**
          * Betriebssystem-Version
@@ -114,8 +105,8 @@ namespace hb.Common.Version {
         public string OsVersion() {
             // fuer Windows ist dieser String ausreichend
             var desc = RuntimeInformation.OSDescription;
-            // fuer macOS wird nur die Kernel-Version geliefert, daher zusaetzliche Info anhaengen
             // TODO Abfrage fuer macOS + Linux, die besser lesbare Infos liefert
+            // fuer macOS wird nur die Kernel-Version geliefert, daher zusaetzliche Info anhaengen
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
                 desc = RuntimeInformation.RuntimeIdentifier + " " + desc;
             }

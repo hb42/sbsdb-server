@@ -1,6 +1,9 @@
 using System.IO;
+using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using hb.SbsdbServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -15,11 +18,7 @@ namespace hb.SbsdbServer.Controllers {
         
         [HttpGet]
         public ActionResult<object> Version() {
-            // Log.LogDebug("*** get version");
-            var v = _configService.GetVersion();
-            // Log.LogDebug("version " + v);
-            
-            return Ok(v);
+            return Ok(_configService.GetVersion());
         }
 
         [HttpGet("{config}")]

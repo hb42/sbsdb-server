@@ -853,7 +853,7 @@ namespace hb.SbsdbServer.Model
                 entity.Property(e => e.Userid)
                     .IsRequired()
                     .HasColumnName("USERID")
-                    .HasColumnType("VARCHAR2(20)");
+                    .HasColumnType("VARCHAR2(30)");
             });
 
             modelBuilder.Entity<Vlan>(entity =>

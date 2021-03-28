@@ -1,7 +1,9 @@
 ﻿using System;
 using System.DirectoryServices.Protocols;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using hb.Common.Validation;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
@@ -9,6 +11,7 @@ using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -41,25 +44,27 @@ namespace hb.SbsdbServer {
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                // IIS NTLM || Kerberos
-                services.AddAuthentication(IISDefaults.AuthenticationScheme);
-            } else {
-                // Kestrel-Server kann nur Kerberos
-                // TODO: funktionierenden Kerberos unter Linux zum Laufen bekommen fuer Tests ohne Windows
-                //       evtl. kann das helfen: https://hub.docker.com/r/nowsci/samba-domain
-                //       + lokale Einrichtung http://computing.help.inf.ed.ac.uk/kerberos-mac-os-x
-                //       (sonst [Auth*] in Controllern mit bedingter Kompilierung ausblenden)
-                services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
-                    .AddNegotiate(); //options => {
-                        // options.EnableLdap("keinekekse.net");//ldap => {
-                        //     ldap.Domain = "keinekekse.net";
-                        //     ldap.LdapConnection = new LdapConnection(new LdapDirectoryIdentifier("sambadc.keinekekse.net"),
-                        //         new NetworkCredential("hb", "fakeuser"));
-                        // });
-
-                    // });
-            }
+            services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+                .AddNegotiate(); 
+            
+            // Authorization Helper als Singleton registrieren
+            var auth = new AuthorizationHelper(/*Configuration*/);
+            services.AddSingleton(auth);
+            
+            // Auth via [Authorize(Role = ... ] klappt nicht auf allen Systemen,
+            // daher wird hier eine Policy definiert, die die Unterschiede
+            // beruecksichtigen kann -> [Authorize(Policy = "adminUser")].
+            //
+            // Die fn wird immer zweimal aufgerufen, beim ersten Mal ohen Daten fuer den Benutzer,
+            // User.Identity.IsAuthenticated ist dann false. Da ist natuerlich auch kein Check
+            // auf Gruppen moeglich, es ist auch egal, ob true oder false zurueckgegeben wird.
+            // Desalb der zusaetzliche Check auf IsAuthenticated.
+            services.AddAuthorization(options => {
+                options.AddPolicy("adminUser",
+                    policyBuilder => policyBuilder.RequireAssertion(
+                        context => context.User.Identity.IsAuthenticated ? auth.IsAdmin(context.User) : false
+                        ));
+            });
             
             // json komprimieren
             services.AddResponseCompression(options => {
@@ -68,17 +73,21 @@ namespace hb.SbsdbServer {
             });
             
             // DB-Connection-Strings holen
+#if TESTSYSTEM  // unterschiedliche Connection-Strings fuer verschiedene System
             string connStr;
             string connStrv4;
-            if (Configuration.GetValue<string>("VRZKennung") != null) { // SPK-Umgebung
-                connStr = Configuration.GetConnectionString("sbsdb");
-                connStrv4 = Configuration.GetConnectionString("sbsdbv4");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+              connStr = Configuration.GetConnectionString("sbsdbxx");
+              connStrv4 = Configuration.GetConnectionString("sbsdbv4x");
             }
             else {
-                connStr = Configuration.GetConnectionString("sbsdbx");
-                connStrv4 = Configuration.GetConnectionString("sbsdbv4x");
+              connStr = Configuration.GetConnectionString("sbsdbx");
+              connStrv4 = Configuration.GetConnectionString("sbsdbv4x");
             }
-
+#else
+            string connStr = Configuration.GetConnectionString("sbsdb");
+            string connStrv4 = Configuration.GetConnectionString("sbsdbv4");
+#endif
             // alter Bestand - MySQL/EF
             // TODO kann raus, sobald alles auf neue Oracle-Struktur ueberfuehrt
             services.AddDbContextPool<Sbsdbv4Context>(
@@ -118,9 +127,10 @@ namespace hb.SbsdbServer {
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-            if (env.IsDevelopment()) {
+            // TODO auch in Produktion drinlassen?
+            // if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
-            }
+            // }
 
             // TODO kann raus, wenn die Datenbankstruktur steht 
             // create-table-commands fuer alle Entities die SbsdbContext verwaltet ins Log schreiben
@@ -152,7 +162,6 @@ namespace hb.SbsdbServer {
             }
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
 
-            // app.UseDefaultFiles(); // wg. index.html - evtl. nicht noetig
             app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot f. Angular-App
             app.UseRouting(); 
             app.UseAuthentication();

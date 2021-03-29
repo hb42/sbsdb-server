@@ -48,7 +48,7 @@ namespace hb.SbsdbServer {
                 .AddNegotiate(); 
             
             // Authorization Helper als Singleton registrieren
-            var auth = new AuthorizationHelper(/*Configuration*/);
+            var auth = new AuthorizationHelper(Configuration);
             services.AddSingleton(auth);
             
             // Auth via [Authorize(Role = ... ] klappt nicht auf allen Systemen,
@@ -92,7 +92,6 @@ namespace hb.SbsdbServer {
             // TODO kann raus, sobald alles auf neue Oracle-Struktur ueberfuehrt
             services.AddDbContextPool<Sbsdbv4Context>(
                 options => options
-                    //   .UseLazyLoadingProxies()   // sofern lazy loading gewuenscht
                     .UseMySql(connStrv4,
                         mySqlOptions => { mySqlOptions.ServerVersion(new Version(5, 5, 60), ServerType.MySql); }
                     )
@@ -101,8 +100,9 @@ namespace hb.SbsdbServer {
             // neuer Bestand - Oracle/EF
             services.AddDbContextPool<SbsdbContext>(
                 options => options 
-                    // .UseLazyLoadingProxies() // sofern lazy loading gewuenscht
-                    .UseOracle(connStr)
+                    .UseOracle(connStr, opt => 
+                        opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+                        )
             );
 
             // Versionsinfos werden per .csproj gesetzt, hier aus Assembly auslesen 
@@ -120,6 +120,8 @@ namespace hb.SbsdbServer {
             services.AddTransient<IApRepository, ApRepository>();
             services.AddTransient<IConfigService, ConfigService>();
             services.AddTransient<IConfigRepository, ConfigRepository>();
+            services.AddTransient<IBetrstService, BetrstService>();
+            services.AddTransient<IBetrstRepository, BetrstRepository>();
 
             services.AddTransient<v4Migration, v4Migration>();
             services.AddTransient<TestService, TestService>();

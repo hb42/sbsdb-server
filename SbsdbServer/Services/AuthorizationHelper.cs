@@ -1,20 +1,20 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Services {
     public class AuthorizationHelper {
-      //  private readonly IConfiguration _configuration;
+      private readonly IConfiguration _configuration;
       
-        // public AuthorizationHelper(IConfiguration configuration) {
-        //     _configuration = configuration;
-        // }
+        public AuthorizationHelper(IConfiguration configuration) {
+            _configuration = configuration;
+        }
 
         /**
-         * User-ID aus dem Principal auslesen (beruecksichtig <domain>\<user> und <user>@<domain>)
+         * User-ID aus dem Principal auslesen (beruecksichtig domain\user und user@domain)
          * 
          * Falls der Principal undefiniert ist, wird das eine Exception ausloesen.
          * Das ist beabsichtigt, denn wenn die Anwendung keinen User finden kann,
@@ -43,6 +43,7 @@ namespace hb.SbsdbServer.Services {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                 // Win10 + IIS kann die SID aus dem Kerberos-Ticket nicht in
                 // den Gruppennamen ueebersetzen
+                // (SID ermittelen: PS> Get-LocalGroup | select name,sid)
                 return user.IsInRole("S-1-5-21-2177293706-942526630-1309965019-1013");
             }
             else {
@@ -54,7 +55,7 @@ namespace hb.SbsdbServer.Services {
             }
 #else
             // AD: hier sind keine Verrenkungen noetig
-            return user.IsInRole(Configuration["AdminRole"]);
+            return user.IsInRole(_configuration["AdminRole"]);
 #endif
         }
 

@@ -150,36 +150,37 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Bezeichnung = ap.Bezeichnung,
                     Aptyp = ap.Aptyp.Bezeichnung,
                     Bemerkung = ap.Bemerkung,
-                    Oe = new Betrst {
-                        BstId = ap.Oe.Id,
-                        Betriebsstelle = ap.Oe.Betriebsstelle,
-                        BstNr = ap.Oe.Bst,
-                        Fax = ap.Oe.Fax,
-                        Tel = ap.Oe.Tel,
-                        Oeff = ap.Oe.Oeff,
-                        Ap = (bool) ap.Oe.Ap,
-                        ParentId = ap.Oe.OeId,
-                        Plz = ap.Oe.Adresse.Plz,
-                        Ort = ap.Oe.Adresse.Ort,
-                        Strasse = ap.Oe.Adresse.Strasse,
-                        Hausnr = ap.Oe.Adresse.Hausnr
-                    },
-                    VerantwOe = ap.OeIdVerOe == null || ap.OeIdVerOe == ap.OeId
-                        ? null
-                        : new Betrst {
-                            BstId = ap.OeIdVerOeNavigation.Id,
-                            Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
-                            BstNr = ap.OeIdVerOeNavigation.Bst,
-                            Fax = ap.OeIdVerOeNavigation.Fax,
-                            Tel = ap.OeIdVerOeNavigation.Tel,
-                            Oeff = ap.OeIdVerOeNavigation.Oeff,
-                            Ap = (bool) ap.OeIdVerOeNavigation.Ap,
-                            ParentId = ap.OeIdVerOeNavigation.OeId,
-                            Plz = ap.OeIdVerOeNavigation.Adresse.Plz,
-                            Ort = ap.OeIdVerOeNavigation.Adresse.Ort,
-                            Strasse = ap.OeIdVerOeNavigation.Adresse.Strasse,
-                            Hausnr = ap.OeIdVerOeNavigation.Adresse.Hausnr
-                        },
+                    OeId = ap.OeId,
+                    //     new Betrst {
+                    //     BstId = ap.Oe.Id,
+                    //     Betriebsstelle = ap.Oe.Betriebsstelle,
+                    //     BstNr = ap.Oe.Bst,
+                    //     Fax = ap.Oe.Fax,
+                    //     Tel = ap.Oe.Tel,
+                    //     Oeff = ap.Oe.Oeff,
+                    //     Ap = (bool) ap.Oe.Ap,
+                    //     ParentId = ap.Oe.OeId,
+                    //     Plz = ap.Oe.Adresse.Plz,
+                    //     Ort = ap.Oe.Adresse.Ort,
+                    //     Strasse = ap.Oe.Adresse.Strasse,
+                    //     Hausnr = ap.Oe.Adresse.Hausnr
+                    // },
+                    VerantwOeId = ap.OeIdVerOe ?? 0, // == null || ap.OeIdVerOe == ap.OeId
+                        // ? null
+                        // : new Betrst {
+                        //     BstId = ap.OeIdVerOeNavigation.Id,
+                        //     Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
+                        //     BstNr = ap.OeIdVerOeNavigation.Bst,
+                        //     Fax = ap.OeIdVerOeNavigation.Fax,
+                        //     Tel = ap.OeIdVerOeNavigation.Tel,
+                        //     Oeff = ap.OeIdVerOeNavigation.Oeff,
+                        //     Ap = (bool) ap.OeIdVerOeNavigation.Ap,
+                        //     ParentId = ap.OeIdVerOeNavigation.OeId,
+                        //     Plz = ap.OeIdVerOeNavigation.Adresse.Plz,
+                        //     Ort = ap.OeIdVerOeNavigation.Adresse.Ort,
+                        //     Strasse = ap.OeIdVerOeNavigation.Adresse.Strasse,
+                        //     Hausnr = ap.OeIdVerOeNavigation.Adresse.Hausnr
+                        // },
                     Hw = ap.Hw.Select(hw => new TmpHw {
                         Id = hw.Id,
                         Hersteller = hw.Hwkonfig.Hersteller,
@@ -223,16 +224,17 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Apname = ap.Apname,
                     Bezeichnung = ap.Bezeichnung,
                     Aptyp = ap.Aptyp.Bezeichnung,
-                    Oe = new Betrst {
-                        Betriebsstelle = ap.Oe.Betriebsstelle,
-                        BstNr = ap.Oe.Bst,
-                    },
-                    VerantwOe = ap.OeIdVerOe == null || ap.OeIdVerOe == ap.OeId
-                        ? null
-                        : new Betrst {
-                            Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
-                            BstNr = ap.OeIdVerOeNavigation.Bst,
-                        },
+                    OeId = ap.Oe.Id,
+                    //     new Betrst {
+                    //     Betriebsstelle = ap.Oe.Betriebsstelle,
+                    //     BstNr = ap.Oe.Bst,
+                    // },
+                    VerantwOeId = ap.OeIdVerOe ?? 0, // == null || ap.OeIdVerOe == ap.OeId
+                        // ? null
+                        // : new Betrst {
+                        //     Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
+                        //     BstNr = ap.OeIdVerOeNavigation.Bst,
+                        // },
                     Hw = ap.Hw.Where(hw => hw.Pri).Select(hw => new TmpHw {
                         Hersteller = hw.Hwkonfig.Hersteller,
                         Bezeichnung = hw.Hwkonfig.Bezeichnung,
@@ -264,8 +266,8 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Bezeichnung = t.Bezeichnung,
                     Bemerkung = t.Bemerkung,
                     Aptyp = t.Aptyp,
-                    Oe = t.Oe,
-                    VerantwOe = t.VerantwOe,
+                    OeId = t.OeId,
+                    VerantwOeId = t.VerantwOeId,
                     Tags = t.Tags ?? new List<Tag>()
                 };
                 foreach (var h in t.Hw) {
@@ -302,8 +304,8 @@ namespace hb.SbsdbServer.Model.Repositories {
             public string Apname { get; set; }
             public string Bezeichnung { get; set; }
             public string Aptyp { get; set; }
-            public Betrst Oe { get; set; }
-            public Betrst VerantwOe { get; set; }
+            public long OeId { get; set; }
+            public long VerantwOeId { get; set; }
             public string Bemerkung { get; set; }
             public List<Tag> Tags { get; set; }
             public List<TmpHw> Hw { get; set; }

@@ -148,9 +148,15 @@ namespace hb.SbsdbServer.Model.Repositories {
                     ApId = ap.Id,
                     Apname = ap.Apname,
                     Bezeichnung = ap.Bezeichnung,
-                    Aptyp = ap.Aptyp.Bezeichnung,
+                    // Aptyp = ap.Aptyp.Bezeichnung,
                     Bemerkung = ap.Bemerkung,
                     OeId = ap.OeId,
+                    ApTypId = ap.Aptyp.Id,
+                    ApTypBezeichnung = ap.Aptyp.Bezeichnung,
+                    ApTypFlag = ap.Aptyp.Flag ?? 0,
+                    ApKatId = ap.Aptyp.Apkategorie.Id,
+                    ApKatBezeichnung = ap.Aptyp.Apkategorie.Bezeichnung,
+                    ApKatFlag = ap.Aptyp.Apkategorie.Flag ?? 0,
                     //     new Betrst {
                     //     BstId = ap.Oe.Id,
                     //     Betriebsstelle = ap.Oe.Betriebsstelle,
@@ -181,23 +187,23 @@ namespace hb.SbsdbServer.Model.Repositories {
                         //     Strasse = ap.OeIdVerOeNavigation.Adresse.Strasse,
                         //     Hausnr = ap.OeIdVerOeNavigation.Adresse.Hausnr
                         // },
-                    Hw = ap.Hw.Select(hw => new TmpHw {
-                        Id = hw.Id,
-                        Hersteller = hw.Hwkonfig.Hersteller,
-                        Bezeichnung = hw.Hwkonfig.Bezeichnung,
-                        Sernr = hw.SerNr,
-                        Pri = hw.Pri,
-                        Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
-                        HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
-                        Vlan = hw.Mac.Select(m => new Netzwerk {
-                            VlanId = m.VlanId,
-                            Bezeichnung = m.Vlan.Bezeichnung,
-                            Vlan = m.Vlan.Ip,
-                            Netmask = m.Vlan.Netmask,
-                            Ip = (long) m.Ip,
-                            Mac = m.Adresse
-                        }).ToList()
-                    }).ToList(),
+                    // Hw = ap.Hw.Select(hw => new TmpHw {
+                    //     Id = hw.Id,
+                    //     Hersteller = hw.Hwkonfig.Hersteller,
+                    //     Bezeichnung = hw.Hwkonfig.Bezeichnung,
+                    //     Sernr = hw.SerNr,
+                    //     Pri = hw.Pri,
+                    //     Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
+                    //     HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
+                    //     Vlan = hw.Mac.Select(m => new Netzwerk {
+                    //         VlanId = m.VlanId,
+                    //         Bezeichnung = m.Vlan.Bezeichnung,
+                    //         Vlan = m.Vlan.Ip,
+                    //         Netmask = m.Vlan.Netmask,
+                    //         Ip = (long) m.Ip,
+                    //         Mac = m.Adresse
+                    //     }).ToList()
+                    // }).ToList(),
                     Tags = ap.ApTag.Select(t => new Tag {
                         ApTagId = t.Id,
                         TagId = t.TagtypId,
@@ -225,6 +231,12 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Bezeichnung = ap.Bezeichnung,
                     Aptyp = ap.Aptyp.Bezeichnung,
                     OeId = ap.Oe.Id,
+                    ApTypId = ap.Aptyp.Id,
+                    ApTypBezeichnung = ap.Aptyp.Bezeichnung,
+                    ApTypFlag = ap.Aptyp.Flag ?? 0,
+                    ApKatId = ap.Aptyp.Apkategorie.Id,
+                    ApKatBezeichnung = ap.Aptyp.Apkategorie.Bezeichnung,
+                    ApKatFlag = ap.Aptyp.Apkategorie.Flag ?? 0,
                     //     new Betrst {
                     //     Betriebsstelle = ap.Oe.Betriebsstelle,
                     //     BstNr = ap.Oe.Bst,
@@ -235,22 +247,22 @@ namespace hb.SbsdbServer.Model.Repositories {
                         //     Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
                         //     BstNr = ap.OeIdVerOeNavigation.Bst,
                         // },
-                    Hw = ap.Hw.Where(hw => hw.Pri).Select(hw => new TmpHw {
-                        Hersteller = hw.Hwkonfig.Hersteller,
-                        Bezeichnung = hw.Hwkonfig.Bezeichnung,
-                        Sernr = hw.SerNr,
-                        Pri = hw.Pri,
-                        Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
-                        HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
-                        Vlan = hw.Mac.Select(m => new Netzwerk {
-                            VlanId = m.VlanId,
-                            Bezeichnung = m.Vlan.Bezeichnung,
-                            Vlan = m.Vlan.Ip,
-                            Netmask = m.Vlan.Netmask,
-                            Ip = (long) m.Ip,
-                            Mac = m.Adresse
-                        }).ToList()
-                    }).ToList()
+                    // Hw = ap.Hw.Where(hw => hw.Pri).Select(hw => new TmpHw {
+                    //     Hersteller = hw.Hwkonfig.Hersteller,
+                    //     Bezeichnung = hw.Hwkonfig.Bezeichnung,
+                    //     Sernr = hw.SerNr,
+                    //     Pri = hw.Pri,
+                    //     Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
+                    //     HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
+                    //     Vlan = hw.Mac.Select(m => new Netzwerk {
+                    //         VlanId = m.VlanId,
+                    //         Bezeichnung = m.Vlan.Bezeichnung,
+                    //         Vlan = m.Vlan.Ip,
+                    //         Netmask = m.Vlan.Netmask,
+                    //         Ip = (long) m.Ip,
+                    //         Mac = m.Adresse
+                    //     }).ToList()
+                    // }).ToList()
                 });
         }
 
@@ -265,24 +277,30 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Apname = t.Apname,
                     Bezeichnung = t.Bezeichnung,
                     Bemerkung = t.Bemerkung,
-                    Aptyp = t.Aptyp,
+                    // Aptyp = t.Aptyp,
                     OeId = t.OeId,
                     VerantwOeId = t.VerantwOeId,
+                    ApTypId = t.ApTypId,
+                    ApTypBezeichnung = t.ApTypBezeichnung,
+                    ApTypFlag = t.ApTypFlag,
+                    ApKatId = t.ApKatId,
+                    ApKatBezeichnung = t.ApKatBezeichnung,
+                    ApKatFlag = t.ApKatFlag,
                     Tags = t.Tags ?? new List<Tag>()
                 };
-                foreach (var h in t.Hw) {
-                    var hw = new Hardware {
-                        Id = h.Id,
-                        Hersteller = h.Hersteller,
-                        Bezeichnung = h.Bezeichnung,
-                        Sernr = h.Sernr,
-                        Pri = h.Pri,
-                        Hwtyp = h.Hwtyp,
-                        HwtypFlag = h.HwtypFlag,
-                        Vlan = h.Vlan ?? new List<Netzwerk>()
-                    };
-                    ap.Hw.Add(hw);
-                }
+                // foreach (var h in t.Hw) {
+                //     var hw = new Hardware {
+                //         Id = h.Id,
+                //         Hersteller = h.Hersteller,
+                //         Bezeichnung = h.Bezeichnung,
+                //         Sernr = h.Sernr,
+                //         Pri = h.Pri,
+                //         Hwtyp = h.Hwtyp,
+                //         HwtypFlag = h.HwtypFlag,
+                //         Vlan = h.Vlan ?? new List<Netzwerk>()
+                //     };
+                //     ap.Hw.Add(hw);
+                // }
                 aps.Add(ap);
             }
             return aps;
@@ -307,6 +325,12 @@ namespace hb.SbsdbServer.Model.Repositories {
             public long OeId { get; set; }
             public long VerantwOeId { get; set; }
             public string Bemerkung { get; set; }
+            public long ApTypId { get; set; }
+            public string ApTypBezeichnung { get; set; }
+            public long ApTypFlag { get; set; }
+            public long ApKatId { get; set; }
+            public string ApKatBezeichnung { get; set; }
+            public long ApKatFlag { get; set; }
             public List<Tag> Tags { get; set; }
             public List<TmpHw> Hw { get; set; }
         }

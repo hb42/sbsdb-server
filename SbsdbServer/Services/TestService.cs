@@ -20,12 +20,12 @@ namespace hb.SbsdbServer.Services {
                 .Select(a => new Arbeitsplatz {
                     Apname = a.ApName,
                     Bezeichnung = a.Bezeichnung,
-                    Aptyp = a.ApklasseIndexNavigation.Apklasse,
-                    Hw = a.SbsHw.Select(h => new Hardware {
-                        Hersteller = h.KonfigIndexNavigation.Hersteller,
-                        Bezeichnung = h.KonfigIndexNavigation.Bezeichnung,
-                        Sernr = h.SerNr
-                    }).ToList()
+                    // Aptyp = a.ApklasseIndexNavigation.Apklasse,
+                    // Hw = a.SbsHw.Select(h => new Hardware {
+                    //     Hersteller = h.KonfigIndexNavigation.Hersteller,
+                    //     Bezeichnung = h.KonfigIndexNavigation.Bezeichnung,
+                    //     Sernr = h.SerNr
+                    // }).ToList()
                 });
 
             return aps.ToList();

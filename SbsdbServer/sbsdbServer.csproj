@@ -51,7 +51,7 @@
     <ClientFiles Include="..\..\sbsdb\dist\sbsdb\**\*.*" />
   </ItemGroup>
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="@(ClientFiles)" DestinationFiles="@(ClientFiles-&gt;'$(PublishDir)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(ClientFiles)" DestinationFiles="@(ClientFiles->'$(PublishDir)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

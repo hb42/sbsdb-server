@@ -122,6 +122,8 @@ namespace hb.SbsdbServer {
             services.AddTransient<IConfigRepository, ConfigRepository>();
             services.AddTransient<IBetrstService, BetrstService>();
             services.AddTransient<IBetrstRepository, BetrstRepository>();
+            services.AddTransient<IHwKonfigRepository, HwKonfigRepository>();
+            services.AddTransient<IHwRepository, HwRepository>();
 
             services.AddTransient<v4Migration, v4Migration>();
             services.AddTransient<TestService, TestService>();

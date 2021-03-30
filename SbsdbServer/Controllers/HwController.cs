@@ -23,5 +23,15 @@ namespace hb.SbsdbServer.Controllers {
             return _hwService.GetHardware(id);
         }
         
+        [HttpGet("{page}/{pagesize}")]
+        public ActionResult<List<Hardware>> Page(int page, int pagesize) {
+            return _hwService.GetPage(page, pagesize);
+        }
+        
+        [HttpGet]
+        [ActionName("count")]
+        public ActionResult<int> Count() {
+            return _hwService.GetCount();
+        }
     }
 }

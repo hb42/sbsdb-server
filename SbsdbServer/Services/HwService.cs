@@ -16,5 +16,13 @@ namespace hb.SbsdbServer.Services {
         public List<Hardware> GetHardware(long id) {
             return _hwRepository.GetHardware(id);
         }
+
+        public List<Hardware> GetPage(int page, int pageSize) {
+            return _hwRepository.GetPage(page, pageSize);
+        }
+
+        public int GetCount() {
+            return _hwRepository.GetCount();
+        }
     }
 }

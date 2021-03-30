@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <VersionPrefix>0.5.1</VersionPrefix>
-    <VersionSuffix>alpha.207</VersionSuffix>
+    <VersionSuffix>alpha.212</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2021 Hartmut Bauer</Copyright>
@@ -51,7 +51,7 @@
     <ClientFiles Include="..\..\sbsdb\dist\sbsdb\**\*.*" />
   </ItemGroup>
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="@(ClientFiles)" DestinationFiles="@(ClientFiles->'$(PublishDir)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(ClientFiles)" DestinationFiles="@(ClientFiles-&gt;'$(PublishDir)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

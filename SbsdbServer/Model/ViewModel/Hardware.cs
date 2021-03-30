@@ -5,7 +5,7 @@ using hb.SbsdbServer.Model.Entities;
 namespace hb.SbsdbServer.Model.ViewModel {
     public class Hardware {
         public Hardware() {
-            Vlan = new List<Netzwerk>();
+            Vlans = new List<Netzwerk>();
         }
         
         public long Id { get; set; }
@@ -23,6 +23,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
         // public string Hwtyp { get; set; }
         // public long HwtypFlag { get; set; }
         public long HwKonfigId { get; set; }
-        public List<Netzwerk> Vlan { get; set; }
+        public long ApId { get; set; }
+        public List<Netzwerk> Vlans { get; set; }
     }
 }

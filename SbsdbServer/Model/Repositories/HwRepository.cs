@@ -40,7 +40,8 @@ namespace hb.SbsdbServer.Model.Repositories {
                 .Select(hw => new Hardware {
                     Id = hw.Id,
                     Sernr = hw.SerNr,
-                    AnschDat = hw.AnschDat ?? new DateTime(0),
+                    // leeres Datum als UNIX-Epoch => in JS: aschDat.valueOf() === 0 
+                    AnschDat = hw.AnschDat ?? new DateTime(1970, 1, 1,1,0,0,0),
                     AnschWert = hw.AnschWert ?? 0,
                     InvNr = hw.InvNr,
                     Smbiosgiud = hw.Smbiosguid,

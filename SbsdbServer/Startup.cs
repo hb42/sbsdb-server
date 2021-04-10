@@ -72,8 +72,10 @@ namespace hb.SbsdbServer {
                 options.MimeTypes = new[] {"application/json"};
             });
             
+            // TODO Rider 2021.1 scheint Defines zu ignorieren => vorerst manuell mit '!' umschalten
+            //      hier, in Program.cs und AuthorizationHelper.cs
             // DB-Connection-Strings holen
-#if TESTSYSTEM  // unterschiedliche Connection-Strings fuer verschiedene System
+#if TESTSYSTEM  // unterschiedliche Connection-Strings fuer verschiedene Systeme
             string connStr;
             string connStrv4;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {

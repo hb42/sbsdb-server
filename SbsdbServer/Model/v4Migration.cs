@@ -220,9 +220,8 @@ namespace hb.SbsdbServer.Model {
                     HwkonfigId = (long) o.KonfigIndex,
                     Mac = o.Mac,
                     Smbiosguid = o.Netbootguid,
-                    WartungBem = o.WartungBem,
                     WartungFa = o.WartungFa,
-                    Bemerkung = "",
+                    Bemerkung = o.WartungBem,
                     AussDat = o.AussDat,
                     AussGrund = o.AussGrund,
                     Rewe = new DateTime(2018, 12, 14)
@@ -429,8 +428,7 @@ namespace hb.SbsdbServer.Model {
                     Pri = o.Pri == "J",
                     SerNr = o.SerNr,
                     Smbiosguid = o.Netbootguid,
-                    WartungFa = o.WartungFa, // ?
-                    WartungBem = o.WartungBem // ?
+                    WartungFa = o.WartungFa // ?
                 };
                 LOG.LogDebug("Hw add #" + n.Id);
                 v5dbContext.Hw.Add(n);

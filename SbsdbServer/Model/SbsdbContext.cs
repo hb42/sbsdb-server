@@ -374,10 +374,6 @@ namespace hb.SbsdbServer.Model
                     .HasColumnName("SMBIOSGUID")
                     .HasColumnType("VARCHAR2(50)");
 
-                entity.Property(e => e.WartungBem)
-                    .HasColumnName("WARTUNG_BEM")
-                    .HasColumnType("VARCHAR2(200)");
-
                 entity.Property(e => e.WartungFa)
                     .HasColumnName("WARTUNG_FA")
                     .HasColumnType("VARCHAR2(50)");
@@ -477,10 +473,6 @@ namespace hb.SbsdbServer.Model
                 entity.Property(e => e.Smbiosguid)
                     .HasColumnName("SMBIOSGUID")
                     .HasColumnType("VARCHAR2(50)");
-
-                entity.Property(e => e.WartungBem)
-                    .HasColumnName("WARTUNG_BEM")
-                    .HasColumnType("VARCHAR2(200)");
 
                 entity.Property(e => e.WartungFa)
                     .HasColumnName("WARTUNG_FA")

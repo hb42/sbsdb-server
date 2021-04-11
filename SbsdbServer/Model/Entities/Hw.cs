@@ -17,7 +17,6 @@ namespace hb.SbsdbServer.Model.Entities
         public string InvNr { get; set; }
         public decimal? AnschWert { get; set; }
         public string Smbiosguid { get; set; }
-        public string WartungBem { get; set; }
         public string WartungFa { get; set; }
         public string Bemerkung { get; set; }
         public bool Pri { get; set; }

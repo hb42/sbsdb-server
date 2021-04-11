@@ -45,7 +45,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     AnschWert = hw.AnschWert ?? 0,
                     InvNr = hw.InvNr,
                     Smbiosgiud = hw.Smbiosguid,
-                    WartungBem = hw.WartungBem, 
                     WartungFa = hw.WartungFa,
                     Bemerkung = hw.Bemerkung,
                     Pri = hw.Pri,

@@ -39,8 +39,12 @@ namespace hb.SbsdbServer.Model.Repositories
                     Key = config.ToLower(),
                     Value = ""
                 };
-                _dbContext.ProgramSettings.Add(setting);
-                _dbContext.SaveChanges();
+                _log.LogDebug("GetConfig " + config + " is NULL");
+                // _dbContext.ProgramSettings.Add(setting);
+                // _dbContext.SaveChanges();
+            }
+            else {
+                _log.LogDebug("GeConfig " + config + " " + setting.Id);
             }
             return setting;
         }

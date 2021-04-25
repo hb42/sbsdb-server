@@ -114,7 +114,7 @@ namespace hb.SbsdbServer.Model {
             MigIssuetyp();
             MigAdresse();
             MigOe();
-            MigExtprog();
+            // MigExtprog();
             MigTagtyp();
             MigAp();
             MigApissue();
@@ -131,12 +131,12 @@ namespace hb.SbsdbServer.Model {
         }
 
         private void MigAptyp() {
-            var old = v4dbContext.SbsAptyp.OrderBy(t => t.AptypIndex).ToList();
+            var old = v4dbContext.SbsAptyp.Where(t => t.AptypIndex != 5).OrderBy(t => t.AptypIndex).ToList();
             foreach (var o in old) {
                 var n = new Apkategorie {
-                    Id = o.AptypIndex,
-                    Bezeichnung = o.Aptyp,
-                    Flag = o.Flag
+                    Id = o.AptypIndex == 0 ? 10 : o.AptypIndex,
+                    Bezeichnung = o.AptypIndex == 1 ? "Client" : o.Aptyp,
+                    Flag = o.AptypIndex == 0 ? 1 : o.Flag
                 };
                 LOG.LogDebug("ApKategorie add #" + n.Id);
                 v5dbContext.Apkategorie.Add(n);
@@ -148,14 +148,14 @@ namespace hb.SbsdbServer.Model {
         }
 
         private void MigApklasse() { // geht's auch ohne -> als Tag abbilden (Param nutzen)
-            var old = v4dbContext.SbsApklasse
+            var old = v4dbContext.SbsApklasse.Where((k => k.ApklasseIndex > 0))
                 .OrderBy(k => k.ApklasseIndex).ToList();
             foreach (var o in old) {
                 var n = new Aptyp {
                     Id = o.ApklasseIndex,
                     Bezeichnung = o.Apklasse,
                     Flag = o.Flag,
-                    ApkategorieId = (long) o.AptypIndex
+                    ApkategorieId = o.AptypIndex == 5 ? 1 : (long) o.AptypIndex
                 };
                 LOG.LogDebug("ApTyp add #" + n.Id);
                 v5dbContext.Aptyp.Add(n);
@@ -173,7 +173,7 @@ namespace hb.SbsdbServer.Model {
                     Id = o.HwtypIndex,
                     Bezeichnung = o.Hwtyp,
                     Flag = 0,
-                    ApkategorieId = (long) o.AptypIndex
+                    ApkategorieId = o.AptypIndex == 0 ? 10 : o.AptypIndex == 5 ? 1 : (long) o.AptypIndex
                 };
                 LOG.LogDebug("HwTyp add #" + n.Id);
                 v5dbContext.Hwtyp.Add(n);
@@ -240,7 +240,7 @@ namespace hb.SbsdbServer.Model {
                 .OrderBy(k => k.SegmentIndex).ToList();
             foreach (var o in old) {
                 var n = new Vlan {
-                    Id = o.SegmentIndex,
+                    Id = (o.SegmentIndex == 0 ? 1 : o.SegmentIndex),
                     Bezeichnung = o.SegmentName,
                     Ip = o.Tcp,
                     Netmask = o.Netmask
@@ -302,7 +302,7 @@ namespace hb.SbsdbServer.Model {
                     Bst = o.Bst,
                     Fax = o.Fax,
                     Oeff = o.Oeff,
-                    OeId = o.ParentOe,
+                    OeId = o.ParentOe == 0 ? null : o.ParentOe,
                     Tel = o.Tel
                 };
                 LOG.LogDebug("OE add #" + n.Id);
@@ -320,7 +320,7 @@ namespace hb.SbsdbServer.Model {
                 var n = new Extprog {
                     Id = o.ExtprogIndex,
                     Bezeichnung = o.Extprog,
-                    AptypId = (long) o.ApklasseIndex,
+                    ApkategorieId = (long) o.ApklasseIndex,
                     ExtprogName = o.ExtprogName,
                     ExtprogPar = o.ExtprogPar,
                     Flag = o.Flag
@@ -340,7 +340,7 @@ namespace hb.SbsdbServer.Model {
                 var n = new Tagtyp {
                     Id = o.AdrIndex,
                     Bezeichnung = o.AdrTyp,
-                    ApkategorieId = (long) o.AptypIndex,
+                    ApkategorieId = o.AptypIndex == 5 ? 1 : (long) o.AptypIndex,
                     Flag = 0,
                     Param = o.Param
                 };
@@ -468,7 +468,7 @@ namespace hb.SbsdbServer.Model {
                 .Select(h => new {
                     mac = h.Mac,
                     ip = h.ApIndexNavigation.Tcp,
-                    seg = h.ApIndexNavigation.SegmentIndex,
+                    seg = (h.ApIndexNavigation.SegmentIndex == 0 ? 1 : h.ApIndexNavigation.SegmentIndex),
                     hw = h.HwIndex
                 })
                 .ToList();
@@ -492,16 +492,24 @@ namespace hb.SbsdbServer.Model {
             var aptyp = v5dbContext.Apkategorie.ToList();
             foreach (var at in aptyp) {
                 var n = new Hwtyp {
-                    Id = idx++,
+                    Id = idx,
                     Bezeichnung = "Fremde HW - " + at.Bezeichnung,
                     Flag = 1,
                     ApkategorieId = at.Id
                 };
                 LOG.LogDebug("new HwTyp add " + n.Bezeichnung);
                 v5dbContext.Hwtyp.Add(n);
+                var t = new Aptyp {
+                    Id = idx++,
+                    Bezeichnung = "Adresse - " + at.Bezeichnung,
+                    Flag = 1,
+                    ApkategorieId = at.Id
+                };
+                LOG.LogDebug("new ApTyp add " + t.Bezeichnung);
+                v5dbContext.Aptyp.Add(t);
             }
 
-            LOG.LogDebug("new HwTyp saving ...");
+            LOG.LogDebug("new Ap/HwTyp saving ...");
             v5dbContext.SaveChanges();
             //      new HWKONFIG Hersteller="Fremde Hardware", Bezeichnung=aptyp.bezeichnung je HWTYP.where(flag == 1)
             var hwtyp = v5dbContext.Hwtyp
@@ -537,18 +545,18 @@ namespace hb.SbsdbServer.Model {
             idx = 300;
             var aps = v4dbContext.SbsAp.Include(a => a.SbsHw).Include(a => a.ApklasseIndexNavigation).ToList();
             foreach (var ap in aps)
-                if (ap.SbsHw.Count == 0 && ap.SegmentIndex != 0) {
+                if (ap.SbsHw.Count == 0 && ap.SegmentIndex != 0 && ap.OeIndex != 999) {
                     //          new Hw pri=true, ap=ap.apID, hwkonfig=liste(where aptyp = ap.aptyp), sernr=apname
                     var h = new Hw {
                         Id = idx++,
                         Pri = true,
                         ApId = ap.ApIndex,
-                        HwkonfigId = konfigs.First(k => k.apkat == ap.ApklasseIndexNavigation.AptypIndex).konfig,
+                        HwkonfigId = konfigs.First(k => k.apkat == (ap.ApklasseIndexNavigation.AptypIndex == 5 ? 1 : ap.ApklasseIndexNavigation.AptypIndex)).konfig,
                         SerNr = ap.ApName
                     };
                     LOG.LogDebug("new Hw" + h.SerNr);
                     v5dbContext.Hw.Add(h);
-                    v5dbContext.SaveChanges();
+                    // v5dbContext.SaveChanges();
                     //          new mac ip=ap.ip, vlan=ap.seg, adresse=searchMac(ap.bemerkung)|0, hw=(new Hw)
                     var m = new Mac {
                         Adresse = NormalizeMac(ap.Bemerkung, false),
@@ -558,21 +566,34 @@ namespace hb.SbsdbServer.Model {
                     };
                     LOG.LogDebug("new MAC " + m.Adresse);
                     v5dbContext.Mac.Add(m);
-                    v5dbContext.SaveChanges();
                 }
+            v5dbContext.SaveChanges();
+
+            // fuer APs mit fremder HW ApTyp "Adresse" setzen
+            var types = v5dbContext.Aptyp.Where(t => t.Flag == 1);
+            var fhw = v5dbContext.Hw.Where(h => h.Pri && h.Hwkonfig.Hwtyp.Flag == 1).ToList();
+
+            foreach (var hw in fhw) {
+                var ap = v5dbContext.Ap.Find(hw.ApId);
+                var typ = types.First(t => t.ApkategorieId == hw.Hwkonfig.Hwtyp.ApkategorieId);
+                ap.AptypId = typ.Id;
+                LOG.LogDebug("ApTyp f. fremde HW " + ap.Apname);
+                v5dbContext.Ap.Update(ap);
+            }
+            v5dbContext.SaveChanges();
         }
 
         private void MigKlasseStatistik() {
             var klasse = new List<conv>();
             var statistik = new List<conv>();
             long idx = 100;
-            var klas = v4dbContext.SbsApklasse.Include(k => k.AptypIndexNavigation).ToList();
+            var klas = v4dbContext.SbsApklasse.Where((k => k.ApklasseIndex > 0)).Include(k => k.AptypIndexNavigation).ToList();
             foreach (var k in klas) {
                 var n = new Tagtyp {
                     Id = idx++,
                     Flag = 1,
                     Bezeichnung = k.Apklasse,
-                    ApkategorieId = (long) k.AptypIndex
+                    ApkategorieId = k.AptypIndex == 5 ? 1 : (long) k.AptypIndex
                 };
                 LOG.LogDebug("TagTyp add ApKlasse " + n.Bezeichnung);
                 v5dbContext.Tagtyp.Add(n);
@@ -589,7 +610,7 @@ namespace hb.SbsdbServer.Model {
                     Id = idx++,
                     Flag = 1,
                     Bezeichnung = s.Apstatistik,
-                    ApkategorieId = (long) s.AptypIndex
+                    ApkategorieId = s.AptypIndex == 5 ? 1 : (long) s.AptypIndex
                 };
                 LOG.LogDebug("TagTyp add ApStatistik" + n.Bezeichnung);
                 v5dbContext.Tagtyp.Add(n);

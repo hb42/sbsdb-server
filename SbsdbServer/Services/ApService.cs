@@ -35,16 +35,12 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.GetAps(search);
         }
 
-        public List<Arbeitsplatz> ApsForOe(long oeid) {
-            return _apRepository.ApsForOe(oeid);
-        }
-
         public List<Arbeitsplatz> QueryAps(ApQuery query) {
             return _apRepository.QueryAps(query);
         }
 
-        public List<TypTag> GetTypTags() {
-            return _apRepository.GetTypTags();
+        public List<TagTyp> GetTagTypes() {
+            return _apRepository.GetTagTypes();
         }
 
         public int GetCount() {

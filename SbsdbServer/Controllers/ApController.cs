@@ -34,12 +34,6 @@ namespace hb.SbsdbServer.Controllers {
             return _apService.GetAps(search);
         }
 
-        [HttpGet("{oeid}")]
-        [ActionName("oe")]
-        public ActionResult<List<Arbeitsplatz>> ApForOe(long oeid) {
-            return _apService.ApsForOe(oeid);
-        }
-
         [HttpPost]
         [ActionName("aps")]
         public ActionResult<List<Arbeitsplatz>> ApQuery([FromBody] string query) {
@@ -53,8 +47,8 @@ namespace hb.SbsdbServer.Controllers {
         }
         
         [HttpGet] 
-        public ActionResult<List<TypTag>> TypTags() {
-            return _apService.GetTypTags();
+        public ActionResult<List<TagTyp>> TagTypes() {
+            return _apService.GetTagTypes();
         }
         
     }

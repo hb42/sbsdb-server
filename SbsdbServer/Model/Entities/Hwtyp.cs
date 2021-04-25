@@ -13,7 +13,7 @@ namespace hb.SbsdbServer.Model.Entities
         public long Id { get; set; }
         public string Bezeichnung { get; set; }
         public long? Flag { get; set; }
-        public long? ApkategorieId { get; set; }
+        public long ApkategorieId { get; set; }
 
         public virtual Apkategorie Apkategorie { get; set; }
         public virtual ICollection<Hwkonfig> Hwkonfig { get; set; }

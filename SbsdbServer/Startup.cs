@@ -72,8 +72,11 @@ namespace hb.SbsdbServer {
                 options.MimeTypes = new[] {"application/json"};
             });
             
-            // TODO Rider 2021.1 scheint Defines zu ignorieren => vorerst manuell mit '!' umschalten
-            //      hier, in Program.cs und AuthorizationHelper.cs
+            // TODO Rider 2021.1 scheint Defines zu ignorieren (=> vorerst manuell mit '!' umschalten)
+            //      Defines sind hier, in Program.cs und AuthorizationHelper.cs
+            //      FIX: in dieser Datei /Users/hb/Workspaces/JavaScript/sbsdb-server/.idea/.idea.sbsdb-server/.idea/runConfigurations/bin_publish.xml
+            //           muss platform="Any CPU" geaendert werden in platform="AnyCPU" 
+            
             // DB-Connection-Strings holen
 #if TESTSYSTEM  // unterschiedliche Connection-Strings fuer verschiedene Systeme
             string connStr;
@@ -92,12 +95,17 @@ namespace hb.SbsdbServer {
 #endif
             // alter Bestand - MySQL/EF
             // TODO kann raus, sobald alles auf neue Oracle-Struktur ueberfuehrt
+            // Replace with your server version and type.
+            // Use 'MariaDbServerVersion' for MariaDB.
+            // Alternatively, use 'ServerVersion.AutoDetect(connectionString)'.
+            // For common usages, see pull request #1233.
+            var serverVersion = ServerVersion.AutoDetect(connStrv4); //new MySqlServerVersion(new Version(5, 5, 60));
             services.AddDbContextPool<Sbsdbv4Context>(
-                options => options
-                    .UseMySql(connStrv4,
-                        mySqlOptions => { mySqlOptions.ServerVersion(new Version(5, 5, 60), ServerType.MySql); }
-                    )
-            );
+                    dbContextOptions => dbContextOptions
+                        .UseMySql(connStrv4, serverVersion)
+                        .EnableSensitiveDataLogging() // These two calls are optional but help
+                        .EnableDetailedErrors()      // with debugging (remove for production).
+                );
 
             // neuer Bestand - Oracle/EF
             services.AddDbContextPool<SbsdbContext>(
@@ -116,8 +124,6 @@ namespace hb.SbsdbServer {
             // Services und Repositories
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ITreeService, TreeService>();
-            services.AddTransient<ITreeRepository, TreeRepository>();
             services.AddTransient<IApService, ApService>();
             services.AddTransient<IApRepository, ApRepository>();
             services.AddTransient<IConfigService, ConfigService>();

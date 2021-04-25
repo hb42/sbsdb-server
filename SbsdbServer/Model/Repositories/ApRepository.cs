@@ -66,68 +66,27 @@ namespace hb.SbsdbServer.Model.Repositories {
         }
 
         /*
-         * Alle APs einer OE, sowie der untergeordneten OEs
-         */
-        public List<Arbeitsplatz> ApsForOe(long oeid) {
-            var watch = Stopwatch.StartNew();
-            var lookup = new List<OeTreeItem>();
-            var oes = _dbContext.Oe.Select(o => new OeTreeItem {
-                Id = o.Id,
-                ParentId = o.OeId
-            }).ToList();
-            var oe = oes.Where(o => o.Id == oeid).ToList();
-            lookup.AddRange(oe);
-            lookup.AddRange(FindChildren(oe, oes));
-            var oeids = lookup.Select(o => o.Id).ToArray();
-            var delta1 = watch.ElapsedMilliseconds;
-            var tmp = GetArbeitsplatzQuery(
-                _dbContext.Ap.Where(ap => oeids.Contains(ap.OeId))
-            ).ToList();
-            var delta2 = watch.ElapsedMilliseconds;
-            var aps = Convert(tmp);
-            watch.Stop();
-            var delta3 = watch.ElapsedMilliseconds;
-            _log.LogDebug(
-                $"--- select-query for OE pre={delta1}ms/ query={delta2 - delta1}ms/ post={delta3 - delta2}ms/ sum={delta3}ms");
-            return aps;
-        }
-
-        /*
          * AP anhand der Kriterien in query holen
          */
         public List<Arbeitsplatz> QueryAps(ApQuery query) {
             throw new NotImplementedException();
         }
 
-        public List<TypTag> GetTypTags() {
-            return _dbContext.Tagtyp.Where(t => t.Flag == 1)
-                .Select(t => new TypTag {
+        public List<TagTyp> GetTagTypes() {
+            return _dbContext.Tagtyp
+                .Select(t => new TagTyp {
                   Id = t.Id,
+                  Bezeichnung = t.Bezeichnung,
+                  Flag = t.Flag,
+                  Param = t.Param,
+                  ApKategorieId = t.ApkategorieId,
                   Apkategorie = t.Apkategorie.Bezeichnung,
-                  TagTyp = t.Bezeichnung
                 })
-                .OrderBy(t => t.Apkategorie).ThenBy(t => t.TagTyp)
                 .ToList();
         }
 
         public int GetCount() {
             return _dbContext.Ap.Count();
-        }
-
-        // rekursiv alle untergeordneten OEs holen
-        private List<OeTreeItem> FindChildren(List<OeTreeItem> parents, List<OeTreeItem> all) {
-            var found = new List<OeTreeItem>();
-            foreach (var oe in parents) {
-                //LOG.LogDebug("recurse OE id=" + oe.Id);
-                // Sonderfall root beruecksichtigen: id == 0 && parentId == 0
-                var children = all.Where(o => o.ParentId == oe.Id && o.Id != 0).ToList();
-                if (children.Count > 0) {
-                    found.AddRange(children);
-                    found.AddRange(FindChildren(children, all));
-                }
-            }
-
-            return found;
         }
 
         /*

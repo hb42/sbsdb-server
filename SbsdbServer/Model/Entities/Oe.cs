@@ -19,7 +19,7 @@ namespace hb.SbsdbServer.Model.Entities
         public string Tel { get; set; }
         public string Oeff { get; set; }
         public bool? Ap { get; set; }
-        public long OeId { get; set; }
+        public long? OeId { get; set; }
         public long AdresseId { get; set; }
 
         public virtual Adresse Adresse { get; set; }

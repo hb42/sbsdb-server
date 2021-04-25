@@ -18,7 +18,6 @@ namespace hb.SbsdbServer.Model
         public virtual DbSet<ApIssue> ApIssue { get; set; }
         public virtual DbSet<ApTag> ApTag { get; set; }
         public virtual DbSet<Apkategorie> Apkategorie { get; set; }
-        public virtual DbSet<Apklasse> Apklasse { get; set; }
         public virtual DbSet<Aptyp> Aptyp { get; set; }
         public virtual DbSet<Aussond> Aussond { get; set; }
         public virtual DbSet<Extprog> Extprog { get; set; }
@@ -260,31 +259,6 @@ namespace hb.SbsdbServer.Model
                 entity.Property(e => e.Flag).HasColumnName("FLAG");
             });
 
-            modelBuilder.Entity<Apklasse>(entity =>
-            {
-                entity.ToTable("APKLASSE");
-
-                entity.HasIndex(e => e.AptypId)
-                    .HasDatabaseName("APKLASSE_APTYP_ID_IDX");
-
-                entity.HasIndex(e => e.Id)
-                    .HasDatabaseName("APKLASSE_PK")
-                    .IsUnique();
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.AptypId)
-                    .HasColumnName("APTYP_ID")
-                    .HasColumnType("NUMBER");
-
-                entity.Property(e => e.Bezeichnung)
-                    .IsRequired()
-                    .HasColumnName("BEZEICHNUNG")
-                    .HasColumnType("VARCHAR2(50)");
-
-                entity.Property(e => e.Flag).HasColumnName("FLAG");
-            });
-
             modelBuilder.Entity<Aptyp>(entity =>
             {
                 entity.ToTable("APTYP");
@@ -395,7 +369,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
+                entity.Property(e => e.ApkategorieId).HasColumnName("APKATEGORIE_ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -415,9 +389,9 @@ namespace hb.SbsdbServer.Model
 
                 entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Extprog)
-                    .HasForeignKey(d => d.AptypId)
+                    .HasForeignKey(d => d.ApkategorieId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("EXTPROG_APTYP_FK");
+                    .HasConstraintName("EXTPROG_APKATEGORIE_FK");
             });
 
             modelBuilder.Entity<Hw>(entity =>
@@ -636,6 +610,7 @@ namespace hb.SbsdbServer.Model
                 entity.HasOne(d => d.Apkategorie)
                     .WithMany(p => p.Hwtyp)
                     .HasForeignKey(d => d.ApkategorieId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("HWTYP_APKATEGORIE_FK");
             });
 
@@ -757,7 +732,6 @@ namespace hb.SbsdbServer.Model
                 entity.HasOne(d => d.OeNavigation)
                     .WithMany(p => p.InverseOeNavigation)
                     .HasForeignKey(d => d.OeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("OE_OE_FK");
             });
 

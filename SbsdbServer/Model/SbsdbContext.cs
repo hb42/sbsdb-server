@@ -220,7 +220,6 @@ namespace hb.SbsdbServer.Model
                 entity.Property(e => e.TagtypId).HasColumnName("TAGTYP_ID");
 
                 entity.Property(e => e.Text)
-                    .IsRequired()
                     .HasColumnName("TEXT")
                     .HasColumnType("VARCHAR2(100)");
 
@@ -672,7 +671,6 @@ namespace hb.SbsdbServer.Model
                 entity.HasOne(d => d.Vlan)
                     .WithMany(p => p.Mac)
                     .HasForeignKey(d => d.VlanId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("MAC_VLAN_FK");
             });
 

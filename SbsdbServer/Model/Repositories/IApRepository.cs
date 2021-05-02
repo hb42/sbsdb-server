@@ -10,5 +10,6 @@ namespace hb.SbsdbServer.Model.Repositories {
         List<Arbeitsplatz> QueryAps(ApQuery query);
         List<TagTyp> GetTagTypes();
         int GetCount();
+        ApHw ChangeAp(EditApTransport apt);
     }
 }

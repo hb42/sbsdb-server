@@ -28,6 +28,10 @@ namespace hb.SbsdbServer.Model.Repositories {
             int skipRows = page * pageSize;  // page is zero based!
             return QueryHw(_dbContext.Hw).Skip(skipRows).Take(pageSize).ToList();
         }
+
+        public List<Hardware> GetHwForAp(long apid) {
+            return QueryHw(_dbContext.Hw.Where((hw) => hw.ApId == apid)).ToList();
+        }
         
         public int GetCount() {
             return _dbContext.Hw.Count();
@@ -52,10 +56,10 @@ namespace hb.SbsdbServer.Model.Repositories {
                     ApId = hw.ApId ?? 0,
                     Vlans = hw.Mac.Select(m => new Netzwerk {
                         VlanId = m.VlanId,
-                        Bezeichnung = m.Vlan.Bezeichnung,
-                        Vlan = m.Vlan.Ip,
-                        Netmask = m.Vlan.Netmask,
-                        Ip = (long) m.Ip,
+                        Bezeichnung = m.Vlan != null ? m.Vlan.Bezeichnung : "",
+                        Vlan = m.Vlan.Ip, // != null ? m.Vlan.Ip : null,
+                        Netmask = m.Vlan.Netmask, // != null ? m.Vlan.Netmask : null,
+                        Ip = m.Ip,
                         Mac = m.Adresse
                     }).ToList()
                 });

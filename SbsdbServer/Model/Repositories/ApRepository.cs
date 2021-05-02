@@ -5,15 +5,18 @@ using System.Linq;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Model.Repositories {
     public class ApRepository : IApRepository {
         private readonly SbsdbContext _dbContext;
+        private readonly IHwRepository _hwRepository;
         private readonly ILogger<ApRepository> _log;
 
-        public ApRepository(SbsdbContext context, ILogger<ApRepository> log) {
+        public ApRepository(SbsdbContext context, IHwRepository hwRepository , ILogger<ApRepository> log) {
             _dbContext = context;
+            _hwRepository = hwRepository;
             _log = log;
         }
 
@@ -87,6 +90,25 @@ namespace hb.SbsdbServer.Model.Repositories {
 
         public int GetCount() {
             return _dbContext.Ap.Count();
+        }
+
+        public ApHw ChangeAp(EditApTransport apt) {
+            if (apt == null) {
+                return null;
+            }
+            try {
+                ChangeTags(apt);
+                // restliche Aenderungen
+
+                _dbContext.SaveChanges(); // sichert alles in einer Transaction
+                var aps = GetAp(apt.Id);
+                return new ApHw {
+                    Ap = aps[0],
+                    Hw = _hwRepository.GetHwForAp(apt.Id).ToArray(),
+                };
+            } catch(Exception ex) {
+                return null;
+            }
         }
 
         /*
@@ -265,6 +287,30 @@ namespace hb.SbsdbServer.Model.Repositories {
             return aps;
         }
 
+        private void ChangeTags(EditApTransport apt) {
+            if (apt.Tags == null || apt.Tags.Length == 0) {
+                return;
+            }
+            _log.LogDebug("change ap tags count " + apt.Tags.Length);
+            foreach (var tag in apt.Tags) {
+                if (tag.ApTagId == null) {
+                    var nTag = new ApTag {
+                        ApId = apt.Id,
+                        TagtypId = tag.TagId ?? 0,
+                        Text = tag.Text
+                    };
+                    _dbContext.ApTag.Add(nTag);
+                } else if (tag.TagId == null) {
+                    _dbContext.ApTag.Remove(_dbContext.ApTag.Find(tag.ApTagId));
+                } else {
+                  var cTag = _dbContext.ApTag.Find(tag.ApTagId);
+                  cTag.TagtypId = tag.TagId ?? 0;
+                  cTag.Text = tag.Text;
+                  _dbContext.ApTag.Update(cTag);
+                }              
+            }
+        }
+        
         private class TmpHw {
             public long Id { get; set; }
             public string Hersteller { get; set; }

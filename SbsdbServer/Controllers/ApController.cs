@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
     public class ApController : AbstractControllerBase<ApController> {
         private readonly IApService _apService;
+        private readonly AuthorizationHelper _auth;
 
-        public ApController(IApService service) {
+        public ApController(IApService service, AuthorizationHelper auth) {
             _apService = service;
+            _auth = auth;
         }
 
         [HttpGet]
@@ -38,6 +42,20 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("aps")]
         public ActionResult<List<Arbeitsplatz>> ApQuery([FromBody] string query) {
             return Ok();
+        }
+
+        [HttpPost]
+        [ActionName("changeap")]
+        public ActionResult<ApHw> ApChange([FromBody] EditApTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var ap = _apService.ChangeAp(chg);
+                if (ap != null) {
+                    // TODO SSE(ap)
+                }
+
+                return Ok(ap);
+            }
+            return StatusCode(401);
         }
 
         [HttpGet]

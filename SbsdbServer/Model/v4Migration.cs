@@ -464,23 +464,26 @@ namespace hb.SbsdbServer.Model {
         private void MigMac() {
             // AP mit zugeordneter HW
             var hws = v4dbContext.SbsHw
-                .Where(h => h.ApIndex != null && h.Pri == "J" && h.Mac != null)
+                // .Where(h => h.ApIndex != null && h.Pri == "J" && h.Mac != null)
+                // .Where(h => h.Mac != null && h.Mac != "")
                 .Select(h => new {
                     mac = h.Mac,
-                    ip = h.ApIndexNavigation.Tcp,
-                    seg = (h.ApIndexNavigation.SegmentIndex == 0 ? 1 : h.ApIndexNavigation.SegmentIndex),
-                    hw = h.HwIndex
+                    hw = h.HwIndex,
+                    ip = h.ApIndex != null && h.Pri == "J" ? h.ApIndexNavigation.Tcp : 0,
+                    seg = h.ApIndex != null && h.Pri == "J" ? (h.ApIndexNavigation.SegmentIndex == 0 ? 1 : h.ApIndexNavigation.SegmentIndex) : null,
                 })
                 .ToList();
             foreach (var o in hws) {
-                var n = new Mac {
-                    Adresse = NormalizeMac(o.mac, false),
-                    Ip = o.ip,
-                    HwId = o.hw,
-                    VlanId = (long) o.seg
-                };
-                LOG.LogDebug("MAC add " + n.Adresse);
-                v5dbContext.Mac.Add(n);
+                if (!(o.seg == null && NormalizeMac(o.mac, false) == "000000000000")) {
+                    var n = new Mac {
+                        Adresse = NormalizeMac(o.mac, false),
+                        Ip = o.ip,
+                        HwId = o.hw,
+                        VlanId = o.seg
+                    };
+                    LOG.LogDebug("MAC add " + n.Adresse);
+                    v5dbContext.Mac.Add(n);
+                }
             }
 
             LOG.LogDebug("MAC saving ...");
@@ -663,16 +666,18 @@ namespace hb.SbsdbServer.Model {
          * Eine SMBIOSGUID wuerde hier ebenfalls als MAC-Adresse erkannt werden!    
          */
         private string NormalizeMac(string mac, bool friendly) {
-            var spacer = "";
-            var m = Regex.Match(mac, macRegex);
-            if (m.Success) {
-                if (friendly) spacer = "-";
-                return (m.Groups[1].Value + spacer +
-                        m.Groups[2].Value + spacer +
-                        m.Groups[3].Value + spacer +
-                        m.Groups[4].Value + spacer +
-                        m.Groups[5].Value + spacer +
-                        m.Groups[6].Value).ToUpper();
+            if (mac != null) {
+                var spacer = "";
+                var m = Regex.Match(mac, macRegex);
+                if (m.Success) {
+                    if (friendly) spacer = "-";
+                    return (m.Groups[1].Value + spacer +
+                            m.Groups[2].Value + spacer +
+                            m.Groups[3].Value + spacer +
+                            m.Groups[4].Value + spacer +
+                            m.Groups[5].Value + spacer +
+                            m.Groups[6].Value).ToUpper();
+                }
             }
 
             return "000000000000";

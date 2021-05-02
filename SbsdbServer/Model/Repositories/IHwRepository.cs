@@ -6,6 +6,7 @@ namespace hb.SbsdbServer.Model.Repositories {
         List<Hardware> GetAll();
         List<Hardware> GetHardware(long id);
         public List<Hardware> GetPage(int page, int pageSize);
+        public List<Hardware> GetHwForAp(long apid);
         public int GetCount();
     }
 }

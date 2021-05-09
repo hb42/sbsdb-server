@@ -9,6 +9,7 @@ namespace hb.SbsdbServer.Model.Repositories {
         List<Arbeitsplatz> GetAps(string search);
         List<Arbeitsplatz> QueryAps(ApQuery query);
         List<TagTyp> GetTagTypes();
+        List<Vlan> GetVlans();
         int GetCount();
         ApHw ChangeAp(EditApTransport apt);
     }

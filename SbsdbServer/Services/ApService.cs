@@ -43,6 +43,10 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.GetTagTypes();
         }
 
+        public List<Vlan> GetVlans() {
+            return _apRepository.GetVlans();
+        }
+
         public int GetCount() {
             return _apRepository.GetCount();
         }

@@ -136,7 +136,7 @@ namespace hb.SbsdbServer.Model {
                 var n = new Apkategorie {
                     Id = o.AptypIndex == 0 ? 10 : o.AptypIndex,
                     Bezeichnung = o.AptypIndex == 1 ? "Client" : o.Aptyp,
-                    Flag = o.AptypIndex == 0 ? 1 : o.Flag
+                    Flag = o.AptypIndex == 0 ? 1 : 0
                 };
                 LOG.LogDebug("ApKategorie add #" + n.Id);
                 v5dbContext.Apkategorie.Add(n);

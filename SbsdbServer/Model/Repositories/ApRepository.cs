@@ -7,6 +7,7 @@ using hb.SbsdbServer.Model.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Vlan = hb.SbsdbServer.Model.ViewModel.Vlan;
 
 namespace hb.SbsdbServer.Model.Repositories {
     public class ApRepository : IApRepository {
@@ -88,6 +89,17 @@ namespace hb.SbsdbServer.Model.Repositories {
                 .ToList();
         }
 
+        public List<Vlan> GetVlans() {
+            return _dbContext.Vlan
+                .Select(v => new Vlan {
+                    Id = v.Id,
+                    Ip = v.Ip,
+                    Netmask = v.Netmask,
+                    Bezeichnung = v.Bezeichnung,
+                })
+                .ToList();
+        }
+        
         public int GetCount() {
             return _dbContext.Ap.Count();
         }

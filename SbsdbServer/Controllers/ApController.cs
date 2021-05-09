@@ -69,5 +69,10 @@ namespace hb.SbsdbServer.Controllers {
             return _apService.GetTagTypes();
         }
         
+        [HttpGet] 
+        public ActionResult<List<Vlan>> Vlans() {
+            return _apService.GetVlans();
+        }
+        
     }
 }

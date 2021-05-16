@@ -55,6 +55,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     HwKonfigId = hw.HwkonfigId,
                     ApId = hw.ApId ?? 0,
                     Vlans = hw.Mac.Select(m => new Netzwerk {
+                        HwMacId = m.Id,
                         VlanId = m.VlanId,
                         Bezeichnung = m.Vlan != null ? m.Vlan.Bezeichnung : "",
                         Vlan = m.Vlan.Ip, // != null ? m.Vlan.Ip : null,

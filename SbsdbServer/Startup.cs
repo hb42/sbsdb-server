@@ -176,7 +176,14 @@ namespace hb.SbsdbServer {
             }
             //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
 
-            app.UseStaticFiles(new StaticFileOptions()); // -> wwwroot f. Angular-App
+            app.UseStaticFiles(new StaticFileOptions() {
+                OnPrepareResponse = (context) => {
+                    // Disable caching for all static files.
+                    context.Context.Response.Headers["Cache-Control"] = Configuration["StaticFiles:Headers:Cache-Control"];
+                    context.Context.Response.Headers["Pragma"] = Configuration["StaticFiles:Headers:Pragma"];
+                    context.Context.Response.Headers["Expires"] = Configuration["StaticFiles:Headers:Expires"];
+                }
+            });
             app.UseRouting(); 
             app.UseAuthentication();
             app.UseAuthorization();

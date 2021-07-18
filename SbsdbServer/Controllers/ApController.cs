@@ -74,5 +74,10 @@ namespace hb.SbsdbServer.Controllers {
             return _apService.GetVlans();
         }
         
+        [HttpGet] 
+        public ActionResult<List<ApTyp>> ApTypes() {
+            return _apService.GetApTypes();
+        }
+        
     }
 }

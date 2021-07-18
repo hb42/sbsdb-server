@@ -38,7 +38,7 @@ namespace hb.SbsdbServer.Model.Repositories {
 
                     HwTypId = hwkonfig.HwtypId,
                     HwTypBezeichnung = hwkonfig.Hwtyp.Bezeichnung,
-                    HwTypFlag = hwkonfig.Hwtyp.Flag ?? 0,
+                    HwTypFlag = hwkonfig.Hwtyp.Flag,
 
                     ApKatId = hwkonfig.Hwtyp.ApkategorieId,
                     ApKatBezeichnung = hwkonfig.Hwtyp.Apkategorie.Bezeichnung,

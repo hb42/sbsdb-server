@@ -10,6 +10,7 @@ namespace hb.SbsdbServer.Services {
         List<Arbeitsplatz> QueryAps(ApQuery query);
         List<TagTyp> GetTagTypes();
         List<Vlan> GetVlans();
+        List<ApTyp> GetApTypes();
         int GetCount();
         ApHw ChangeAp(EditApTransport apt);
     }

@@ -47,6 +47,10 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.GetVlans();
         }
 
+        public List<ApTyp> GetApTypes() {
+            return _apRepository.GetApTypes();
+        }
+        
         public int GetCount() {
             return _apRepository.GetCount();
         }

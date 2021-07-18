@@ -154,7 +154,7 @@ namespace hb.SbsdbServer.Model {
                 var n = new Aptyp {
                     Id = o.ApklasseIndex,
                     Bezeichnung = o.Apklasse,
-                    Flag = o.Flag,
+                    Flag = o.Flag ?? 0,
                     ApkategorieId = o.AptypIndex == 5 ? 1 : (long) o.AptypIndex
                 };
                 LOG.LogDebug("ApTyp add #" + n.Id);

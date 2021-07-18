@@ -7,5 +7,6 @@ namespace hb.SbsdbServer.Model.ViewModel {
         public long? VerantwId { get; set; }
         public string? Bezeichnung { get; set; }
         public string? Bemnerkung { get; set; }
+        public long? ApTypId { get; set; }
     }
 }

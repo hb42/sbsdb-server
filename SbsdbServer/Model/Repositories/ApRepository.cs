@@ -88,6 +88,17 @@ namespace hb.SbsdbServer.Model.Repositories {
                 })
                 .ToList();
         }
+        public List<ApTyp> GetApTypes() {
+            return _dbContext.Aptyp
+                .Select(a => new ApTyp {
+                  Id = a.Id,
+                  Bezeichnung = a.Bezeichnung,
+                  Flag = a.Flag,
+                  ApKategorieId = a.ApkategorieId,
+                  Apkategorie = a.Apkategorie.Bezeichnung,
+                })
+                .ToList();
+        }
 
         public List<Vlan> GetVlans() {
             return _dbContext.Vlan
@@ -109,26 +120,77 @@ namespace hb.SbsdbServer.Model.Repositories {
                 return null;
             }
             try {
+                Ap ap;
+                if (apt.Id == 0) {
+                    // neuer AP
+                    if (apt.Ap.StandortId == null || apt.Ap.ApTypId == null) {
+                        _log.LogDebug("Error for new AP: invalid idx oe: {oeid}, typ: {typid}", apt.Ap.StandortId, apt.Ap.ApTypId);
+                        return null;
+                    }
+                    ap = new Ap {
+                        Apname = apt.Ap.Apname,
+                        Bezeichnung = apt.Ap.Bezeichnung,
+                        Bemerkung = apt.Ap.Bemnerkung ?? "",
+                        OeId = apt.Ap.StandortId.Value,
+                        OeIdVerOe = apt.Ap.VerantwId,
+                        AptypId = apt.Ap.ApTypId.Value
+                    };
+                    _dbContext.Ap.Add(ap);
+                    _dbContext.SaveChanges();
+                    _log.LogDebug("## save: AP.typid: {id}, typ: {t}", ap.AptypId, ap.Aptyp);
+                    ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == ap.Id);
+                    _log.LogDebug("## first: AP.typid: {id}, typ: {t}", ap.AptypId, ap.Aptyp);
+                    apt.Id = ap.Id;
+                    if ((ap.Aptyp.Flag & Const.FREMDE_HW) > 0) {
+                        // fremde HW -> neue HW + MAC eintragen
+                        _log.LogDebug("## 1 ##");
+                        var hwkonf = _dbContext.Hwkonfig.First(h =>
+                            h.Hwtyp.Apkategorie.Aptyp.First(a => a.Id == ap.AptypId).ApkategorieId == h.Hwtyp.ApkategorieId && (h.Hwtyp.Flag & Const.FREMDE_HW) > 0);
+                        _log.LogDebug("## 2 ##");
+                        var hw = new Hw {
+                            Pri = true,
+                            ApId = ap.Id,
+                            HwkonfigId = hwkonf.Id,
+                            SerNr = ap.Apname
+                        };
+                        _log.LogDebug("## 3 ##");
+                        _dbContext.Hw.Add(hw);
+                        _dbContext.SaveChanges();
+                        _log.LogDebug("## 4 ##");
+                        apt.Hw.NewpriId = hw.Id;
+                        // var m = new Mac {
+                        //     Adresse = ,
+                        //     Ip = ap.Tcp,
+                        //     HwId = h.Id,
+                        //     VlanId = (long) ap.SegmentIndex
+                        // };
+                        // LOG.LogDebug("new MAC " + m.Adresse);
+                        // v5dbContext.Mac.Add(m);
+                    }
+                }
+                else {
+                    // change AP
+                    ap = _dbContext.Ap.Find(apt.Id);
+                    if (apt.Ap.Apname != null) {
+                        ap.Apname = apt.Ap.Apname;
+                    }
+                    if (apt.Ap.Bemnerkung != null) {
+                        ap.Bemerkung = apt.Ap.Bemnerkung;
+                    }
+                    if (apt.Ap.Bezeichnung != null) {
+                        ap.Bezeichnung = apt.Ap.Bezeichnung;
+                    }
+                    if (apt.Ap.StandortId != null) {
+                        ap.OeId = apt.Ap.StandortId.Value;
+                    }
+                    if (apt.Ap.VerantwId != null) {
+                        ap.OeIdVerOe = apt.Ap.VerantwId.Value;
+                    }
+                    _dbContext.Ap.Update(ap);
+                }
+
                 ChangeTags(apt);
                 var ids = ChangeHw(apt);
-                // change AP
-                var ap = _dbContext.Ap.Find(apt.Id);
-                if (apt.Ap.Apname != null) {
-                    ap.Apname = apt.Ap.Apname;
-                }
-                if (apt.Ap.Bemnerkung != null) {
-                    ap.Bemerkung = apt.Ap.Bemnerkung;
-                }
-                if (apt.Ap.Bezeichnung != null) {
-                    ap.Bezeichnung = apt.Ap.Bezeichnung;
-                }
-                if (apt.Ap.StandortId != null) {
-                    ap.OeId = apt.Ap.StandortId.Value;
-                }
-                if (apt.Ap.VerantwId != null) {
-                    ap.OeIdVerOe = apt.Ap.VerantwId.Value;
-                }
-                _dbContext.Ap.Update(ap);
                 
                 _dbContext.SaveChanges(); // sichert alles in einer Transaction
                 
@@ -172,7 +234,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     OeId = ap.OeId,
                     ApTypId = ap.Aptyp.Id,
                     ApTypBezeichnung = ap.Aptyp.Bezeichnung,
-                    ApTypFlag = ap.Aptyp.Flag ?? 0,
+                    ApTypFlag = ap.Aptyp.Flag,
                     ApKatId = ap.Aptyp.Apkategorie.Id,
                     ApKatBezeichnung = ap.Aptyp.Apkategorie.Bezeichnung,
                     ApKatFlag = ap.Aptyp.Apkategorie.Flag ?? 0,
@@ -252,7 +314,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     OeId = ap.Oe.Id,
                     ApTypId = ap.Aptyp.Id,
                     ApTypBezeichnung = ap.Aptyp.Bezeichnung,
-                    ApTypFlag = ap.Aptyp.Flag ?? 0,
+                    ApTypFlag = ap.Aptyp.Flag,
                     ApKatId = ap.Aptyp.Apkategorie.Id,
                     ApKatBezeichnung = ap.Aptyp.Apkategorie.Bezeichnung,
                     ApKatFlag = ap.Aptyp.Apkategorie.Flag ?? 0,

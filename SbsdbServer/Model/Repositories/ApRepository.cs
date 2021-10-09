@@ -121,8 +121,9 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
             try {
                 Ap ap;
+                List<Hw> chg = new List<Hw>();
                 if (apt.Id == 0) {
-                    // neuer AP
+                    // ** neuer AP
                     if (apt.Ap.StandortId == null || apt.Ap.ApTypId == null) {
                         _log.LogDebug("Error for new AP: invalid idx oe: {oeid}, typ: {typid}", apt.Ap.StandortId, apt.Ap.ApTypId);
                         return null;
@@ -142,7 +143,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     _log.LogDebug("## first: AP.typid: {id}, typ: {t}", ap.AptypId, ap.Aptyp);
                     apt.Id = ap.Id;
                     if ((ap.Aptyp.Flag & Const.FREMDE_HW) > 0) {
-                        // fremde HW -> neue HW + MAC eintragen
+                        // ** fremde HW -> neue HW + MAC eintragen
                         _log.LogDebug("## 1 ##");
                         var hwkonf = _dbContext.Hwkonfig.First(h =>
                             h.Hwtyp.Apkategorie.Aptyp.First(a => a.Id == ap.AptypId).ApkategorieId == h.Hwtyp.ApkategorieId && (h.Hwtyp.Flag & Const.FREMDE_HW) > 0);
@@ -158,6 +159,10 @@ namespace hb.SbsdbServer.Model.Repositories {
                         _dbContext.SaveChanges();
                         _log.LogDebug("## 4 ##");
                         apt.Hw.NewpriId = hw.Id;
+                        foreach (var vlan in apt.Hw.PriVlans) {
+                            _log.LogDebug("## 5 ##");
+                            ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+                        }
                         // var m = new Mac {
                         //     Adresse = ,
                         //     Ip = ap.Tcp,
@@ -169,41 +174,97 @@ namespace hb.SbsdbServer.Model.Repositories {
                     }
                 }
                 else {
-                    // change AP
-                    ap = _dbContext.Ap.Find(apt.Id);
-                    if (apt.Ap.Apname != null) {
-                        ap.Apname = apt.Ap.Apname;
+                    ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == apt.Id);
+                    if (apt.Ap != null) {
+                        // ** change AP
+                        if (apt.Ap.Apname != null) {
+                            ap.Apname = apt.Ap.Apname;
+                        }
+                        if (apt.Ap.Bemnerkung != null) {
+                            ap.Bemerkung = apt.Ap.Bemnerkung;
+                        }
+                        if (apt.Ap.Bezeichnung != null) {
+                            ap.Bezeichnung = apt.Ap.Bezeichnung;
+                        }
+                        if (apt.Ap.StandortId != null) {
+                            ap.OeId = apt.Ap.StandortId.Value;
+                        }
+                        if (apt.Ap.VerantwId != null) {
+                            ap.OeIdVerOe = apt.Ap.VerantwId.Value;
+                        }
+                        _dbContext.Ap.Update(ap);
+                        ChangeTags(apt);
+                        chg = ChangeHw(apt);
                     }
-                    if (apt.Ap.Bemnerkung != null) {
-                        ap.Bemerkung = apt.Ap.Bemnerkung;
+                    else {
+                        // ** DEL AP
+                        _dbContext.ApTag.RemoveRange(_dbContext.ApTag.Where(aptag => aptag.ApId == apt.Id));
+                        var aphw = _dbContext.Hw.Include(h => h.Hwkonfig.Hwtyp).Where(h => h.ApId == apt.Id);
+                        foreach (var h in aphw) {
+                            if ((h.Hwkonfig.Hwtyp.Flag & Const.FREMDE_HW) > 0) {
+                                _log.LogDebug("remove fremde HW");
+                                var rc = new Hw {
+                                    Id = h.Id,
+                                    SerNr = null,
+                                    AnschDat = null,
+                                    InvNr = null,
+                                    AnschWert = null,
+                                    Smbiosguid = null,
+                                    WartungFa = null,
+                                    Bemerkung = null,
+                                    Pri = false,
+                                    ApId = null,
+                                    HwkonfigId = 0,
+                                    Ap = null,
+                                    Hwkonfig = null,
+                                    Hwhistory = null,
+                                    Mac = null,
+                                };
+                                chg.Add(rc);
+                                _dbContext.Mac.RemoveRange(_dbContext.Mac.Where(m => m.HwId == h.Id));
+                                _dbContext.Hwhistory.RemoveRange(_dbContext.Hwhistory.Where(hh => hh.HwId == h.Id));
+                                _dbContext.Hw.Remove(h);
+                            }
+                            else {
+                                chg.Add(RemoveHwFromAp(h));
+                            }
+                        }
+                        _dbContext.Ap.Remove(ap);
                     }
-                    if (apt.Ap.Bezeichnung != null) {
-                        ap.Bezeichnung = apt.Ap.Bezeichnung;
-                    }
-                    if (apt.Ap.StandortId != null) {
-                        ap.OeId = apt.Ap.StandortId.Value;
-                    }
-                    if (apt.Ap.VerantwId != null) {
-                        ap.OeIdVerOe = apt.Ap.VerantwId.Value;
-                    }
-                    _dbContext.Ap.Update(ap);
                 }
-
-                ChangeTags(apt);
-                var ids = ChangeHw(apt);
                 
                 _dbContext.SaveChanges(); // sichert alles in einer Transaction
                 
                 var aps = GetAp(apt.Id);
                 var hws = _hwRepository.GetHwForAp(apt.Id);
-                foreach (var id in ids) {
-                    if (!hws.Exists(h => h.Id == id)) {
-                        hws.AddRange(_hwRepository.GetHardware(id));
+                
+                foreach (var ch in chg) {
+                    if (!hws.Exists(h => h.Id == ch.Id)) {
+                        if (ch.SerNr != null) {
+                            hws.AddRange(_hwRepository.GetHardware(ch.Id));
+                        } else {
+                          // DEL HW
+                          hws.Add(new Hardware {
+                              Id = ch.Id,
+                              Sernr = null,
+                              AnschDat = default,
+                              AnschWert = 0,
+                              InvNr = null,
+                              Smbiosgiud = null,
+                              WartungFa = null,
+                              Bemerkung = null,
+                              Pri = false,
+                              HwKonfigId = 0,
+                              ApId = 0,
+                              Vlans = null
+                          });
+                        }
                     }
                 }
                 return new ApHw {
-                    Ap = aps[0],
+                    Ap = aps == null || aps.Count == 0 ? null : aps[0],
                     Hw = hws.ToArray(),
+                    DelApId = apt.Ap == null ? apt.Id : 0
                 };
             } catch(Exception ex) {
                 _log.LogError(ex, "Error in ChangeAp() ApId: {Id}", apt.Id);
@@ -211,6 +272,161 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
         }
 
+        private void ChangeTags(EditApTransport apt) {
+            if (apt.Tags == null || apt.Tags.Length == 0) {
+                return;
+            }
+            _log.LogDebug("change ap tags count " + apt.Tags.Length);
+            foreach (var tag in apt.Tags) {
+                if (tag.ApTagId == null) {
+                    var nTag = new ApTag {
+                        ApId = apt.Id,
+                        TagtypId = tag.TagId ?? 0,
+                        Text = tag.Text
+                    };
+                    _dbContext.ApTag.Add(nTag);
+                } else if (tag.TagId == null) {
+                    _dbContext.ApTag.Remove(_dbContext.ApTag.Find(tag.ApTagId));
+                } else {
+                  var cTag = _dbContext.ApTag.Find(tag.ApTagId);
+                  cTag.TagtypId = tag.TagId ?? 0;
+                  cTag.Text = tag.Text;
+                  _dbContext.ApTag.Update(cTag);
+                }              
+            }
+        }
+
+        private List<Hw> ChangeHw(EditApTransport apt) {
+            Hw hw = null;
+            var rc = new List<Hw>();
+            if (apt.Hw == null) {
+                _log.LogDebug("HW Change: nothing to do");
+                return rc;
+            }
+            var hwlist = _dbContext.Hw.Where(h => h.ApId == apt.Id && h.Pri == true).ToList();
+            if (hwlist.Count > 1) {
+                _log.LogDebug($"HW Change: ERROR {hwlist.Count} entries for pri HW @apId {hw.ApId}");
+                return rc;
+            } else if (hwlist.Count == 1) {
+                hw = hwlist[0];
+                rc.Add(hw);
+            } 
+            // pri hw changed
+            if (apt.Hw.NewpriId != null) {
+                // remove old pri 
+                _log.LogDebug("HW Change: remove old pri");
+                if (hw != null) {
+                    RemoveHwFromAp(hw);
+                } 
+                if (apt.Hw.NewpriId != 0) {
+                    var newhw = _dbContext.Hw.Find(apt.Hw.NewpriId);
+                    // change pri
+                    _log.LogDebug("HW Change: change pri");
+                    newhw.ApId = apt.Id;
+                    newhw.Pri = true;
+                    ResetVlans(newhw.Id); // zur Sicherheit (sollte eigentlich sauber sein)
+                    _dbContext.Hw.Update(newhw);
+                    rc.Add(newhw);
+                    hw = newhw;
+                }
+            }
+            // chg pri vlans
+            foreach (var vlan in apt.Hw.PriVlans) {
+                _log.LogDebug("HW Change: change pri vlans");
+                ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+            }
+            // periph.
+            foreach (var peri in apt.Hw.Periph) {
+                var phw = _dbContext.Hw.Find(peri.HwId);
+                if (peri.del) {
+                    phw = RemoveHwFromAp(phw);
+                    _log.LogDebug("HW Change: remove peri #" + peri.HwId);
+                } else {
+                    if (phw.ApId != apt.Id) {
+                        // change peri
+                        _log.LogDebug("HW Change: change peri #" + peri.HwId + ", apid " + apt.Id + " hw.apid " + phw.ApId);
+                        phw.ApId = apt.Id == 0 ? null : apt.Id;
+                        phw.Pri = false;
+                        ResetVlans(phw.Id);
+                        _dbContext.Hw.Update(phw);
+                    }
+                    foreach (var vlan in peri.vlans) {
+                        _log.LogDebug("HW Change: change peri vlan");
+                        ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, peri.HwId);
+                    }
+                }
+                rc.Add(phw);
+            }
+
+            return rc;
+        }
+
+        private Hw RemoveHwFromAp(Hw hardware) {
+            var hw = _dbContext.Hw.Include(h => h.Hwkonfig.Hwtyp).First(h => h.Id == hardware.Id);
+            if ((hw.Hwkonfig.Hwtyp.Flag & Const.FREMDE_HW) > 0) {
+                _log.LogDebug("remove fremde HW");
+                var rc = new Hw {
+                    Id = hw.Id,
+                    SerNr = null,
+                    AnschDat = null,
+                    InvNr = null,
+                    AnschWert = null,
+                    Smbiosguid = null,
+                    WartungFa = null,
+                    Bemerkung = null,
+                    Pri = false,
+                    ApId = null,
+                    HwkonfigId = 0,
+                    Ap = null,
+                    Hwkonfig = null,
+                    Hwhistory = null,
+                    Mac = null,
+                };
+                _dbContext.Mac.RemoveRange(_dbContext.Mac.Where(m => m.HwId == hw.Id));
+                _dbContext.Hwhistory.RemoveRange(_dbContext.Hwhistory.Where(hh => hh.HwId == hw.Id));
+                _dbContext.Hw.Remove(hw);
+                return rc;
+            }
+            else {
+                hw.ApId = null;
+                hw.Pri = false;
+                ResetVlans(hw.Id);
+                _dbContext.Hw.Update(hw);
+                return hw;
+            }
+        }
+        private void ResetVlans(long hwid) {
+            var vlans = _dbContext.Mac.Where(m => m.HwId == hwid).ToList();
+            foreach (var vlan in vlans) {
+                vlan.Ip = 0;
+                vlan.VlanId = null;
+                _dbContext.Mac.Update(vlan);
+            }
+        }
+
+        private void ChangeVlan(long id, string mac, long vlanid, long ip, long hwid) {
+            if (id == 0) {
+                var nVlan = new Mac {
+                    Adresse = mac,
+                    Ip = ip,
+                    VlanId = vlanid == 0 ? null : vlanid,
+                    HwId = hwid
+                };
+                _dbContext.Mac.Add(nVlan);
+            } else if (mac == "") {
+                var vlan = _dbContext.Mac.Find(id);
+                _dbContext.Mac.Remove(vlan);
+            }
+            else {
+                var vlan = _dbContext.Mac.Find(id);
+                vlan.Adresse = mac;
+                vlan.Ip = ip;
+                vlan.VlanId = vlanid == 0 ? null : vlanid;
+                _dbContext.Mac.Update(vlan);
+            }
+        }
+        
+        
         /*
          * Alle benoetigten Daten fuer einen Arbeitsplatz aus der DB holen
          * 
@@ -387,132 +603,6 @@ namespace hb.SbsdbServer.Model.Repositories {
             return aps;
         }
 
-        private void ChangeTags(EditApTransport apt) {
-            if (apt.Tags == null || apt.Tags.Length == 0) {
-                return;
-            }
-            _log.LogDebug("change ap tags count " + apt.Tags.Length);
-            foreach (var tag in apt.Tags) {
-                if (tag.ApTagId == null) {
-                    var nTag = new ApTag {
-                        ApId = apt.Id,
-                        TagtypId = tag.TagId ?? 0,
-                        Text = tag.Text
-                    };
-                    _dbContext.ApTag.Add(nTag);
-                } else if (tag.TagId == null) {
-                    _dbContext.ApTag.Remove(_dbContext.ApTag.Find(tag.ApTagId));
-                } else {
-                  var cTag = _dbContext.ApTag.Find(tag.ApTagId);
-                  cTag.TagtypId = tag.TagId ?? 0;
-                  cTag.Text = tag.Text;
-                  _dbContext.ApTag.Update(cTag);
-                }              
-            }
-        }
-
-        private List<long> ChangeHw(EditApTransport apt) {
-            Hw hw = null;
-            var rc = new List<long>();
-            if (apt.Hw == null) {
-                _log.LogDebug("HW Change: nothing to do");
-                return rc;
-            }
-            var hwlist = _dbContext.Hw.Where(h => h.ApId == apt.Id && h.Pri == true).ToList();
-            if (hwlist.Count > 1) {
-                _log.LogDebug($"HW Change: ERROR {hwlist.Count} entries for pri HW @apId {hw.ApId}");
-                return rc;
-            } else if (hwlist.Count == 1) {
-                hw = hwlist[0];
-                rc.Add(hw.Id);
-            } 
-            // pri hw changed
-            if (apt.Hw.NewpriId != null) {
-                // remove old pri 
-                _log.LogDebug("HW Change: remove old pri");
-                if (hw != null) {
-                    hw.ApId = null;
-                    hw.Pri = false;
-                    ResetVlans(hw.Id);
-                    _dbContext.Hw.Update(hw);
-                } 
-                if (apt.Hw.NewpriId != 0) {
-                    var newhw = _dbContext.Hw.Find(apt.Hw.NewpriId);
-                    // change pri
-                    _log.LogDebug("HW Change: change pri");
-                    newhw.ApId = apt.Id;
-                    newhw.Pri = true;
-                    ResetVlans(newhw.Id); // zur Sicherheit (sollte eigentlich sauber sein)
-                    _dbContext.Hw.Update(newhw);
-                    rc.Add(newhw.Id);
-                    hw = newhw;
-                }
-            }
-            // chg pri vlans
-            foreach (var vlan in apt.Hw.PriVlans) {
-                _log.LogDebug("HW Change: change pri vlans");
-                ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
-            }
-            // periph.
-            foreach (var peri in apt.Hw.Periph) {
-                rc.Add(peri.HwId);
-                var phw = _dbContext.Hw.Find(peri.HwId);
-                if (peri.del) {
-                    phw.ApId = null;
-                    phw.Pri = false;
-                    ResetVlans(phw.Id);
-                    _dbContext.Hw.Update(phw);
-                    _log.LogDebug("HW Change: remove peri #" + peri.HwId);
-                } else {
-                    if (phw.ApId != apt.Id) {
-                        // change peri
-                        _log.LogDebug("HW Change: change peri #" + peri.HwId + ", apid " + apt.Id + " hw.apid " + phw.ApId);
-                        phw.ApId = apt.Id == 0 ? null : apt.Id;
-                        phw.Pri = false;
-                        ResetVlans(phw.Id);
-                        _dbContext.Hw.Update(phw);
-                    }
-                    foreach (var vlan in peri.vlans) {
-                        _log.LogDebug("HW Change: change peri vlan");
-                        ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, peri.HwId);
-                    }
-                }
-            }
-
-            return rc;
-        }
-
-        private void ResetVlans(long hwid) {
-            var vlans = _dbContext.Mac.Where(m => m.HwId == hwid).ToList();
-            foreach (var vlan in vlans) {
-                vlan.Ip = 0;
-                vlan.VlanId = null;
-                _dbContext.Mac.Update(vlan);
-            }
-        }
-
-        private void ChangeVlan(long id, string mac, long vlanid, long ip, long hwid) {
-            if (id == 0) {
-                var nVlan = new Mac {
-                    Adresse = mac,
-                    Ip = ip,
-                    VlanId = vlanid == 0 ? null : vlanid,
-                    HwId = hwid
-                };
-                _dbContext.Mac.Add(nVlan);
-            } else if (mac == "") {
-                var vlan = _dbContext.Mac.Find(id);
-                _dbContext.Mac.Remove(vlan);
-            }
-            else {
-                var vlan = _dbContext.Mac.Find(id);
-                vlan.Adresse = mac;
-                vlan.Ip = ip;
-                vlan.VlanId = vlanid == 0 ? null : vlanid;
-                _dbContext.Mac.Update(vlan);
-            }
-        }
-        
         private class TmpHw {
             public long Id { get; set; }
             public string Hersteller { get; set; }

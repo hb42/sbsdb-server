@@ -4,16 +4,21 @@ using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
     public class ApController : AbstractControllerBase<ApController> {
         private readonly IApService _apService;
         private readonly AuthorizationHelper _auth;
+        private readonly IHubContext<NotificationHub> _hub;
+        private readonly ILogger<ApController> _log;
 
-        public ApController(IApService service, AuthorizationHelper auth) {
+        public ApController(IApService service, AuthorizationHelper auth, IHubContext<NotificationHub> hub, ILogger<ApController> log) {
             _apService = service;
             _auth = auth;
+            _hub = hub;
+            _log = log;
         }
 
         [HttpGet]
@@ -50,10 +55,11 @@ namespace hb.SbsdbServer.Controllers {
             if (_auth.IsAdmin(User)) {
                 var ap = _apService.ChangeAp(chg);
                 if (ap != null) {
-                    // TODO SSE(ap)
+                    // Aenderungen an alle Clients senden  
+                    _log.LogDebug("ApChange done, trigger notification");
+                    _hub.Clients.All.SendAsync(NotificationHub.ApChangeEvent, ap);
                 }
-
-                return Ok(ap);
+                return Ok();
             }
             return StatusCode(401);
         }

@@ -175,24 +175,27 @@ namespace hb.SbsdbServer.Model.Repositories {
                 }
                 else {
                     ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == apt.Id);
-                    if (apt.Ap != null) {
+                    if (apt.DelAp == false) {
                         // ** change AP
-                        if (apt.Ap.Apname != null) {
-                            ap.Apname = apt.Ap.Apname;
+                        if (apt.Ap != null) {
+                            if (apt.Ap.Apname != null) {
+                                ap.Apname = apt.Ap.Apname;
+                            }
+                            if (apt.Ap.Bemnerkung != null) {
+                                ap.Bemerkung = apt.Ap.Bemnerkung;
+                            }
+                            if (apt.Ap.Bezeichnung != null) {
+                                ap.Bezeichnung = apt.Ap.Bezeichnung;
+                            }
+                            if (apt.Ap.StandortId != null) {
+                                ap.OeId = apt.Ap.StandortId.Value;
+                            }
+                            if (apt.Ap.VerantwId != null) {
+                                ap.OeIdVerOe = apt.Ap.VerantwId.Value;
+                            }
+                            _dbContext.Ap.Update(ap);
                         }
-                        if (apt.Ap.Bemnerkung != null) {
-                            ap.Bemerkung = apt.Ap.Bemnerkung;
-                        }
-                        if (apt.Ap.Bezeichnung != null) {
-                            ap.Bezeichnung = apt.Ap.Bezeichnung;
-                        }
-                        if (apt.Ap.StandortId != null) {
-                            ap.OeId = apt.Ap.StandortId.Value;
-                        }
-                        if (apt.Ap.VerantwId != null) {
-                            ap.OeIdVerOe = apt.Ap.VerantwId.Value;
-                        }
-                        _dbContext.Ap.Update(ap);
+
                         ChangeTags(apt);
                         chg = ChangeHw(apt);
                     }
@@ -264,7 +267,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                 return new ApHw {
                     Ap = aps == null || aps.Count == 0 ? null : aps[0],
                     Hw = hws.ToArray(),
-                    DelApId = apt.Ap == null ? apt.Id : 0
+                    DelApId = apt.DelAp ? apt.Id : 0
                 };
             } catch(Exception ex) {
                 _log.LogError(ex, "Error in ChangeAp() ApId: {Id}", apt.Id);

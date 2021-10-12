@@ -72,7 +72,7 @@ namespace hb.SbsdbServer {
                 options.MimeTypes = new[] {"application/json"};
             });
             
-            // TODO Rider 2021.1 scheint Defines zu ignorieren (=> vorerst manuell mit '!' umschalten)
+            // TODO Rider 2021.1 scheint Defines zu ignorieren 
             //      Defines sind hier, in Program.cs und AuthorizationHelper.cs
             //      FIX: in dieser Datei /Users/hb/Workspaces/JavaScript/sbsdb-server/.idea/.idea.sbsdb-server/.idea/runConfigurations/bin_publish.xml
             //           muss platform="Any CPU" geaendert werden in platform="AnyCPU" 
@@ -83,7 +83,7 @@ namespace hb.SbsdbServer {
             string connStrv4;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
               connStr = Configuration.GetConnectionString("sbsdbxx");
-              connStrv4 = Configuration.GetConnectionString("sbsdbv4x");
+              connStrv4 = Configuration.GetConnectionString("sbsdbv4xx");
             }
             else {
               connStr = Configuration.GetConnectionString("sbsdbx");
@@ -114,6 +114,9 @@ namespace hb.SbsdbServer {
                         opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
                         )
             );
+
+            // Notifications
+            services.AddSignalR();
 
             // Versionsinfos werden per .csproj gesetzt, hier aus Assembly auslesen 
             // und fuer alle Services zur Verfuegung stellen
@@ -172,9 +175,10 @@ namespace hb.SbsdbServer {
             
             // wird nur fuer Kestrel-Server (Linux, macOS) gebraucht
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                app.UsePathBase(new PathString("/791/sbsdb")); 
+                app.UsePathBase(new PathString(Const.BASE_URL)); 
             }
-            //      app.UseHttpsRedirection();  // falls das mal auf https laeuft
+
+            app.UseHttpsRedirection();  // falls das mal auf https laeuft
 
             app.UseStaticFiles(new StaticFileOptions() {
                 OnPrepareResponse = (context) => {
@@ -188,11 +192,10 @@ namespace hb.SbsdbServer {
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => {
+                endpoints.MapHub<NotificationHub>(Const.NOTIFICATION_PATH);
                 endpoints.MapControllers();
             });
             app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
-            // app.UseServerSentEvents();  // TODO noch zu testen
-            
         }
     }
 }

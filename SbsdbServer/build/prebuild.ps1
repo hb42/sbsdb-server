@@ -32,6 +32,11 @@ if (test-path $csproj) {
   if ($versionPrefix) {
     $major, $minor, $patch  = $versionPrefix.Split(".")
   }
+  # blanks entfernen
+  $major = $major.trim()
+  $minor = $minor.trim()
+  $patch = $patch.trim()
+  
   if ($versionSuffix) {
     $pretype, $prenumber = $versionSuffix.Split(".")
   }
@@ -46,6 +51,7 @@ if (test-path $csproj) {
     }
     # den passenden <PropertyGroup>-Abschnitt holen und neuen Wert eintragen
     ($xml.Project.PropertyGroup | Where-Object { $_['VersionSuffix'] -ne $null}).VersionSuffix = "${pretype}.${build}"
+    ($xml.Project.PropertyGroup | Where-Object { $_['PackageVersion'] -ne $null}).PackageVersion = "${major}.${minor}.${patch}-${pretype}.${build}"
   
     # .csproj speichern
     $xml.Save($csproj)

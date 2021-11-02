@@ -55,7 +55,7 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.GetCount();
         }
 
-        public ApHw ChangeAp(EditApTransport apt) {
+        public ApTransport ChangeAp(EditApTransport apt) {
             return _apRepository.ChangeAp(apt);
         }
     }

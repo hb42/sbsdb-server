@@ -36,6 +36,15 @@ namespace hb.SbsdbServer.Model.Repositories {
         public int GetCount() {
             return _dbContext.Hw.Count();
         }
+
+        public HwTransport ChangeHw(EditHwTransport hwt) {
+            if (hwt == null) {
+                return null;
+            }
+            // TODO
+            
+            return null;
+        }
         
         private IQueryable<Hardware> QueryHw(IQueryable<Hw> ctx) {
             return ctx

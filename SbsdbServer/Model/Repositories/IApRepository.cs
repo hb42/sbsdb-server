@@ -12,6 +12,6 @@ namespace hb.SbsdbServer.Model.Repositories {
         List<Vlan> GetVlans();
         List<ApTyp> GetApTypes();
         int GetCount();
-        ApHw ChangeAp(EditApTransport apt);
+        ApTransport ChangeAp(EditApTransport apt);
     }
 }

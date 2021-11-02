@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -33,9 +34,9 @@ namespace hb.Common.Version {
             try {
                 Version = myAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "ß.0.0";
                 Title = myAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? "";
-                Description = myAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
-                Copyright = myAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>().Copyright;
-                Product = myAssembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
+                Description = myAssembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description ?? "";
+                Copyright = myAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright ?? "";
+                Product = myAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "";
             }
             catch {
                 Version ??= "0.0.0";
@@ -97,7 +98,7 @@ namespace hb.Common.Version {
          * ASP.NET Core-Version ermitteln
          */
         public string AspNetCoreVersion() {
-            return $"ASP.NET Core {Environment.Version}";
+            return $"Basis: ASP.NET Core {Environment.Version}";
         }
         /**
          * Betriebssystem-Version
@@ -110,7 +111,7 @@ namespace hb.Common.Version {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
                 desc = RuntimeInformation.RuntimeIdentifier + " " + desc;
             }
-            return desc;
+            return $"Betriebssystem: {desc}";
         }
     }
 }

@@ -7,5 +7,6 @@ namespace hb.SbsdbServer.Services {
         List<Hardware> GetHardware(long id);
         public List<Hardware> GetPage(int page, int pageSize);
         public int GetCount();
+        public HwTransport ChangeHw(EditHwTransport hwt);
     }
 }

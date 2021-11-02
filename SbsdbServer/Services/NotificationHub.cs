@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace hb.SbsdbServer.Services {
     public class NotificationHub: Hub {
         public const string ApChangeEvent = "apchange";
+        public const string HwChangeEvent = "hwchange";
         private readonly ILogger<NotificationHub> _log;
 
         public NotificationHub(ILogger<NotificationHub> log) {

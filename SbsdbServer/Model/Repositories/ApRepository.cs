@@ -115,7 +115,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             return _dbContext.Ap.Count();
         }
 
-        public ApHw ChangeAp(EditApTransport apt) {
+        public ApTransport ChangeAp(EditApTransport apt) {
             if (apt == null) {
                 return null;
             }
@@ -264,7 +264,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                         }
                     }
                 }
-                return new ApHw {
+                return new ApTransport {
                     Ap = aps == null || aps.Count == 0 ? null : aps[0],
                     Hw = hws.ToArray(),
                     DelApId = apt.DelAp ? apt.Id : 0

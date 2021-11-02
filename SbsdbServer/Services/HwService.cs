@@ -24,5 +24,9 @@ namespace hb.SbsdbServer.Services {
         public int GetCount() {
             return _hwRepository.GetCount();
         }
+
+        public HwTransport ChangeHw(EditHwTransport hwt) {
+            return _hwRepository.ChangeHw(hwt);
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace hb.SbsdbServer.Model.Repositories {
         public List<Hardware> GetPage(int page, int pageSize);
         public List<Hardware> GetHwForAp(long apid);
         public int GetCount();
+        public HwTransport ChangeHw(EditHwTransport hwt);
     }
 }

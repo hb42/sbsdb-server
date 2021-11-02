@@ -51,7 +51,7 @@ namespace hb.SbsdbServer.Controllers {
 
         [HttpPost]
         [ActionName("changeap")]
-        public ActionResult<ApHw> ApChange([FromBody] EditApTransport chg) {
+        public ActionResult<ApTransport> ApChange([FromBody] EditApTransport chg) {
             if (_auth.IsAdmin(User)) {
                 var ap = _apService.ChangeAp(chg);
                 if (ap != null) {

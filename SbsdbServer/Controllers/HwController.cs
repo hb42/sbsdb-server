@@ -2,13 +2,21 @@ using System.Collections.Generic;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
     public class HwController : AbstractControllerBase<HwController> {
         private readonly IHwService _hwService;
+        private readonly AuthorizationHelper _auth;
+        private readonly IHubContext<NotificationHub> _hub;
+        private readonly ILogger<HwController> _log;
 
-        public HwController(IHwService service) {
+        public HwController(IHwService service, AuthorizationHelper auth, IHubContext<NotificationHub> hub, ILogger<HwController> log) {
             _hwService = service;
+            _auth = auth;
+            _log = log;
+            _hub = hub;
         }
 
         [HttpGet]
@@ -32,6 +40,21 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("count")]
         public ActionResult<int> Count() {
             return _hwService.GetCount();
+        }
+        
+        [HttpPost]
+        [ActionName("changehw")]
+        public ActionResult<HwTransport> HwChange([FromBody] EditHwTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var hw = _hwService.ChangeHw(chg);
+                if (hw != null) {
+                    // Aenderungen an alle Clients senden  
+                    _log.LogDebug("HwChange done, trigger notification");
+                    _hub.Clients.All.SendAsync(NotificationHub.HwChangeEvent, hw);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
         }
     }
 }

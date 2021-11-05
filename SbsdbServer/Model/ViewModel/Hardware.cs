@@ -16,11 +16,7 @@ namespace hb.SbsdbServer.Model.ViewModel {
         public string Smbiosgiud { get; set; }
         public string WartungFa { get; set; }
         public string Bemerkung { get; set; }
-        // public string Hersteller { get; set; }
-        // public string Bezeichnung { get; set; }
         public bool Pri { get; set; }
-        // public string Hwtyp { get; set; }
-        // public long HwtypFlag { get; set; }
         public long HwKonfigId { get; set; }
         public long ApId { get; set; }
         public List<Netzwerk> Vlans { get; set; }

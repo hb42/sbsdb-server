@@ -28,5 +28,9 @@ namespace hb.SbsdbServer.Services {
         public HwTransport ChangeHw(EditHwTransport hwt) {
             return _hwRepository.ChangeHw(hwt);
         }
+
+        public List<HwHistory> GetHwHistoryFor(long hwid) {
+            return _hwRepository.GetHwHistoryFor(hwid);
+        }
     }
 }

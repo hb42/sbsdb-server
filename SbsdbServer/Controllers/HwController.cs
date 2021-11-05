@@ -56,5 +56,11 @@ namespace hb.SbsdbServer.Controllers {
             }
             return StatusCode(401);
         }
+
+        [HttpGet("{id}")]
+        [ActionName("hwhistoryfor")]
+        public List<HwHistory> GetHwHistoryFor(long id) {
+            return _hwService.GetHwHistoryFor(id);
+        }
     }
 }

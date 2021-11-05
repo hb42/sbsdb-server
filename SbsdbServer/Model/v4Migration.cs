@@ -419,17 +419,16 @@ namespace hb.SbsdbServer.Model {
             foreach (var o in old) {
                 var n = new Hw {
                     Id = o.HwIndex,
-                    ApId = o.ApIndex,
                     AnschDat = o.AnschDat,
                     AnschWert = (decimal) o.AnschWert,
                     Bemerkung = o.WartungBem,
                     HwkonfigId = (long) o.KonfigIndex,
                     InvNr = o.InvNr,
-                    Pri = o.Pri == "J",
                     SerNr = o.SerNr,
                     Smbiosguid = o.Netbootguid,
                     WartungFa = o.WartungFa // ?
                 };
+                n.ChangeAp(o.ApIndex, o.Pri == "J");
                 LOG.LogDebug("Hw add #" + n.Id);
                 v5dbContext.Hw.Add(n);
             }
@@ -552,11 +551,10 @@ namespace hb.SbsdbServer.Model {
                     //          new Hw pri=true, ap=ap.apID, hwkonfig=liste(where aptyp = ap.aptyp), sernr=apname
                     var h = new Hw {
                         Id = idx++,
-                        Pri = true,
-                        ApId = ap.ApIndex,
                         HwkonfigId = konfigs.First(k => k.apkat == (ap.ApklasseIndexNavigation.AptypIndex == 5 ? 1 : ap.ApklasseIndexNavigation.AptypIndex)).konfig,
                         SerNr = ap.ApName
                     };
+                    h.ChangeAp(ap.ApIndex, true);
                     LOG.LogDebug("new Hw" + h.SerNr);
                     v5dbContext.Hw.Add(h);
                     // v5dbContext.SaveChanges();

@@ -45,6 +45,60 @@ namespace hb.SbsdbServer.Model.Repositories {
             
             return null;
         }
+
+        public List<HwHistory> GetHwHistoryFor(long hwid) {
+            return _dbContext.Hwhistory.Where(hwh => hwh.HwId == hwid).AsNoTracking().OrderByDescending(hwh => hwh.Shiftdate)
+                .Select(hwh => new HwHistory {
+                    Id = hwh.Id,
+                    Apbezeichnung = hwh.ApBezeichnung,
+                    Apname = hwh.Apname,
+                    Betriebsstelle = hwh.Betriebsstelle,
+                    Direction = hwh.Direction,
+                    Shiftdate = hwh.Shiftdate,
+                    Apid = hwh.ApId,
+                    Hwid = hwh.HwId
+                }).ToList();
+        }
+        
+        /**
+         * Aenderung des AP in Hwhistory vermerken
+         *
+         * Die fn macht keinen Commit, das ist Aufgabe des Callers
+         */
+        public void ChangeAp(Hw hw, long? newapid, bool pri) {
+            Ap oldap = null;
+            Ap newap = null;
+            if (hw.ApId != null) {
+                // alter Eintrag vorhanden, in der History vermerken
+                oldap = _dbContext.Ap.Include(ap => ap.Oe).First(ap => ap.Id == hw.ApId);
+                var shift = new Hwhistory {
+                    HwId = hw.Id,
+                    Direction = "-",
+                    Apname = oldap.Apname,
+                    ApBezeichnung = oldap.Bezeichnung,
+                    ApId = oldap.Id,
+                    Betriebsstelle = oldap.Oe.Betriebsstelle,
+                    Shiftdate = DateTime.Now
+                };
+                _dbContext.Hwhistory.Add(shift);
+            }
+            if (newapid != null) {
+                // neuen AP eintragen
+               newap = _dbContext.Ap.Include(ap => ap.Oe).First(ap => ap.Id == newapid.Value);
+               var shift = new Hwhistory {
+                    HwId = hw.Id,
+                    Direction = "+",
+                    Apname = newap.Apname,
+                    ApBezeichnung = newap.Bezeichnung,
+                    ApId = newap.Id,
+                    Betriebsstelle = newap.Oe.Betriebsstelle,
+                    Shiftdate = DateTime.Now
+                };
+                _dbContext.Hwhistory.Add(shift);
+            }
+            // im Datensatz eintragen
+            hw.ChangeAp(newapid, pri);
+        }
         
         private IQueryable<Hardware> QueryHw(IQueryable<Hw> ctx) {
             return ctx

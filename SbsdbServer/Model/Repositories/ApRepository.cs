@@ -144,23 +144,18 @@ namespace hb.SbsdbServer.Model.Repositories {
                     apt.Id = ap.Id;
                     if ((ap.Aptyp.Flag & Const.FREMDE_HW) > 0) {
                         // ** fremde HW -> neue HW + MAC eintragen
-                        _log.LogDebug("## 1 ##");
                         var hwkonf = _dbContext.Hwkonfig.First(h =>
                             h.Hwtyp.Apkategorie.Aptyp.First(a => a.Id == ap.AptypId).ApkategorieId == h.Hwtyp.ApkategorieId && (h.Hwtyp.Flag & Const.FREMDE_HW) > 0);
-                        _log.LogDebug("## 2 ##");
                         var hw = new Hw {
-                            Pri = true,
-                            ApId = ap.Id,
+                            // Pri = true, // f. fremde HW keine history
+                            // ApId = ap.Id,
                             HwkonfigId = hwkonf.Id,
                             SerNr = ap.Apname
                         };
-                        _log.LogDebug("## 3 ##");
                         _dbContext.Hw.Add(hw);
                         _dbContext.SaveChanges();
-                        _log.LogDebug("## 4 ##");
                         apt.Hw.NewpriId = hw.Id;
                         foreach (var vlan in apt.Hw.PriVlans) {
-                            _log.LogDebug("## 5 ##");
                             ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
                         }
                         // var m = new Mac {
@@ -215,8 +210,8 @@ namespace hb.SbsdbServer.Model.Repositories {
                                     Smbiosguid = null,
                                     WartungFa = null,
                                     Bemerkung = null,
-                                    Pri = false,
-                                    ApId = null,
+                                    // Pri = false,
+                                    // ApId = null,
                                     HwkonfigId = 0,
                                     Ap = null,
                                     Hwkonfig = null,
@@ -256,9 +251,9 @@ namespace hb.SbsdbServer.Model.Repositories {
                               Smbiosgiud = null,
                               WartungFa = null,
                               Bemerkung = null,
-                              Pri = false,
+                              // Pri = false,
                               HwKonfigId = 0,
-                              ApId = 0,
+                              // ApId = 0,
                               Vlans = null
                           });
                         }
@@ -325,8 +320,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     var newhw = _dbContext.Hw.Find(apt.Hw.NewpriId);
                     // change pri
                     _log.LogDebug("HW Change: change pri");
-                    newhw.ApId = apt.Id;
-                    newhw.Pri = true;
+                    _hwRepository.ChangeAp(newhw, apt.Id, true);
                     ResetVlans(newhw.Id); // zur Sicherheit (sollte eigentlich sauber sein)
                     _dbContext.Hw.Update(newhw);
                     rc.Add(newhw);
@@ -348,8 +342,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     if (phw.ApId != apt.Id) {
                         // change peri
                         _log.LogDebug("HW Change: change peri #" + peri.HwId + ", apid " + apt.Id + " hw.apid " + phw.ApId);
-                        phw.ApId = apt.Id == 0 ? null : apt.Id;
-                        phw.Pri = false;
+                        _hwRepository.ChangeAp(phw, apt.Id == 0 ? null : apt.Id, false);
                         ResetVlans(phw.Id);
                         _dbContext.Hw.Update(phw);
                     }
@@ -377,8 +370,8 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Smbiosguid = null,
                     WartungFa = null,
                     Bemerkung = null,
-                    Pri = false,
-                    ApId = null,
+                    // Pri = false,
+                    // ApId = null,
                     HwkonfigId = 0,
                     Ap = null,
                     Hwkonfig = null,
@@ -391,8 +384,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                 return rc;
             }
             else {
-                hw.ApId = null;
-                hw.Pri = false;
+                _hwRepository.ChangeAp(hw, null, false);
                 ResetVlans(hw.Id);
                 _dbContext.Hw.Update(hw);
                 return hw;

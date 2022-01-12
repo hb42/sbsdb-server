@@ -1,9 +1,5 @@
 ﻿using System;
-using System.DirectoryServices.Protocols;
-using System.Linq;
-using System.Net;
 using System.Runtime.InteropServices;
-using System.Security.Claims;
 using hb.Common.Validation;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
@@ -11,19 +7,14 @@ using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace hb.SbsdbServer {
     public class Startup {
@@ -41,8 +32,8 @@ namespace hb.SbsdbServer {
                 // Validierungsfehler fangen
                 .ConfigureApiBehaviorOptions(o => {
                     o.InvalidModelStateResponseFactory = context => new ValidationProblemDetailsResult();
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Latest);
+                });
+                // obsolete? .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
                 .AddNegotiate(); 
@@ -72,23 +63,10 @@ namespace hb.SbsdbServer {
                 options.MimeTypes = new[] {"application/json"};
             });
             
-            // TODO Rider 2021.1 scheint Defines zu ignorieren 
-            //      Defines sind hier, in Program.cs und AuthorizationHelper.cs
-            //      FIX: in dieser Datei /Users/hb/Workspaces/JavaScript/sbsdb-server/.idea/.idea.sbsdb-server/.idea/runConfigurations/bin_publish.xml
-            //           muss platform="Any CPU" geaendert werden in platform="AnyCPU" 
-            
             // DB-Connection-Strings holen
 #if TESTSYSTEM  // unterschiedliche Connection-Strings fuer verschiedene Systeme
-            string connStr;
-            string connStrv4;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-              connStr = Configuration.GetConnectionString("sbsdbxx");
-              connStrv4 = Configuration.GetConnectionString("sbsdbv4xx");
-            }
-            else {
-              connStr = Configuration.GetConnectionString("sbsdbx");
-              connStrv4 = Configuration.GetConnectionString("sbsdbv4x");
-            }
+            string connStr = Configuration.GetConnectionString("sbsdbxx");
+            string connStrv4 = Configuration.GetConnectionString("sbsdbv4xx");
 #else
             string connStr = Configuration.GetConnectionString("sbsdb");
             string connStrv4 = Configuration.GetConnectionString("sbsdbv4");

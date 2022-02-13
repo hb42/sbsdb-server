@@ -41,9 +41,74 @@ namespace hb.SbsdbServer.Model.Repositories {
             if (hwt == null) {
                 return null;
             }
-            // TODO
+            Hw hw = null;
+            if (hwt.Id == 0) {
+                // TODO zuerst handling der HW-Konfig auf Clientseite klaeren
+                // new hw
+                
+                hw = new Hw {
+                    Bemerkung = hwt.Bemerkung,
+                    Smbiosguid = hwt.Smbiosgiud,
+                    AnschDat = hwt.AnschDat,
+                    AnschWert = hwt.AnschWert,
+                    InvNr = hwt.InvNr,
+                    SerNr = hwt.Sernr,
+                    WartungFa = hwt.WartungFa,
+                };
+                
+                // _dbContext.Hw.Add(hw);
+                // _dbContext.SaveChanges();
+                
+            } else {
+                // change hw
+                hw = _dbContext.Hw.First(hdw => hdw.Id == hwt.Id);
+                if (hwt.Bemerkung != null) {
+                    hw.Bemerkung = hwt.Bemerkung;
+                }
+                if (hwt.Sernr != null) {
+                    hw.SerNr = hwt.Sernr;
+                }
+                if (hwt.Smbiosgiud != null) {
+                    hw.Smbiosguid = hwt.Smbiosgiud;
+                }
+                if (hwt.AnschDat != null) {
+                    hw.AnschDat = hwt.AnschDat;
+                }
+                if (hwt.AnschWert != null) {
+                    hw.AnschWert = hwt.AnschWert;
+                }
+                if (hwt.InvNr != null) {
+                    hw.InvNr = hwt.InvNr;
+                }
+                if (hwt.WartungFa != null) {
+                    hw.WartungFa = hwt.WartungFa;
+                }
+                // TODO Ap-change-handling??
+                // if (hwt.ApId.HasValue && hwt.ApId != hw.ApId) {
+                //     ChangeAp(hw, hwt.ApId, hw.Pri);
+                // }
+                if (hwt.RemoveAp) {
+                    ChangeAp(hw, null, false);
+                }
+            }
+            foreach (var vlan in hwt.Vlans) {
+                _log.LogDebug("HW Change: change peri vlan");
+                ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+            }
+        
+            _dbContext.SaveChanges();
             
-            return null;
+            // return changes
+            Hardware h = null;
+            if (hw != null) {
+                h = GetHardware(hw.Id).First();
+            }
+
+            return new HwTransport {
+                Hw = h,
+                DelHwId = 0, // TODO set >0 if del HW
+                    
+            };
         }
 
         public List<HwHistory> GetHwHistoryFor(long hwid) {
@@ -100,6 +165,27 @@ namespace hb.SbsdbServer.Model.Repositories {
             hw.ChangeAp(newapid, pri);
         }
         
+        public void ChangeVlan(long id, string mac, long vlanid, long ip, long hwid) {
+            if (id == 0) {
+                var nVlan = new Mac {
+                    Adresse = mac,
+                    Ip = ip,
+                    VlanId = vlanid == 0 ? null : vlanid,
+                    HwId = hwid
+                };
+                _dbContext.Mac.Add(nVlan);
+            } else if (mac == "") {
+                var vlan = _dbContext.Mac.Find(id);
+                _dbContext.Mac.Remove(vlan);
+            } else {
+                var vlan = _dbContext.Mac.Find(id);
+                vlan.Adresse = mac;
+                vlan.Ip = ip;
+                vlan.VlanId = vlanid == 0 ? null : vlanid;
+                _dbContext.Mac.Update(vlan);
+            }
+        }
+
         private IQueryable<Hardware> QueryHw(IQueryable<Hw> ctx) {
             return ctx
                 .AsNoTracking()

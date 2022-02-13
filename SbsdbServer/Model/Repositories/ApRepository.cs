@@ -156,7 +156,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                         _dbContext.SaveChanges();
                         apt.Hw.NewpriId = hw.Id;
                         foreach (var vlan in apt.Hw.PriVlans) {
-                            ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+                            _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
                         }
                         // var m = new Mac {
                         //     Adresse = ,
@@ -167,8 +167,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                         // LOG.LogDebug("new MAC " + m.Adresse);
                         // v5dbContext.Mac.Add(m);
                     }
-                }
-                else {
+                } else {
                     ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == apt.Id);
                     if (apt.DelAp == false) {
                         // ** change AP
@@ -193,8 +192,7 @@ namespace hb.SbsdbServer.Model.Repositories {
 
                         ChangeTags(apt);
                         chg = ChangeHw(apt);
-                    }
-                    else {
+                    } else {
                         // ** DEL AP
                         _dbContext.ApTag.RemoveRange(_dbContext.ApTag.Where(aptag => aptag.ApId == apt.Id));
                         var aphw = _dbContext.Hw.Include(h => h.Hwkonfig.Hwtyp).Where(h => h.ApId == apt.Id);
@@ -222,8 +220,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                                 _dbContext.Mac.RemoveRange(_dbContext.Mac.Where(m => m.HwId == h.Id));
                                 _dbContext.Hwhistory.RemoveRange(_dbContext.Hwhistory.Where(hh => hh.HwId == h.Id));
                                 _dbContext.Hw.Remove(h);
-                            }
-                            else {
+                            } else {
                                 chg.Add(RemoveHwFromAp(h));
                             }
                         }
@@ -330,7 +327,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             // chg pri vlans
             foreach (var vlan in apt.Hw.PriVlans) {
                 _log.LogDebug("HW Change: change pri vlans");
-                ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+                _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
             }
             // periph.
             foreach (var peri in apt.Hw.Periph) {
@@ -348,7 +345,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     }
                     foreach (var vlan in peri.vlans) {
                         _log.LogDebug("HW Change: change peri vlan");
-                        ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, peri.HwId);
+                        _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, peri.HwId);
                     }
                 }
                 rc.Add(phw);
@@ -382,8 +379,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                 _dbContext.Hwhistory.RemoveRange(_dbContext.Hwhistory.Where(hh => hh.HwId == hw.Id));
                 _dbContext.Hw.Remove(hw);
                 return rc;
-            }
-            else {
+            } else {
                 _hwRepository.ChangeAp(hw, null, false);
                 ResetVlans(hw.Id);
                 _dbContext.Hw.Update(hw);
@@ -399,29 +395,6 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
         }
 
-        private void ChangeVlan(long id, string mac, long vlanid, long ip, long hwid) {
-            if (id == 0) {
-                var nVlan = new Mac {
-                    Adresse = mac,
-                    Ip = ip,
-                    VlanId = vlanid == 0 ? null : vlanid,
-                    HwId = hwid
-                };
-                _dbContext.Mac.Add(nVlan);
-            } else if (mac == "") {
-                var vlan = _dbContext.Mac.Find(id);
-                _dbContext.Mac.Remove(vlan);
-            }
-            else {
-                var vlan = _dbContext.Mac.Find(id);
-                vlan.Adresse = mac;
-                vlan.Ip = ip;
-                vlan.VlanId = vlanid == 0 ? null : vlanid;
-                _dbContext.Mac.Update(vlan);
-            }
-        }
-        
-        
         /*
          * Alle benoetigten Daten fuer einen Arbeitsplatz aus der DB holen
          * 

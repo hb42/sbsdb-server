@@ -515,7 +515,7 @@ namespace hb.SbsdbServer.Model
                 entity.HasOne(d => d.Hw)
                     .WithMany(p => p.Hwhistory)
                     .HasForeignKey(d => d.HwId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("HWHISTORY_HW_FK");
             });
 

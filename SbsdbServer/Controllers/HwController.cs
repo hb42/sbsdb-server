@@ -45,6 +45,7 @@ namespace hb.SbsdbServer.Controllers {
         [HttpPost]
         [ActionName("changehw")]
         public ActionResult<HwTransport> HwChange([FromBody] EditHwTransport chg) {
+            
             if (_auth.IsAdmin(User)) {
                 var hw = _hwService.ChangeHw(chg);
                 if (hw != null) {

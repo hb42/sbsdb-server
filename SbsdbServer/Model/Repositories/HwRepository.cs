@@ -42,47 +42,76 @@ namespace hb.SbsdbServer.Model.Repositories {
                 return null;
             }
             Hw hw = null;
+            if (hwt.DelHw) {
+                // DEL hw
+                // include() => auch records aus HwHistory loeschen
+                hw = _dbContext.Hw.Include(hdw => hdw.Hwhistory).First(hdw => hdw.Id == hwt.Id);
+                if (hw.ApId is > 0) {
+                    ChangeAp(hw, null, false);
+                }
+                var macs = "";
+                foreach (var mac in hw.Mac) {
+                    macs += (macs.Length > 0 ? " " : "") + mac.Adresse;
+                    ChangeVlan(mac.Id, "", 0, 0, 0);
+                }
+                var auss = new Aussond {
+                    Id = hw.Id,
+                    SerNr = hw.SerNr,
+                    AnschDat = hw.AnschDat,
+                    InvNr = hw.InvNr,
+                    AnschWert = hw.AnschWert,
+                    HwkonfigId = hw.HwkonfigId,
+                    Mac = macs,
+                    Smbiosguid = hw.Smbiosguid,
+                    WartungFa = hw.WartungFa,
+                    Bemerkung = hw.Bemerkung,
+                    AussDat = DateTime.Today,
+                    AussGrund = hwt.Aussonderung,
+                    Rewe = null,
+                };
+                _dbContext.Aussond.Add(auss);
+                _dbContext.Hw.Remove(hw);
+                _dbContext.SaveChanges();
+                return new HwTransport {
+                    Hw = null,
+                    DelHwId = hwt.Id,
+                };
+            }
+            
             if (hwt.Id == 0) {
-                // TODO zuerst handling der HW-Konfig auf Clientseite klaeren
                 // new hw
-                
                 hw = new Hw {
                     Bemerkung = hwt.Bemerkung,
                     Smbiosguid = hwt.Smbiosgiud,
                     AnschDat = hwt.AnschDat,
                     AnschWert = hwt.AnschWert,
                     InvNr = hwt.InvNr,
-                    SerNr = hwt.Sernr,
+                    SerNr = hwt.Sernr ?? "--",
                     WartungFa = hwt.WartungFa,
                 };
-                
-                // _dbContext.Hw.Add(hw);
-                // _dbContext.SaveChanges();
-                
+                if (hwt.HwKonfigId.HasValue) {
+                    hw.HwkonfigId = hwt.HwKonfigId.Value;
+                }
+                else {
+                    return null;
+                }
+                _dbContext.Hw.Add(hw);
+                _dbContext.SaveChanges();
+
             } else {
                 // change hw
                 hw = _dbContext.Hw.First(hdw => hdw.Id == hwt.Id);
-                if (hwt.Bemerkung != null) {
-                    hw.Bemerkung = hwt.Bemerkung;
-                }
                 if (hwt.Sernr != null) {
-                    hw.SerNr = hwt.Sernr;
-                }
-                if (hwt.Smbiosgiud != null) {
+                    hw.Bemerkung = hwt.Bemerkung;
+                    hw.SerNr = hwt.Sernr ?? "--";
                     hw.Smbiosguid = hwt.Smbiosgiud;
-                }
-                if (hwt.AnschDat != null) {
                     hw.AnschDat = hwt.AnschDat;
-                }
-                if (hwt.AnschWert != null) {
                     hw.AnschWert = hwt.AnschWert;
-                }
-                if (hwt.InvNr != null) {
                     hw.InvNr = hwt.InvNr;
-                }
-                if (hwt.WartungFa != null) {
                     hw.WartungFa = hwt.WartungFa;
                 }
+
+                
                 // TODO Ap-change-handling??
                 // if (hwt.ApId.HasValue && hwt.ApId != hw.ApId) {
                 //     ChangeAp(hw, hwt.ApId, hw.Pri);
@@ -99,15 +128,9 @@ namespace hb.SbsdbServer.Model.Repositories {
             _dbContext.SaveChanges();
             
             // return changes
-            Hardware h = null;
-            if (hw != null) {
-                h = GetHardware(hw.Id).First();
-            }
-
             return new HwTransport {
-                Hw = h,
-                DelHwId = 0, // TODO set >0 if del HW
-                    
+                Hw = GetHardware(hw.Id).First(),
+                DelHwId = 0,
             };
         }
 

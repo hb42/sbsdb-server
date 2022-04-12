@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <VersionPrefix>0.6.0</VersionPrefix>
-    <VersionSuffix>alpha.333</VersionSuffix>
+    <VersionSuffix>alpha.354</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2022 Hartmut Bauer</Copyright>
@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/hb42/sbsdb-server</RepositoryUrl>
     <RootNamespace>hb.SbsdbServer</RootNamespace>
     <Authors>hb42@gmx.de</Authors>
-    <PackageVersion>0.6.0-alpha.333</PackageVersion>
+    <PackageVersion>0.6.0-alpha.354</PackageVersion>
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
@@ -18,11 +18,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\net6.0\</OutputPath>
-    <DefineConstants>COREAPP; TRACECOREAPP;TESTSYSTEM</DefineConstants>
+    <DefineConstants>COREAPP; TRACECOREAPP</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\net5.0</OutputPath>
-    <DefineConstants>COREAPP; TRACECOREAPP;TESTSYSTEM</DefineConstants>
+    <DefineConstants>COREAPP; TRACECOREAPP</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>

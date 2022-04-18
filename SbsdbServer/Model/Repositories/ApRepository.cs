@@ -138,34 +138,23 @@ namespace hb.SbsdbServer.Model.Repositories {
                     };
                     _dbContext.Ap.Add(ap);
                     _dbContext.SaveChanges();
-                    _log.LogDebug("## save: AP.typid: {id}, typ: {t}", ap.AptypId, ap.Aptyp);
                     ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == ap.Id);
-                    _log.LogDebug("## first: AP.typid: {id}, typ: {t}", ap.AptypId, ap.Aptyp);
                     apt.Id = ap.Id;
                     if ((ap.Aptyp.Flag & Const.FREMDE_HW) > 0) {
                         // ** fremde HW -> neue HW + MAC eintragen
                         var hwkonf = _dbContext.Hwkonfig.First(h =>
                             h.Hwtyp.Apkategorie.Aptyp.First(a => a.Id == ap.AptypId).ApkategorieId == h.Hwtyp.ApkategorieId && (h.Hwtyp.Flag & Const.FREMDE_HW) > 0);
                         var hw = new Hw {
-                            // Pri = true, // f. fremde HW keine history
-                            // ApId = ap.Id,
                             HwkonfigId = hwkonf.Id,
                             SerNr = ap.Apname
                         };
+                        hw.ChangeAp(ap.Id, true);
                         _dbContext.Hw.Add(hw);
                         _dbContext.SaveChanges();
                         apt.Hw.NewpriId = hw.Id;
                         foreach (var vlan in apt.Hw.PriVlans) {
                             _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
                         }
-                        // var m = new Mac {
-                        //     Adresse = ,
-                        //     Ip = ap.Tcp,
-                        //     HwId = h.Id,
-                        //     VlanId = (long) ap.SegmentIndex
-                        // };
-                        // LOG.LogDebug("new MAC " + m.Adresse);
-                        // v5dbContext.Mac.Add(m);
                     }
                 } else {
                     ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == apt.Id);

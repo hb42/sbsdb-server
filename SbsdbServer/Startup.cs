@@ -77,7 +77,8 @@ namespace hb.SbsdbServer {
             // Use 'MariaDbServerVersion' for MariaDB.
             // Alternatively, use 'ServerVersion.AutoDetect(connectionString)'.
             // For common usages, see pull request #1233.
-            var serverVersion = ServerVersion.AutoDetect(connStrv4); //new MySqlServerVersion(new Version(5, 5, 60));
+            // var serverVersion = ServerVersion.AutoDetect(connStrv4); //new MySqlServerVersion(new Version(5, 5, 60));
+            var serverVersion = new MariaDbServerVersion("10.0.0");
             services.AddDbContextPool<Sbsdbv4Context>(
                     dbContextOptions => dbContextOptions
                         .UseMySql(connStrv4, serverVersion)
@@ -89,7 +90,7 @@ namespace hb.SbsdbServer {
             services.AddDbContextPool<SbsdbContext>(
                 options => options 
                     .UseOracle(connStr, opt => 
-                        opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+                        opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery).CommandTimeout(10)
                         )
             );
 

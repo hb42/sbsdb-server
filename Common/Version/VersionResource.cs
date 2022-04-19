@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -30,7 +31,6 @@ namespace hb.Common.Version {
 
         public VersionResource() {
             var myAssembly = Assembly.GetCallingAssembly();
-            
             try {
                 Version = myAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "ß.0.0";
                 Title = myAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? "";
@@ -80,6 +80,10 @@ namespace hb.Common.Version {
          * Versions-Info im package.json-Format
          */
         public object Package() {
+            var asyEx = System.Reflection.Assembly.GetExecutingAssembly();
+            var asyCa = System.Reflection.Assembly.GetCallingAssembly();
+            var asyEn = System.Reflection.Assembly.GetEntryAssembly();
+
             return new {
                 version = Version,
                 name = Product,
@@ -88,7 +92,8 @@ namespace hb.Common.Version {
                 copyright = Copyright,
                 author = "",  // <authors> wird anscheinend nicht in assembly geschrieben
                 license = "MIT", // erst mal fix
-                versions = new string[] {AspNetCoreVersion(), OsVersion()} // TODO + iis version? 
+                versions = new string[] {AspNetCoreVersion(), OsVersion(),
+                    "ExecutingAssembly: " + asyEx.Location, "CallingAssembly: " + asyCa.Location, "EntryAssembly: " + (asyEn.Location ?? "null")} // TODO + iis version? 
             };
         }
         public override string ToString() {

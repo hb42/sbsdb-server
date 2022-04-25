@@ -7,6 +7,7 @@ namespace hb.SbsdbServer.Services {
     public class NotificationHub: Hub {
         public const string ApChangeEvent = "apchange";
         public const string HwChangeEvent = "hwchange";
+        public const string AddHwEvent = "addhw";
         public const string ExtProgChangeEvent = "extprogchange";
         private readonly ILogger<NotificationHub> _log;
 

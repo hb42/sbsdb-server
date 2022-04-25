@@ -58,10 +58,25 @@ namespace hb.SbsdbServer.Controllers {
             return StatusCode(401);
         }
 
+        [HttpPost]
+        [ActionName("addhw")]
+        public ActionResult<AddHwTransport> AddHw([FromBody] NewHwTransport nhw) {
+            if (_auth.IsAdmin(User)) {
+                var hws = _hwService.AddHw(nhw);
+                if (hws != null) {
+                    _log.LogDebug("AddHw done, trigger notification");
+                    _hub.Clients.All.SendAsync(NotificationHub.AddHwEvent, hws);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
         [HttpGet("{id}")]
         [ActionName("hwhistoryfor")]
         public List<HwHistory> GetHwHistoryFor(long id) {
             return _hwService.GetHwHistoryFor(id);
         }
+
     }
 }

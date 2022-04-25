@@ -10,6 +10,7 @@ namespace hb.SbsdbServer.Model.Repositories {
         public List<Hardware> GetHwForAp(long apid);
         public int GetCount();
         public HwTransport ChangeHw(EditHwTransport hwt);
+        public AddHwTransport AddHw(NewHwTransport nhw);
         public List<HwHistory> GetHwHistoryFor(long hwid);
         public void ChangeAp(Hw hw, long? newapid, bool pri);
         public void ChangeVlan(long id, string mac, long vlanid, long ip, long hwid);

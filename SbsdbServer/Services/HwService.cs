@@ -29,6 +29,10 @@ namespace hb.SbsdbServer.Services {
             return _hwRepository.ChangeHw(hwt);
         }
 
+        public AddHwTransport AddHw(NewHwTransport nhw) {
+            return _hwRepository.AddHw(nhw);
+        }
+
         public List<HwHistory> GetHwHistoryFor(long hwid) {
             return _hwRepository.GetHwHistoryFor(hwid);
         }

@@ -134,6 +134,36 @@ namespace hb.SbsdbServer.Model.Repositories {
             };
         }
 
+        public AddHwTransport AddHw(NewHwTransport nhw) {
+            var ids = new Stack<long>();
+            foreach (var device in nhw.Devices) {
+                var hw = new Hw {
+                    HwkonfigId = nhw.KonfigId,
+                    SerNr = device.Sernr,
+                    InvNr = nhw.InvNr,
+                    AnschDat = nhw.AnschDat,
+                    AnschWert = nhw.AnschWert,
+                    WartungFa = nhw.WartungFa,
+                    Bemerkung = nhw.Bemerkung
+                };
+                hw.ChangeAp(null, false);
+                _dbContext.Hw.Add(hw);
+                _dbContext.SaveChanges();
+                if (!string.IsNullOrEmpty(device.Mac)) {
+                    var mac = new Mac {
+                        Adresse = device.Mac,
+                        HwId = hw.Id
+                    };
+                    _dbContext.Mac.Add(mac);
+                    _dbContext.SaveChanges();
+                }
+                ids.Push(hw.Id);
+            }
+            return new AddHwTransport {
+                NewHw = QueryHw(_dbContext.Hw.Where((hw) => ids.ToArray().Contains(hw.Id))).ToArray()
+            };
+        }
+        
         public List<HwHistory> GetHwHistoryFor(long hwid) {
             return _dbContext.Hwhistory.Where(hwh => hwh.HwId == hwid).AsNoTracking().OrderByDescending(hwh => hwh.Shiftdate)
                 .Select(hwh => new HwHistory {

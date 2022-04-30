@@ -36,5 +36,9 @@ namespace hb.SbsdbServer.Services {
         public List<HwHistory> GetHwHistoryFor(long hwid) {
             return _hwRepository.GetHwHistoryFor(hwid);
         }
+        
+        public List<HwTyp> GetHwTypes() {
+            return _hwRepository.GetHwTypes();
+        }
     }
 }

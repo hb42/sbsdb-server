@@ -37,6 +37,18 @@ namespace hb.SbsdbServer.Model.Repositories {
             return _dbContext.Hw.Count();
         }
 
+        public List<HwTyp> GetHwTypes() {
+            return _dbContext.Hwtyp
+                .Select(a => new HwTyp {
+                    Id = a.Id,
+                    Bezeichnung = a.Bezeichnung,
+                    Flag = a.Flag,
+                    ApKategorieId = a.ApkategorieId,
+                    Apkategorie = a.Apkategorie.Bezeichnung,
+                })
+                .ToList();
+        }
+
         public HwTransport ChangeHw(EditHwTransport hwt) {
             if (hwt == null) {
                 return null;

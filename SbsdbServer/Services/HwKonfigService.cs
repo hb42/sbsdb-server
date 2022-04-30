@@ -17,5 +17,10 @@ namespace hb.SbsdbServer.Services {
         public List<HwKonfig> GetHwKonfig(long id) {
             return _hwKonfigRepository.GetHwKonfig(id);
         }
+        
+        public HwKonfig ChangeKonfig(KonfigChange kc) {
+            return _hwKonfigRepository.ChangeKonfig(kc);
+        }
+
     }
 }

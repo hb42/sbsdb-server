@@ -23,6 +23,40 @@ namespace hb.SbsdbServer.Model.Repositories {
             return QueryHwKonfig(_dbContext.Hwkonfig.Where(hwkonfig => hwkonfig.Id == id)).ToList();
         }
         
+        public HwKonfig ChangeKonfig(KonfigChange kc) {
+            if (kc == null) {
+                return null;
+            }
+            Hwkonfig konfig = null;
+            if (kc.Id > 0) {
+                //change   
+                konfig = _dbContext.Hwkonfig.Find(kc.Id);
+                konfig.Hersteller = kc.Hersteller;
+                konfig.Bezeichnung = kc.Bezeichnung;
+                konfig.Hd = kc.Hd;
+                konfig.Ram = kc.Ram;
+                konfig.Prozessor = kc.Prozessor;
+                konfig.Video = kc.Video;
+                konfig.Sonst = kc.Sonst;
+            }
+            else {
+                // new
+                konfig = new Hwkonfig {
+                    Hersteller = kc.Hersteller,
+                    Bezeichnung = kc.Bezeichnung,
+                    Hd = kc.Hd,
+                    Ram = kc.Ram,
+                    Prozessor = kc.Prozessor,
+                    Video = kc.Video,
+                    Sonst = kc.Sonst,
+                    HwtypId = kc.HwTypId
+                };
+                _dbContext.Hwkonfig.Add(konfig);
+            }
+            _dbContext.SaveChanges();
+            return GetHwKonfig(konfig.Id).First();
+        }
+
         private IQueryable<HwKonfig> QueryHwKonfig(IQueryable<Hwkonfig> ctx) {
             return ctx
                 .AsNoTracking()

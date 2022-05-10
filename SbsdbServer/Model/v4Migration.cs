@@ -335,12 +335,12 @@ namespace hb.SbsdbServer.Model {
         }
 
         private void MigTagtyp() {
-            var old = v4dbContext.SbsAdrtyp.ToList();
+            var old = v4dbContext.SbsAdrtyp.Where((typ) => typ.AptypIndex != 5).ToList();
             foreach (var o in old) {
                 var n = new Tagtyp {
                     Id = o.AdrIndex,
                     Bezeichnung = o.AdrTyp,
-                    ApkategorieId = o.AptypIndex == 5 ? 1 : (long) o.AptypIndex,
+                    ApkategorieId = (long) o.AptypIndex,
                     Flag = 0,
                     Param = o.Param
                 };
@@ -354,12 +354,53 @@ namespace hb.SbsdbServer.Model {
         }
 
         private void MigAp() {
+            // TODO zusaetzliche ApTyp f. Video, Alarm etc. ??? (RegEx auf Name, ggf. + Bezeichnung)
+            long idx = 220;
+            var t = new Aptyp {
+                Id = idx++,
+                Bezeichnung = "Alarm",
+                Flag = 1,
+                ApkategorieId = 1
+            };
+            LOG.LogDebug("new ApTyp add " + t.Bezeichnung);
+            v5dbContext.Aptyp.Add(t);
+            var idx_alarm = t.Id;
+            Regex r_alarm = new Regex(@"VE\dA\d{3}$");
+            t = new Aptyp {
+                Id = idx++,
+                Bezeichnung = "Video",
+                Flag = 1,
+                ApkategorieId = 1
+            };
+            LOG.LogDebug("new ApTyp add " + t.Bezeichnung);
+            v5dbContext.Aptyp.Add(t);
+            var idx_video = t.Id;
+            Regex r_video = new Regex(@"VE\dB\d{3}$");
+            t = new Aptyp {
+                Id = idx++,
+                Bezeichnung = "Schleuße",
+                Flag = 1,
+                ApkategorieId = 1
+            };
+            LOG.LogDebug("new ApTyp add " + t.Bezeichnung);
+            v5dbContext.Aptyp.Add(t);
+            var idx_schleusse = t.Id;
+            Regex r_schleusse = new Regex(@"VE\dS\d{3}$");
+            
             var old = v4dbContext.SbsAp.Include(a => a.ApklasseIndexNavigation).ToList();
             foreach (var o in old) {
+                var aptypid = (long)o.ApklasseIndex;
+                if (r_alarm.IsMatch(o.ApName)) {
+                    aptypid = idx_alarm;
+                } else if (r_video.IsMatch(o.ApName)) {
+                    aptypid = idx_video;
+                } else if (r_schleusse.IsMatch(o.ApName)) {
+                    aptypid = idx_schleusse;
+                }
                 var n = new Ap {
                     Id = o.ApIndex,
                     Bezeichnung = o.Bezeichnung,
-                    AptypId = (long) o.ApklasseIndex,
+                    AptypId = aptypid,
                     Apname = o.ApName,
                     Bemerkung = o.Bemerkung,
                     OeId = (long) o.StandortIndex,
@@ -402,7 +443,7 @@ namespace hb.SbsdbServer.Model {
                 var n = new ApTag {
                     Id = o.ApadrIndex,
                     ApId = o.ApIndex,
-                    TagtypId = o.AdrIndex,
+                    TagtypId = o.AdrIndex == 571 ? 71 : (o.AdrIndex == 572 ? 72 : o.AdrIndex),
                     Text = o.AdrText
                 };
                 LOG.LogDebug("ApTag add #" + n.Id);
@@ -490,8 +531,8 @@ namespace hb.SbsdbServer.Model {
 
             // sonstige MACs
             //      new HWTYP "Fremde HW - {aptyp.bezeichnung}" je APTYP, flag = 1
-            long idx = 100;
-            var aptyp = v5dbContext.Apkategorie.ToList();
+            long idx = 200;
+            var aptyp = v5dbContext.Apkategorie.Where((k) => k.Flag == 0).ToList();
             foreach (var at in aptyp) {
                 var n = new Hwtyp {
                     Id = idx,
@@ -571,15 +612,17 @@ namespace hb.SbsdbServer.Model {
             v5dbContext.SaveChanges();
 
             // fuer APs mit fremder HW ApTyp "Adresse" setzen
-            var types = v5dbContext.Aptyp.Where(t => t.Flag == 1);
+            var types = v5dbContext.Aptyp.Where(t => t.Flag == 1 && t.Bezeichnung.StartsWith("Adresse"));
             var fhw = v5dbContext.Hw.Where(h => h.Pri && h.Hwkonfig.Hwtyp.Flag == 1).ToList();
 
             foreach (var hw in fhw) {
                 var ap = v5dbContext.Ap.Find(hw.ApId);
                 var typ = types.First(t => t.ApkategorieId == hw.Hwkonfig.Hwtyp.ApkategorieId);
-                ap.AptypId = typ.Id;
-                LOG.LogDebug("ApTyp f. fremde HW " + ap.Apname);
-                v5dbContext.Ap.Update(ap);
+                if (ap.AptypId < 200) {
+                    ap.AptypId = typ.Id;
+                    LOG.LogDebug("ApTyp f. fremde HW " + ap.Apname);
+                    v5dbContext.Ap.Update(ap);
+                }
             }
             v5dbContext.SaveChanges();
         }
@@ -588,6 +631,8 @@ namespace hb.SbsdbServer.Model {
             var klasse = new List<conv>();
             var statistik = new List<conv>();
             long idx = 100;
+            // SbsApklasse wird auf APTYP abgebildet, das hier ist ueberfluessig
+            /*
             var klas = v4dbContext.SbsApklasse.Where((k => k.ApklasseIndex > 0)).Include(k => k.AptypIndexNavigation).ToList();
             foreach (var k in klas) {
                 var n = new Tagtyp {
@@ -604,8 +649,23 @@ namespace hb.SbsdbServer.Model {
                     text = k.AptypIndexNavigation.Aptyp
                 });
             }
-
-            var stat = v4dbContext.SbsApstatistik.Include(s => s.AptypIndexNavigation).ToList();
+            */
+            // ohne id 51, 52, 53, 54, 21, 10000, 61, 62, 63
+            var ohne = new List<long>();
+            ohne.Add(51);
+            ohne.Add(52);
+            ohne.Add(53);
+            ohne.Add(54);
+            ohne.Add(21);
+            ohne.Add(10000);
+            ohne.Add(61);
+            ohne.Add(62); 
+            ohne.Add(63);
+            
+            var stat = v4dbContext.SbsApstatistik
+                .Include(s => s.AptypIndexNavigation)
+                .Where((st) => !ohne.Contains(st.ApstatistikIndex))
+                .ToList();
             foreach (var s in stat) {
                 var n = new Tagtyp {
                     Id = idx++,
@@ -627,6 +687,7 @@ namespace hb.SbsdbServer.Model {
 
             // get v4.AP apklasse + apstatistik -> new 
             var aps = v4dbContext.SbsAp.ToList();
+            /*
             foreach (var ap in aps) {
                 var k = new ApTag {
                     ApId = ap.ApIndex,
@@ -636,22 +697,25 @@ namespace hb.SbsdbServer.Model {
                 LOG.LogDebug("ApTag add apklasse");
                 v5dbContext.ApTag.Add(k);
             }
+            */
 
             foreach (var ap in aps) {
-                var s = new ApTag {
-                    ApId = ap.ApIndex,
-                    TagtypId = statistik.First(st => st.oldId == ap.ApstatistikIndex).newId,
-                    Text = statistik.First(st => st.oldId == ap.ApstatistikIndex).text
-                };
-                LOG.LogDebug("ApTag add apstatistik");
-                v5dbContext.ApTag.Add(s);
+                var stati = statistik.Find((st) => st.oldId == ap.ApstatistikIndex);
+                if (stati != null) {
+                    var s = new ApTag {
+                        ApId = ap.ApIndex,
+                        TagtypId = stati.newId,
+                        Text = stati.text
+                    };
+                    LOG.LogDebug("ApTag add apstatistik");
+                    v5dbContext.ApTag.Add(s);
+                }
             }
 
             LOG.LogDebug("ApTag for Klasse/Statistik saving ...");
             v5dbContext.SaveChanges();
         }
-
-        // TODO die fn nach Common auslagern (ggf. zusammen mit IP-Adressen-Umrechnungen)
+        
         /*
          * MAC-Adresse aus einem String extrahieren und in einen 
          * Hex-String (friendly == false) oder einen

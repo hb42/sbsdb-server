@@ -368,7 +368,7 @@ namespace hb.SbsdbServer.Model
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
-                entity.Property(e => e.ApkategorieId).HasColumnName("APKATEGORIE_ID");
+                entity.Property(e => e.AptypId).HasColumnName("APTYP_ID");
 
                 entity.Property(e => e.Bezeichnung)
                     .IsRequired()
@@ -388,9 +388,9 @@ namespace hb.SbsdbServer.Model
 
                 entity.HasOne(d => d.Aptyp)
                     .WithMany(p => p.Extprog)
-                    .HasForeignKey(d => d.ApkategorieId)
+                    .HasForeignKey(d => d.AptypId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("EXTPROG_APKATEGORIE_FK");
+                    .HasConstraintName("EXTPROG_APTYP_FK");
             });
 
             modelBuilder.Entity<Hw>(entity =>

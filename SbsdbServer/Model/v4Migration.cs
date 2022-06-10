@@ -320,7 +320,7 @@ namespace hb.SbsdbServer.Model {
                 var n = new Extprog {
                     Id = o.ExtprogIndex,
                     Bezeichnung = o.Extprog,
-                    ApkategorieId = (long) o.ApklasseIndex,
+                    AptypId = (long) o.ApklasseIndex,
                     ExtprogName = o.ExtprogName,
                     ExtprogPar = o.ExtprogPar,
                     Flag = o.Flag

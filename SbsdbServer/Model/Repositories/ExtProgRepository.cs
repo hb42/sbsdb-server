@@ -29,7 +29,7 @@ public class ExtProgRepository: IExtProgRepository {
                 Program = ext.ExtprogName,
                 Param = ext.ExtprogPar,
                 Flag = ext.Flag,
-                ApkategorieId = ext.ApkategorieId
+                AptypId = ext.AptypId
             });
     }
 }

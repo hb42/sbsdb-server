@@ -6,5 +6,5 @@ public class ExtProg {
     public string Program { get; set; }
     public string Param { get; set; }
     public long? Flag { get; set; }
-    public long ApkategorieId { get; set; }
+    public long AptypId { get; set; }
 }

@@ -358,7 +358,7 @@ namespace hb.SbsdbServer.Model {
             long idx = 220;
             var t = new Aptyp {
                 Id = idx++,
-                Bezeichnung = "Alarm",
+                Bezeichnung = "Alarmsystem",
                 Flag = 1,
                 ApkategorieId = 1
             };
@@ -366,9 +366,10 @@ namespace hb.SbsdbServer.Model {
             v5dbContext.Aptyp.Add(t);
             var idx_alarm = t.Id;
             Regex r_alarm = new Regex(@"VE\dA\d{3}$");
+            
             t = new Aptyp {
                 Id = idx++,
-                Bezeichnung = "Video",
+                Bezeichnung = "Videosystem",
                 Flag = 1,
                 ApkategorieId = 1
             };
@@ -376,6 +377,7 @@ namespace hb.SbsdbServer.Model {
             v5dbContext.Aptyp.Add(t);
             var idx_video = t.Id;
             Regex r_video = new Regex(@"VE\dB\d{3}$");
+            
             t = new Aptyp {
                 Id = idx++,
                 Bezeichnung = "Schleuße",

@@ -18,11 +18,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\net6.0\</OutputPath>
-    <DefineConstants>COREAPP; TRACECOREAPP</DefineConstants>
+    <DefineConstants>COREAPP; TRACECOREAPP; TESTSYSTEM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\net5.0</OutputPath>
-    <DefineConstants>COREAPP; TRACECOREAPP</DefineConstants>
+    <DefineConstants>COREAPP; TRACECOREAPP; TESTSYSTEM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>

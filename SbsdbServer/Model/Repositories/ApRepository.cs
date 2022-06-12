@@ -100,6 +100,16 @@ namespace hb.SbsdbServer.Model.Repositories {
                 .ToList();
         }
 
+        public List<ApKategorie> GetApKat() {
+            return _dbContext.Apkategorie
+                .Select(a => new ApKategorie {
+                  Id = a.Id,
+                  Bezeichnung = a.Bezeichnung,
+                  Flag = a.Flag.Value
+                })
+                .ToList();
+        }
+
         public List<Vlan> GetVlans() {
             return _dbContext.Vlan
                 .Select(v => new Vlan {

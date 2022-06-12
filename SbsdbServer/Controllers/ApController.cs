@@ -85,5 +85,10 @@ namespace hb.SbsdbServer.Controllers {
             return _apService.GetApTypes();
         }
         
+        [HttpGet] 
+        public ActionResult<List<ApKategorie>> ApKat() {
+            return _apService.GetApKat();
+        }
+        
     }
 }

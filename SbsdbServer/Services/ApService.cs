@@ -51,6 +51,10 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.GetApTypes();
         }
         
+        public List<ApKategorie> GetApKat() {
+            return _apRepository.GetApKat();
+        }
+        
         public int GetCount() {
             return _apRepository.GetCount();
         }

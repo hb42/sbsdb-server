@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using hb.Common.Version;
+using hb.SbsdbServer.Model;
+using hb.SbsdbServer.Model.Entities;
+using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +12,15 @@ using Microsoft.Extensions.Logging;
 namespace hb.SbsdbServer.Controllers {
     public class TestController : AbstractControllerBase<TestController> {
         private readonly TestService _testService;
-
         private readonly VersionResource _version;
-
-        public TestController(VersionResource ver, TestService ts) {
+        private readonly SbsdbContext _dbContext;
+        private readonly ILogger<TestController> _log;
+        
+        public TestController(VersionResource ver, TestService ts, SbsdbContext context, ILogger<TestController> log) {
             _version = ver;
             _testService = ts;
+            _dbContext = context;
+            _log = log;
             //user = configuration.GetSection("Groups").GetValue<string>("test");
         }
 
@@ -79,7 +86,25 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("test")]
         public ActionResult<object> GetTest() {
 
-            return _version.Package();
+            return _dbContext.Aptyp
+                .AsEnumerable()
+                .GroupJoin(_dbContext.Ap, 
+                    aptyp => aptyp.Id, 
+                    ap => ap.AptypId, 
+                    (typ, aps) => new {
+                        Id = typ.Id,
+                        Bez = typ.Bezeichnung,
+                        count = aps.Count()
+                    })
+                .ToList();
+                // .Select(a => new ApTyp {
+                //     Id = a.Id,
+                //     Bezeichnung = a.Bezeichnung,
+                //     Flag = a.Flag,
+                //     ApKategorieId = a.ApkategorieId,
+                //     Apkategorie = a.Apkategorie.Bezeichnung,
+                // })
+            // return _version.Package();
         }
 
         [HttpGet]

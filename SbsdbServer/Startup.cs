@@ -5,6 +5,7 @@ using hb.Common.Version;
 using hb.SbsdbServer.Model;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.sbsdbv4.model;
+using hb.SbsdbServer.Scheduler;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Quartz;
 
 namespace hb.SbsdbServer {
     public class Startup {
@@ -96,6 +98,34 @@ namespace hb.SbsdbServer {
 
             // Notifications
             services.AddSignalR();
+            
+            // CRON
+            services.AddQuartz(q => {
+                // handy when part of cluster or you want to otherwise identify multiple schedulers
+                q.SchedulerId = "Scheduler-Core";
+        
+                // as of 3.3.2 this also injects scoped services (like EF DbContext) without problems
+                q.UseMicrosoftDependencyInjectionJobFactory();
+        
+                // these are the defaults
+                q.UseSimpleTypeLoader();
+                q.UseInMemoryStore();
+                q.UseDefaultThreadPool(tp => {
+                    tp.MaxConcurrency = 5;
+                });
+                
+                // create schedule for TC job
+                q.ScheduleJob<ImportThinClients>(trigger => trigger
+                    .WithIdentity("ImportTC")
+                    .StartNow()
+                    .WithCronSchedule(Configuration["ThinClientJob"])
+                    .WithDescription("import thin client IPs")
+                );
+            });
+            services.AddQuartzServer(options => {
+                // when shutting down we want jobs to complete gracefully
+                options.WaitForJobsToComplete = true;
+            });
 
             // Versionsinfos werden per .csproj gesetzt, hier aus Assembly auslesen 
             // und fuer alle Services zur Verfuegung stellen

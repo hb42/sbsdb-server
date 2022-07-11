@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <VersionPrefix>0.6.0</VersionPrefix>
-    <VersionSuffix>alpha.385</VersionSuffix>
+    <VersionSuffix>alpha.396</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2022 Hartmut Bauer</Copyright>
@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/hb42/sbsdb-server</RepositoryUrl>
     <RootNamespace>hb.SbsdbServer</RootNamespace>
     <Authors>hb42@gmx.de</Authors>
-    <PackageVersion>0.6.0-alpha.385</PackageVersion>
+    <PackageVersion>0.6.0-alpha.396</PackageVersion>
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
@@ -18,11 +18,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\net6.0\</OutputPath>
-    <DefineConstants>COREAPP; TRACECOREAPP</DefineConstants>
+    <DefineConstants>COREAPP; TRACECOREAPP; TESTSYSTEM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\net5.0</OutputPath>
-    <DefineConstants>COREAPP; TRACECOREAPP</DefineConstants>
+    <DefineConstants>COREAPP; TRACECOREAPP; TESTSYSTEM</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
@@ -43,6 +43,7 @@
     <!--    <PackageReference Include="NHibernate" Version="5.2.4" />-->
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.5" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.4.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="config\" />

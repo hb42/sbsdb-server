@@ -118,7 +118,7 @@ namespace hb.SbsdbServer {
                 q.ScheduleJob<ImportThinClients>(trigger => trigger
                     .WithIdentity("ImportTC")
                     .StartNow()
-                    .WithCronSchedule(Configuration["ThinClientJob"])
+                    .WithCronSchedule(Configuration.GetValue<string>("ThinClientIPs:cron"))
                     .WithDescription("import thin client IPs")
                 );
             });

@@ -1,16 +1,14 @@
 ##
-# Dateien von der tftp-Share auf der NAS holen
-# Im IIS-Kontext klappt der Zugriff auf die NAS nicht.
+# Dateien von der tftp-Share der NAS holen
 ##
 $configScript = "config_internal.json"
-$fileFilter = "E077*"
 
 $here = $PSScriptRoot
 $conf = Get-Content "${here}\${configScript}" | ConvertFrom-Json
 
-rm "${here}/tftp" -force -recurse
-mkdir "${here}/tftp"
+rm "${here}/$($conf.ThinClientIPs.localPath)" -force -recurse -ea SilentlyContinue
+mkdir "${here}/$($conf.ThinClientIPs.localPath)"
 
-net use "$($conf.ThinClientShare)" "$($conf.ThinClientPwd)" /user:"$($conf.ThinClientUser)" /persistent:no
-cp "$($conf.ThinClientShare)\${fileFilter}" "${here}\tftp"
-net use "$($conf.ThinClientShare)" /delete
+net use "$($conf.ThinClientIPs.networkShare)" "$($conf.ThinClientIPs.pwd)" /user:"$($conf.ThinClientIPs.user)" /persistent:no
+cp "$($conf.ThinClientIPs.networkShare)\$($conf.ThinClientIPs.fileFilter)" "${here}\$($conf.ThinClientIPs.localPath)"
+net use "$($conf.ThinClientIPs.networkShare)" /delete

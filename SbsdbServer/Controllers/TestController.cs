@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
@@ -86,7 +88,7 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("test")]
         public ActionResult<object> GetTest() {
 
-            return _dbContext.Aptyp
+           return _dbContext.Aptyp
                 .AsEnumerable()
                 .GroupJoin(_dbContext.Ap, 
                     aptyp => aptyp.Id, 
@@ -97,13 +99,7 @@ namespace hb.SbsdbServer.Controllers {
                         count = aps.Count()
                     })
                 .ToList();
-                // .Select(a => new ApTyp {
-                //     Id = a.Id,
-                //     Bezeichnung = a.Bezeichnung,
-                //     Flag = a.Flag,
-                //     ApKategorieId = a.ApkategorieId,
-                //     Apkategorie = a.Apkategorie.Bezeichnung,
-                // })
+          
             // return _version.Package();
         }
 

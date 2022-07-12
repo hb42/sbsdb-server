@@ -56,7 +56,7 @@ namespace hb.SbsdbServer.Services {
             }
 #else
             // AD: hier sind keine Verrenkungen noetig
-            return user.IsInRole(_configuration["AdminRole"]);
+            return user.IsInRole(_configuration.GetValue<string>("AdminRole"));
 #endif
         }
 

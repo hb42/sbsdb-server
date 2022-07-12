@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <VersionPrefix>0.7.0</VersionPrefix>
-    <VersionSuffix>alpha.423</VersionSuffix>
+    <VersionSuffix>alpha.435</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2022 Hartmut Bauer</Copyright>
@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/hb42/sbsdb-server</RepositoryUrl>
     <RootNamespace>hb.SbsdbServer</RootNamespace>
     <Authors>hb42@gmx.de</Authors>
-    <PackageVersion>0.7.0-alpha.423</PackageVersion>
+    <PackageVersion>0.7.0-alpha.435</PackageVersion>
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
@@ -38,18 +38,20 @@
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.50" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.5" />
-    <PackageReference Include="Quartz.AspNetCore" Version="3.4.0" />
   </ItemGroup>
   <!-- Angular SPA nach wwwroot kopieren, config-Dir kopieren -->
   <ItemGroup>
     <ClientFiles Include="..\..\sbsdb\dist\sbsdb\**\*.*" />
     <ConfFiles Include="config\*.*" />
+    <CronFiles Include="cron\*.*" />
   </ItemGroup>
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
     <RemoveDir Directories="$(PublishDir)\wwwroot" />
     <Copy SourceFiles="@(ClientFiles)" DestinationFiles="@(ClientFiles-&gt;'$(PublishDir)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" />
     <RemoveDir Directories="$(PublishDir)\config" />
     <Copy SourceFiles="@(ConfFiles)" DestinationFiles="@(ConfFiles-&gt;'$(PublishDir)\config\%(Filename)%(Extension)')" />
+    <RemoveDir Directories="$(PublishDir)\cron" />
+    <Copy SourceFiles="@(CronFiles)" DestinationFiles="@(CronFiles-&gt;'$(PublishDir)\cron\%(Filename)%(Extension)')" />
     <MakeDir Directories="$(PublishDir)\logs" />
   </Target>
   <ItemGroup>

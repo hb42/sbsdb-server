@@ -16,13 +16,13 @@ namespace hb.SbsdbServer.Controllers {
         private readonly TestService _testService;
         private readonly VersionResource _version;
         private readonly SbsdbContext _dbContext;
-        private readonly ILogger<TestController> _log;
+        private readonly AuthorizationHelper _auth;
         
-        public TestController(VersionResource ver, TestService ts, SbsdbContext context, ILogger<TestController> log) {
+        public TestController(VersionResource ver, TestService ts, SbsdbContext context, AuthorizationHelper auth) {
             _version = ver;
             _testService = ts;
             _dbContext = context;
-            _log = log;
+            _auth = auth;
             //user = configuration.GetSection("Groups").GetValue<string>("test");
         }
 
@@ -88,19 +88,25 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("test")]
         public ActionResult<object> GetTest() {
 
-           return _dbContext.Aptyp
-                .AsEnumerable()
-                .GroupJoin(_dbContext.Ap, 
-                    aptyp => aptyp.Id, 
-                    ap => ap.AptypId, 
-                    (typ, aps) => new {
-                        Id = typ.Id,
-                        Bez = typ.Bezeichnung,
-                        count = aps.Count()
-                    })
-                .ToList();
-          
-            // return _version.Package();
+           // return _dbContext.Aptyp
+           //      .AsEnumerable()
+           //      .GroupJoin(_dbContext.Ap, 
+           //          aptyp => aptyp.Id, 
+           //          ap => ap.AptypId, 
+           //          (typ, aps) => new {
+           //              Id = typ.Id,
+           //              Bez = typ.Bezeichnung,
+           //              count = aps.Count()
+           //          })
+           //      .ToList();
+           //
+           var u = AuthorizationHelper.GetUserId(User);
+           Log.LogDebug($"TestService /ws/test/test: caller={u}");
+           if (u == "SYSTEM") {
+               return _version.Package();
+           } else {
+               return StatusCode(401);
+           }
         }
 
         [HttpGet]

@@ -18,10 +18,10 @@ namespace hb.SbsdbServer.Controllers {
         private ILogger<T> _log;
 
         // NLog Logger
-        protected ILogger<T> Log => _log ?? (_log = HttpContext.RequestServices.GetService<ILogger<T>>());
+        protected ILogger<T> Log => _log ??= HttpContext.RequestServices.GetService<ILogger<T>>();
 
         // Config -> appsettings, etc.
         protected IConfiguration Configuration =>
-            _config ?? (_config = HttpContext.RequestServices.GetService<IConfiguration>());
+            _config ??= HttpContext.RequestServices.GetService<IConfiguration>();
     }
 }

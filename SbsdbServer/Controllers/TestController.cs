@@ -100,13 +100,58 @@ namespace hb.SbsdbServer.Controllers {
            //          })
            //      .ToList();
            //
-           var u = AuthorizationHelper.GetUserId(User);
-           Log.LogDebug($"TestService /ws/test/test: caller={u}");
-           if (u == "SYSTEM") {
-               return _version.Package();
-           } else {
-               return StatusCode(401);
-           }
+           
+           Log.LogDebug($"TestService /ws/test/test");
+           
+           // IpHelper-Routinen testen
+           
+           string result = "";
+           const string lf = $"\n";
+           string ipStr = "5.77.203.129";
+           string nm1Str = "255.255.255.0";
+           uint nm2 = 25;
+           uint nm3 = 23;
+
+           var ip = IpHelper.GetIp(ipStr);
+           var nm1long = IpHelper.GetIp(nm1Str);
+           var ipRet = IpHelper.GetIpString(ip);
+           var nm2long = IpHelper.GetNetmask(nm2);
+           var nm1 = IpHelper.GetNetmaskBits(nm1long);
+           var nm3long = IpHelper.GetNetmask(nm3);
+           var nm2Str = IpHelper.GetIpString(nm2long);
+           var nm3Str = IpHelper.GetIpString(nm3long);
+           var bytes1 = IpHelper.GetHostBytes(nm1);
+           var bytes2 = IpHelper.GetHostBytes(nm2);
+           var bytes3 = IpHelper.GetHostBytes(nm3);
+           var host1 = IpHelper.GetHostIp(ip, nm1);
+           var host2 = IpHelper.GetHostIp(ip, nm2);
+           var host3 = IpHelper.GetHostIp(ip, nm3);
+           var min1 = IpHelper.GetHostIpMin(ip, nm1);
+           var min2 = IpHelper.GetHostIpMin(ip, nm2);
+           var min3 = IpHelper.GetHostIpMin(ip, nm3);
+           var max1 = IpHelper.GetHostIpMax(ip, nm1);
+           var max2 = IpHelper.GetHostIpMax(ip, nm2);
+           var max3 = IpHelper.GetHostIpMax(ip, nm3);
+           var host3Str = IpHelper.GetPartialIpString(ip, bytes3); 
+           var min3Str = IpHelper.GetHostIpMinString(ip, nm3);
+           var max3Str = IpHelper.GetHostIpMaxString(ip, nm3);
+           var min2Str = IpHelper.GetHostIpMinString(ip, nm2);
+           var max2Str = IpHelper.GetHostIpMaxString(ip, nm2);
+           var min1Str = IpHelper.GetHostIpMinString(ip, nm1);
+           var max1Str = IpHelper.GetHostIpMaxString(ip, nm1);
+
+           result += $"IP: {ipStr} = {ip} = {ipRet}" + lf;
+           result += $"Netmask 1: {nm1Str} = /{nm1} = {nm1long}" + lf;
+           result += $"  host: {host1} bytes: {bytes1}" + lf;
+           result += $"  minIP: {min1} = {min1Str} maxIP: {max1} = {max1Str}" + lf;
+           result += $"Netmask 2: {nm2Str} = /{nm2} = {nm2long}" + lf;
+           result += $"  host: {host2} bytes: {bytes2}" + lf;
+           result += $"  minIP: {min2} = {min2Str} maxIP: {max2} = {max2Str}" + lf;
+           result += $"Netmask 3: {nm3Str} = /{nm3} = {nm3long}" + lf;
+           result += $"  host: {host3} bytes: {bytes3} partial: {host3Str}" + lf;
+           result += $"  minIP: {min3} = {min3Str} maxIP: {max3} = {max3Str}" + lf;
+           
+           return result;
         }
 
         [HttpGet]

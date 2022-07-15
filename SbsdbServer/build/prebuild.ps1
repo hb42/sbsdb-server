@@ -14,7 +14,6 @@
 #   Working Directory = ${ProjectDir}
 #
 # Die Aenderung der .csproj wird erst beim naechsten Buildlauf beruecksichtigt.
-# -> "build" + "publish"
 ##
 
 # ist die Projekt-Datei vorhanden? 
@@ -52,10 +51,12 @@ if (test-path $csproj) {
     # den passenden <PropertyGroup>-Abschnitt holen und neuen Wert eintragen
     ($xml.Project.PropertyGroup | Where-Object { $_['VersionSuffix'] -ne $null}).VersionSuffix = "${pretype}.${build}"
     ($xml.Project.PropertyGroup | Where-Object { $_['PackageVersion'] -ne $null}).PackageVersion = "${major}.${minor}.${patch}-${pretype}.${build}"
-  
-    # .csproj speichern
-    $xml.Save($csproj)
-  } 
+  } else {
+    # Release-Version nach PackageVersion schreiben
+    ($xml.Project.PropertyGroup | Where-Object { $_['PackageVersion'] -ne $null}).PackageVersion = "${major}.${minor}.${patch}"
+  }
+  # .csproj speichern
+  $xml.Save($csproj)
 }
 
 

@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using hb.SbsdbServer.Model;
+using hb.SbsdbServer.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -12,9 +15,9 @@ public class ExternalService: IExternalService {
     private readonly SbsdbContext _dbContext;
     private readonly IConfiguration _configuration;
     private readonly ILogger<ExternalService> _log;
-    
-    // private readonly string _tcRegex; // = @"^\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*([\w]*)";
 
+    private const string lf = $"\n";
+    
     public ExternalService(SbsdbContext context, IConfiguration configuration, ILogger<ExternalService> log) {
         _dbContext = context;
         _configuration = configuration;
@@ -24,111 +27,106 @@ public class ExternalService: IExternalService {
     /**
      * Thin Client IPs importieren
      *
-     * path = Pfad zu den TC-Dateien, relativ zur Webapp
      */
     public string ImportThinClientIPs() {
         var tcRegex = _configuration.GetValue<string>("ThinClientIPs:regex");
+        // Pfad zu den TC-Dateien, relativ zur Webapp
         var importPath = _configuration.GetValue<string>("ThinClientIPs:importPath");
         var result = "";
-        const string lf = $"\n";
-        // TODO catch div io excep
-        // TODO Fehlerprotokoll -> wie behandeln?
-        foreach (var fileName in Directory.GetFiles(importPath, "*")) {
-            var text = File.ReadAllText(fileName);
-            var tc = Regex.Match(text, tcRegex);
-            if (tc.Success) {
-                string ip = tc.Groups[1].Value;
-                string host = tc.Groups[2].Value;
-                result += "found " + ip + " = " + host + lf;
-                try {
-                    var ap = _dbContext.Ap
-                        .Include(a => a.Hw)
-                        .ThenInclude(h => h.Mac)
-                        .ThenInclude(m => m.Vlan)
-                        .First(ap => ap.Apname.ToUpper() == host.ToUpper());
-                    bool pri = false;
-                    foreach (var hw in ap.Hw) {
-                        if (hw.Pri) {
-                            pri = true;
-                            if (hw.Mac.Count >= 0) {  // TODO alle MACs abgleichen?
-                                var mac = hw.Mac.First();
-                                var ip4 = mac.Ip;
-                                var ipLong = mac.Ip + mac.Vlan.Ip;
-                                // TODO IP-Helper
-                                var ipnum = IpHelper.GetIp(ip);
-                                if (ipLong != ipnum) {
-                                    // TODO change IP (+ ggf. VLAN)
-                                    //      foreach vlan if ipnum > vlan.ip
-                                    //                      && vlan.ip - ipnum < getHostIpMax(vlan.ip, vlan.netmask)
-                                    //                      && vlan.ip - ipnum > getHostIpMin(vlan.ip, vlan.netmask)
-                                    //                      then new.vlan = vlan, new.ip = vlan.ip - ipnum
-                                    result += $"  not equal: {ipLong} != {ipnum}" + lf;
-                                } else {
-                                    // alles gut, nichts zu tun
-                                    result += $"  equal" + lf;
-                                }
-                                result += $"  4.Oktett: {ip4}" + lf;
-                            } else {
-                                // TODO HW aber keine MAC -> mit MAC "00.." anlegen || als Fehler protokollieren
-                                result += "  no IPs" + lf;
-                            }
-                        }
+        
+        var vlans = _dbContext.Vlan.ToList();
+        try {
+            foreach (var fileName in Directory.GetFiles(importPath, "*")) {
+                var text = File.ReadAllText(fileName);
+                var tc = Regex.Match(text, tcRegex);
+                if (tc.Success) {
+                    // Datei enthaelt IP + Hostname
+                    string ip = tc.Groups[1].Value;
+                    string host = tc.Groups[2].Value;
+                    try {
+                        // exception, falls kein Datensatz gefunden
+                        var ap = _dbContext.Ap
+                            .Include(a => a.Hw)
+                            .ThenInclude(h => h.Mac)
+                            .ThenInclude(m => m.Vlan)
+                            .First(ap => ap.Apname.ToUpper() == host.ToUpper());
+                        result += ChangeIp(ap, ip, vlans);
                     }
-
-                    if (!pri) {
-                        // TODO no pri -> als Fehler protokollieren
-                        result += "  no pri HW" + lf;
+                    catch {
+                        // Hostname nicht in DB
+                        result += $"ERROR - {host} nicht in DB (evtl. Datei auf TFTP-Share loeschen)." + lf;
                     }
-                } catch {
-                    // TODO file muesste auf NAS geloescht werden ??
-                    result += $"  ERROR: {host} not found" + lf;
                 }
-                /*
-                 * - get vlan list
-                 * - foreach file
-                 * - if valid
-                 * -   find AP (AP->HW->MAC->VLAN, aptyp == TC)
-                 * -   if AP check IP
-                 * -     if !IP change IP/ new IP
-                 *              
-                 */
             }
+        }
+        catch (Exception e) {
+            // IO-Fehler beim Dateizugriff
+            var err = $"ERROR - Fehler beim Einlesen der TFTP-Dateien: {e.Message}";
+            result += err + lf;
+            _log.LogError(err);
         }
 
         _log.LogDebug("Import Thin Clients-Job executed");
         return result;
     }
-    
-    /*
-     * Dateien von TFTP-Server holen
+
+    /**
+     * Logs des Thin-Client-Imports holen
      *
-     * Direkter Zugriff auf eine NAS-Share funktioniert nicht (jedenfalls nicht ohne grossen Aufwand).
-     * Was funktioniert, ist er Zugriff ueber ein Script mittels "net use". Deshalb werden die
-     * benoetigten Dateien per Script in ein Verzeichnis unterhalb der Webanwendung kopiert und
-     * von da eingelesen.
-     *
-     * Damit das klappt muss der Anwendungspool unter "Netzwerkdienst" laufen.
      */
-    // private bool fetchFiles() {
-    //     bool rc;
-    //     using (var process = new Process()) {
-    //         process.StartInfo.FileName = @"powershell.exe";
-    //         process.StartInfo.Arguments = _copyScript;
-    //         process.StartInfo.CreateNoWindow = true;
-    //         process.StartInfo.UseShellExecute = false;
-    //         process.StartInfo.RedirectStandardOutput = true;
-    //         process.StartInfo.RedirectStandardError = true;
-    //
-    //         process.OutputDataReceived += (sender, data) => _log.LogDebug(data.Data);
-    //         process.ErrorDataReceived += (sender, data) => _log.LogError(data.Data);
-    //         _log.LogDebug("Copy TFTP files starting");
-    //         process.Start();
-    //         process.BeginOutputReadLine();
-    //         process.BeginErrorReadLine();
-    //         rc = process.WaitForExit(1000 * 120);     // wait up to 2 minutes
-    //         var result = rc ? "OK" : "ERROR";
-    //         _log.LogDebug($"Copy TFTP files ends with {result}");
-    //     }
-    //     return rc;
-    // }
+    public string GetTcLogs() {
+        var logfile = _configuration.GetValue<string>("ThinClientIPs:logfile");
+        try {
+            return File.ReadAllText(logfile);
+        } catch(Exception e) {
+            _log.LogError($"Fehler beim Einlesen von {logfile}: " + e.Message);
+            return "-- kein Protokoll vorhanden --";
+        }
+    }
+    
+    private string ChangeIp(Ap ap, string ip, List<Vlan> vlans) {
+        var result = "";
+        bool pri = false;
+        foreach (var hw in ap.Hw) {
+            // primaere HW suchen
+            if (hw.Pri) {
+                pri = true;
+                if (hw.Mac.Count >= 0) { 
+                    // erste gefundene IP-Adresse verwenden
+                    // Falls der Thin mehreren MACs haette, koennte hier nicht entschieden
+                    // werden, welche MAC betroffen ist (das kann nur klappen, wenn die
+                    // Auswertung auf dem TC auch die Schnittstelle + MAC liefert)
+                    var mac = hw.Mac.First();
+                    var ipOld = mac.Ip + mac.Vlan?.Ip ?? 0;
+                    var ipNew = IpHelper.GetIp(ip);
+                    if (ipOld != ipNew) {
+                        // IP hat sich geaendert
+                        foreach (var vlan in vlans) {
+                            // passendes VLAN suchen
+                            var maxIp = Convert.ToUInt32(Math.Pow(2, IpHelper.GetHostBits((uint)vlan.Netmask))) - 1;
+                            if (ipNew > vlan.Ip && ipNew - vlan.Ip < maxIp) { 
+                                // neue IP eintragen
+                                mac.Ip = ipNew - vlan.Ip;
+                                mac.VlanId = vlan.Id;
+                                _dbContext.Mac.Update(mac);
+                                _dbContext.SaveChanges();
+                                result += $"Success - {ap.Apname}: aendere IP von {IpHelper.GetIpString((uint)ipOld)} zu {ip}" + lf;
+                            }
+                        }
+                    }
+                    else {
+                        // alles gut, nichts zu tun
+                    }
+                } else {
+                    result += $"ERROR - {ap.Apname} hat keine MAC-Adresse." + lf;
+                }
+            }
+        }
+
+        if (!pri) {
+            result += $"ERROR - {ap.Apname} hat keine primaere Hardware." + lf;
+        }
+
+        return result;
+    }
 }

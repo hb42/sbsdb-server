@@ -34,7 +34,11 @@ public class ExternalController : AbstractControllerBase<ExternalController> {
     [HttpGet]
     [ActionName("importtcips")]
     public ActionResult<string> ImportThinClientIPs() {
+#if TESTSYSTEM
+        var u = "SYSTEM";
+#else        
         var u = AuthorizationHelper.GetUserId(User);
+#endif
         if (u == "SYSTEM") {
             return _service.ImportThinClientIPs();
         } else {
@@ -42,4 +46,14 @@ public class ExternalController : AbstractControllerBase<ExternalController> {
         }
     }
 
+    /**
+     * Log-Datei des Thin-Client-Imports holen
+     *
+     * Fuers Schreiben des Logs ist das Cron-Script zustaendig, das den Import steuert.
+     */
+    [HttpGet]
+    [ActionName("gettclogs")]
+    public ActionResult<string> GetTcLogs() {
+        return Ok(_service.GetTcLogs());
+    }
 }

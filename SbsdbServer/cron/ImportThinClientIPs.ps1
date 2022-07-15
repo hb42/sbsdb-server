@@ -8,7 +8,7 @@ Set-Location $PSScriptRoot
 
 $configScript = "../config/config_internal.json"
 $conf = Get-Content $configScript | ConvertFrom-Json
-$log = "../logs/importThinClientIPs.log"
+$log = "../$($conf.ThinClientIPs.logfile)"
 $importPath = "../$($conf.ThinClientIPs.importPath)" 
 
 function cleanup() {

@@ -10,6 +10,5 @@ namespace hb.SbsdbServer.Services {
         public HwTransport ChangeHw(EditHwTransport hwt);
         public AddHwTransport AddHw(NewHwTransport nhw);
         public List<HwHistory> GetHwHistoryFor(long hwid);
-        public List<HwTyp> GetHwTypes();
     }
 }

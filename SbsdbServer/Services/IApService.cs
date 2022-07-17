@@ -8,10 +8,6 @@ namespace hb.SbsdbServer.Services {
         Arbeitsplatz GetAp(long id);
         List<Arbeitsplatz> GetAps(string search);
         List<Arbeitsplatz> QueryAps(ApQuery query);
-        List<TagTyp> GetTagTypes();
-        List<Vlan> GetVlans();
-        List<ApTyp> GetApTypes();
-        List<ApKategorie> GetApKat();
         int GetCount();
         ApTransport ChangeAp(EditApTransport apt);
     }

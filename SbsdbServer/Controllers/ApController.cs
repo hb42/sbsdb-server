@@ -70,25 +70,5 @@ namespace hb.SbsdbServer.Controllers {
             return _apService.GetCount();
         }
         
-        [HttpGet] 
-        public ActionResult<List<TagTyp>> TagTypes() {
-            return _apService.GetTagTypes();
-        }
-        
-        [HttpGet] 
-        public ActionResult<List<Vlan>> Vlans() {
-            return _apService.GetVlans();
-        }
-        
-        [HttpGet] 
-        public ActionResult<List<ApTyp>> ApTypes() {
-            return _apService.GetApTypes();
-        }
-        
-        [HttpGet] 
-        public ActionResult<List<ApKategorie>> ApKat() {
-            return _apService.GetApKat();
-        }
-        
     }
 }

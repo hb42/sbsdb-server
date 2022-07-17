@@ -39,22 +39,6 @@ namespace hb.SbsdbServer.Services {
             return _apRepository.QueryAps(query);
         }
 
-        public List<TagTyp> GetTagTypes() {
-            return _apRepository.GetTagTypes();
-        }
-
-        public List<Vlan> GetVlans() {
-            return _apRepository.GetVlans();
-        }
-
-        public List<ApTyp> GetApTypes() {
-            return _apRepository.GetApTypes();
-        }
-        
-        public List<ApKategorie> GetApKat() {
-            return _apRepository.GetApKat();
-        }
-        
         public int GetCount() {
             return _apRepository.GetCount();
         }

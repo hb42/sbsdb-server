@@ -76,50 +76,6 @@ namespace hb.SbsdbServer.Model.Repositories {
             throw new NotImplementedException();
         }
 
-        public List<TagTyp> GetTagTypes() {
-            return _dbContext.Tagtyp
-                .Select(t => new TagTyp {
-                  Id = t.Id,
-                  Bezeichnung = t.Bezeichnung,
-                  Flag = t.Flag,
-                  Param = t.Param,
-                  ApKategorieId = t.ApkategorieId,
-                  Apkategorie = t.Apkategorie.Bezeichnung,
-                })
-                .ToList();
-        }
-        public List<ApTyp> GetApTypes() {
-            return _dbContext.Aptyp
-                .Select(a => new ApTyp {
-                  Id = a.Id,
-                  Bezeichnung = a.Bezeichnung,
-                  Flag = a.Flag,
-                  ApKategorieId = a.ApkategorieId,
-                  Apkategorie = a.Apkategorie.Bezeichnung,
-                })
-                .ToList();
-        }
-
-        public List<ApKategorie> GetApKat() {
-            return _dbContext.Apkategorie
-                .Select(a => new ApKategorie {
-                  Id = a.Id,
-                  Bezeichnung = a.Bezeichnung,
-                  Flag = a.Flag.Value
-                })
-                .ToList();
-        }
-
-        public List<Vlan> GetVlans() {
-            return _dbContext.Vlan
-                .Select(v => new Vlan {
-                    Id = v.Id,
-                    Ip = v.Ip,
-                    Netmask = v.Netmask,
-                    Bezeichnung = v.Bezeichnung,
-                })
-                .ToList();
-        }
         
         public int GetCount() {
             return _dbContext.Ap.Count();

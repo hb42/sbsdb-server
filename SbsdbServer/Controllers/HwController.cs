@@ -78,11 +78,5 @@ namespace hb.SbsdbServer.Controllers {
             return _hwService.GetHwHistoryFor(id);
         }
         
-        [HttpGet] 
-        public ActionResult<List<HwTyp>> HwTypes() {
-            return _hwService.GetHwTypes();
-        }
-
-
     }
 }

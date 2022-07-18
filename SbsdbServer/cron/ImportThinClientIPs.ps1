@@ -15,7 +15,7 @@ function cleanup() {
   rm "$importPath"  -force -recurse -ea SilentlyContinue
 }
 
-"$((Get-Date).DateTime) BEGIN Import" >$log
+"$((Get-Date).DateTime) BEGIN Import`n" >$log
 cleanup
 
 ##

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
@@ -50,6 +51,42 @@ public class SvzRepository : ISvzRepository {
             .ToList();
     }
 
+    public EditAptypTransport ChangeAptyp(EditAptypTransport chg) {
+        Aptyp at;
+        if (chg.Del) {
+            // del
+            at = _dbContext.Aptyp.Find(chg.Aptyp.Id);
+            if (at != null) {
+                _dbContext.Aptyp.Remove(at);
+            }
+        } else if (chg.Aptyp.Id == 0) {
+            // new
+            at = new Aptyp {
+                Bezeichnung = chg.Aptyp.Bezeichnung,
+                Flag = chg.Aptyp.Flag,
+                ApkategorieId = chg.Aptyp.ApKategorieId
+            };
+            _dbContext.Aptyp.Add(at);
+        } else {
+            // chg  
+            at = _dbContext.Aptyp.Find(chg.Aptyp.Id);
+            if (at != null) {
+                at.ApkategorieId = chg.Aptyp.ApKategorieId;
+                at.Bezeichnung = chg.Aptyp.Bezeichnung;
+                at.Flag = chg.Aptyp.Flag;
+                _dbContext.Aptyp.Update(at);
+            }
+        }
+        var rc = _dbContext.SaveChanges();
+        if (rc == 1) {
+            chg.Aptyp.Id = at.Id;
+            return chg;
+        }
+        else {
+            return null;
+        }
+    }
+    
     // --- ExtProg ---
     
     public List<ExtProg> GetExtprog() {

@@ -7,6 +7,7 @@ public interface ISvzRepository {
     // public List<> GetAdressen();
     List<ApKategorie> GetApKat();
     List<ApTyp> GetApTypes();
+    EditAptypTransport ChangeAptyp(EditAptypTransport chg);
     List<ExtProg> GetExtprog();
     bool ChangeExtprog(EditExtprogTransport chg);
     List<HwTyp> GetHwTypes();

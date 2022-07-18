@@ -49,17 +49,31 @@ namespace hb.SbsdbServer.Controllers {
             return _svzRepository.GetApTypes();
         }
 
+        [HttpPost]
+        [ActionName("aptyp/change")]
+        public ActionResult<List<ApTyp>> ChangeAptyp([FromBody] EditAptypTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var result =_svzRepository.ChangeAptyp(chg);
+                if (result != null) {
+                    // Aenderungen an alle Clients senden  
+                    _hub.Clients.All.SendAsync(NotificationHub.AptypChangeEvent, chg);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
         // --- ExtProg ---
         
         [HttpGet]
         [ActionName("extprog/all")]
-        public ActionResult<List<ExtProg>> All() {
+        public ActionResult<List<ExtProg>> Extprogs() {
             return _svzRepository.GetExtprog();
         }
         
         [HttpPost]
         [ActionName("extprog/change")]
-        public ActionResult<List<ExtProg>> Change([FromBody] EditExtprogTransport chg) {
+        public ActionResult<List<ExtProg>> ChangeExtprog([FromBody] EditExtprogTransport chg) {
             if (_auth.IsAdmin(User)) {
                 if (_svzRepository.ChangeExtprog(chg)) {
                     // Aenderungen an alle Clients senden  

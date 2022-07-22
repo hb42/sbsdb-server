@@ -79,7 +79,18 @@ public class SvzRepository : ISvzRepository {
         }
         var rc = _dbContext.SaveChanges();
         if (rc == 1) {
-            chg.Aptyp.Id = at.Id;
+            if (!chg.Del) {
+                var ret = _dbContext.Aptyp.Include(a => a.Apkategorie)
+                    .Where(a => a.Id == at.Id)
+                    .Select(a => new ApTyp {
+                        Id = a.Id,
+                        Bezeichnung = a.Bezeichnung,
+                        Flag = a.Flag,
+                        ApKategorieId = a.ApkategorieId,
+                        Apkategorie = a.Apkategorie.Bezeichnung,
+                    }).First();
+                chg.Aptyp = ret;
+            }
             return chg;
         }
         else {
@@ -183,6 +194,56 @@ public class SvzRepository : ISvzRepository {
                 Apkategorie = t.Apkategorie.Bezeichnung,
             })
             .ToList();
+    }
+
+    public EditTagtypTransport ChangeTagtyp(EditTagtypTransport chg) {
+        Tagtyp tt;
+        if (chg.Del) {
+            // del
+            tt = _dbContext.Tagtyp.Find(chg.Tagtyp.Id);
+            if (tt != null) {
+                _dbContext.Tagtyp.Remove(tt);
+            }
+        } else if (chg.Tagtyp.Id == 0) {
+            // new
+            tt = new Tagtyp {
+                Bezeichnung = chg.Tagtyp.Bezeichnung,
+                Param = chg.Tagtyp.Param,
+                Flag = chg.Tagtyp.Flag,
+                ApkategorieId = chg.Tagtyp.ApKategorieId
+            };
+            _dbContext.Tagtyp.Add(tt);
+        }
+        else {
+            // chg
+            tt = _dbContext.Tagtyp.Find(chg.Tagtyp.Id);
+            tt.Bezeichnung = chg.Tagtyp.Bezeichnung;
+            tt.Param = chg.Tagtyp.Param;
+            tt.Flag = chg.Tagtyp.Flag;
+            tt.ApkategorieId = chg.Tagtyp.ApKategorieId;
+            _dbContext.Tagtyp.Update(tt);
+        }
+        var rc = _dbContext.SaveChanges();
+        if (rc == 1) {
+            if (!chg.Del) {
+                var ret = _dbContext.Tagtyp.Include(t => t.Apkategorie)
+                    .Where(t => t.Id == tt.Id)
+                    .Select(t => new TagTyp {
+                        Id = t.Id,
+                        Bezeichnung = t.Bezeichnung,
+                        Param = t.Param,
+                        Flag = t.Flag,
+                        ApKategorieId = t.ApkategorieId,
+                        Apkategorie = t.Apkategorie.Bezeichnung
+                    })
+                    .First();
+                chg.Tagtyp = ret;
+            }
+
+            return chg;
+        } else {
+            return null;
+        }
     }
     
     // --- Vlan ---

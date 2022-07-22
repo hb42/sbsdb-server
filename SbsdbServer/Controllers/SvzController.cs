@@ -91,6 +91,20 @@ namespace hb.SbsdbServer.Controllers {
         public ActionResult<List<HwTyp>> HwTypes() {
             return _svzRepository.GetHwTypes();
         }
+        
+        [HttpPost]
+        [ActionName("tagtyp/change")]
+        public ActionResult<List<TagTyp>> ChangeTagtyp([FromBody] EditTagtypTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var result =_svzRepository.ChangeTagtyp(chg);
+                if (result != null) {
+                    // Aenderungen an alle Clients senden  
+                    _hub.Clients.All.SendAsync(NotificationHub.TagtypChangeEvent, chg);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
 
         // --- Oe ---
         

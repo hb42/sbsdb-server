@@ -11,6 +11,7 @@ namespace hb.SbsdbServer.Services {
         public const string KonfigChangeEvent = "konfigchange";
         public const string ExtProgChangeEvent = "extprogchange";
         public const string AptypChangeEvent = "aptypchange";
+        public const string TagtypChangeEvent = "tagtypchange";
         private readonly ILogger<NotificationHub> _log;
 
         public NotificationHub(ILogger<NotificationHub> log) {

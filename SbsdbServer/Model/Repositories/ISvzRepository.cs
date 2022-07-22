@@ -13,6 +13,7 @@ public interface ISvzRepository {
     List<HwTyp> GetHwTypes();
     // public List<> GetOes();
     List<TagTyp> GetTagTypes();
+    public EditTagtypTransport ChangeTagtyp(EditTagtypTransport chg);
     List<Vlan> GetVlans();
 
 }

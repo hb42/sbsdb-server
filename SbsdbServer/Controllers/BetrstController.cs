@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,12 @@ namespace hb.SbsdbServer.Controllers {
         public ActionResult<List<Betrst>> GetBstById(long id) {
             return _betrstService.GetBetrst(id);
         }
-        
+
+        [HttpGet]
+        [ActionName("adresse")]
+        public ActionResult<List<Adresse>> AllAdressen() {
+            return _betrstService.GetAdressen();
+        }
+
     }
 }

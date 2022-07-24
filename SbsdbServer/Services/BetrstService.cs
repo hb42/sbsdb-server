@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
 
@@ -16,6 +17,10 @@ namespace hb.SbsdbServer.Services {
 
         public List<Betrst> GetBetrst(long id) {
             return _betrstRepository.GetBetrst(id);
+        }
+
+        public List<Adresse> GetAdressen() {
+            return _betrstRepository.GetAdressen();
         }
     }
 }

@@ -8,9 +8,6 @@
         public string Oeff { get; set; }
         public bool Ap { get; set; }
         public long? ParentId { get; set; }
-        public string Plz { get; set; }
-        public string Ort { get; set; }
-        public string Strasse { get; set; }
-        public string Hausnr { get; set; }
+        public long AdresseId { get; set; }
     }
 }

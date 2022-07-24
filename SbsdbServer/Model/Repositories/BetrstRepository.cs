@@ -24,6 +24,10 @@ namespace hb.SbsdbServer.Model.Repositories {
             return QueryBst(_dbContext.Oe.Where(oe => oe.Id == id)).ToList();
         }
 
+        public List<Adresse> GetAdressen() {
+            return _dbContext.Adresse.ToList();
+        }
+
         private IQueryable<Betrst> QueryBst(IQueryable<Oe> ctx) {
             return ctx
                 .AsNoTracking()
@@ -36,10 +40,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Oeff = bst.Oeff,
                     Ap = (bool) bst.Ap,
                     ParentId = bst.OeId,
-                    Plz = bst.Adresse.Plz,
-                    Ort = bst.Adresse.Ort,
-                    Strasse = bst.Adresse.Strasse,
-                    Hausnr = bst.Adresse.Hausnr
+                    AdresseId = bst.AdresseId
                 });
         }
     }

@@ -11,7 +11,12 @@ namespace hb.SbsdbServer.Services {
         public const string KonfigChangeEvent = "konfigchange";
         public const string ExtProgChangeEvent = "extprogchange";
         public const string AptypChangeEvent = "aptypchange";
+        public const string ApkategorieChangeEvent = "apkategoriechange";
         public const string TagtypChangeEvent = "tagtypchange";
+        public const string OeChangeEvent = "oechange";
+        public const string AdresseChangeEvent = "adressechange";
+        public const string HwtypChangeEvent = "hwtypchange";
+        public const string VlanChangeEvent = "vlanchange";
         private readonly ILogger<NotificationHub> _log;
 
         public NotificationHub(ILogger<NotificationHub> log) {

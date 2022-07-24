@@ -25,6 +25,11 @@ public class SvzRepository : ISvzRepository {
     //     
     // }
     
+    // public EditAdresseTransport ChangeAdresse(EditAdresseTransport chg) {
+    //     
+    // }
+
+    
     // --- ApKategorie ---
     
     public List<ApKategorie> GetApKat() {
@@ -37,6 +42,48 @@ public class SvzRepository : ISvzRepository {
             .ToList();
     }
 
+    public EditApkategorieTransport ChangeApkategorie(EditApkategorieTransport chg) {
+        Apkategorie ak;
+        if (chg.Del) {
+            // del
+            ak = _dbContext.Apkategorie.Find(chg.Apkategorie.Id);
+            if (ak != null) {
+                _dbContext.Apkategorie.Remove(ak);
+            }
+        } else if (chg.Apkategorie.Id == 0) {
+            // new
+            ak = new Apkategorie {
+                Bezeichnung = chg.Apkategorie.Bezeichnung,
+                Flag = chg.Apkategorie.Flag,
+            };
+            _dbContext.Apkategorie.Add(ak);
+        } else {
+            // chg  
+            ak = _dbContext.Apkategorie.Find(chg.Apkategorie.Id);
+            if (ak != null) {
+                ak.Bezeichnung = chg.Apkategorie.Bezeichnung;
+                ak.Flag = chg.Apkategorie.Flag;
+                _dbContext.Apkategorie.Update(ak);
+            }
+        }
+        var rc = _dbContext.SaveChanges();
+        if (rc == 1) {
+            if (!chg.Del) {
+                var ret = _dbContext.Apkategorie.Where(a => a.Id == ak.Id)
+                    .Select(a => new ApKategorie {
+                        Id = a.Id,
+                        Bezeichnung = a.Bezeichnung,
+                        Flag = a.Flag.Value,
+                    }).First();
+                chg.Apkategorie = ret;
+            }
+            return chg;
+        }
+        else {
+            return null;
+        }
+    }
+    
     // --- ApTyp ---
     
     public List<ApTyp> GetApTypes() {
@@ -174,10 +221,61 @@ public class SvzRepository : ISvzRepository {
             .ToList();
     }
 
+    public EditHwtypTransport ChangeHwtyp(EditHwtypTransport chg) {
+        Hwtyp ht;
+        if (chg.Del) {
+            // del
+            ht = _dbContext.Hwtyp.Find(chg.Hwtyp.Id);
+            if (ht != null) {
+                _dbContext.Hwtyp.Remove(ht);
+            }
+        } else if (chg.Hwtyp.Id == 0) {
+            // new
+            ht = new Hwtyp {
+                Bezeichnung = chg.Hwtyp.Bezeichnung,
+                Flag = chg.Hwtyp.Flag,
+                ApkategorieId = chg.Hwtyp.ApKategorieId
+            };
+            _dbContext.Hwtyp.Add(ht);
+        } else {
+            // chg  
+            ht = _dbContext.Hwtyp.Find(chg.Hwtyp.Id);
+            if (ht != null) {
+                ht.ApkategorieId = chg.Hwtyp.ApKategorieId;
+                ht.Bezeichnung = chg.Hwtyp.Bezeichnung;
+                ht.Flag = chg.Hwtyp.Flag;
+                _dbContext.Hwtyp.Update(ht);
+            }
+        }
+        var rc = _dbContext.SaveChanges();
+        if (rc == 1) {
+            if (!chg.Del) {
+                var ret = _dbContext.Hwtyp.Include(a => a.Apkategorie)
+                    .Where(a => a.Id == ht.Id)
+                    .Select(a => new HwTyp {
+                        Id = a.Id,
+                        Bezeichnung = a.Bezeichnung,
+                        Flag = a.Flag,
+                        ApKategorieId = a.ApkategorieId,
+                        Apkategorie = a.Apkategorie.Bezeichnung,
+                    }).First();
+                chg.Hwtyp = ret;
+            }
+            return chg;
+        }
+        else {
+            return null;
+        }
+    }
+
     // --- Oe ---
     
     // TODO ViewModel.oe fehlt
     // public List<> GetOes() {
+    //     
+    // }
+    
+    // public EditOeTransport ChangeOe(EditOeTransport chg) {
     //     
     // }
 
@@ -258,5 +356,9 @@ public class SvzRepository : ISvzRepository {
             })
             .ToList();
     }
+
+    // public EditVlanTransport ChangeVlan(EditVlanTransport chg) {
+    //     
+    // }
 
 }

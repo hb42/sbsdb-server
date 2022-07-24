@@ -41,6 +41,20 @@ namespace hb.SbsdbServer.Controllers {
             return _svzRepository.GetApKat();
         }
 
+        [HttpPost]
+        [ActionName("apkategorie/change")]
+        public ActionResult<List<ApKategorie>> ChangeApkategorie([FromBody] EditApkategorieTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var result =_svzRepository.ChangeApkategorie(chg);
+                if (result != null) {
+                    // Aenderungen an alle Clients senden  
+                    _hub.Clients.All.SendAsync(NotificationHub.ApkategorieChangeEvent, chg);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
         // --- ApTyp ---
         
         [HttpGet] 
@@ -93,18 +107,19 @@ namespace hb.SbsdbServer.Controllers {
         }
         
         [HttpPost]
-        [ActionName("tagtyp/change")]
-        public ActionResult<List<TagTyp>> ChangeTagtyp([FromBody] EditTagtypTransport chg) {
+        [ActionName("hwtyp/change")]
+        public ActionResult<List<HwTyp>> ChangeAptyp([FromBody] EditHwtypTransport chg) {
             if (_auth.IsAdmin(User)) {
-                var result =_svzRepository.ChangeTagtyp(chg);
+                var result =_svzRepository.ChangeHwtyp(chg);
                 if (result != null) {
                     // Aenderungen an alle Clients senden  
-                    _hub.Clients.All.SendAsync(NotificationHub.TagtypChangeEvent, chg);
+                    _hub.Clients.All.SendAsync(NotificationHub.HwtypChangeEvent, chg);
                 }
                 return Ok();
             }
             return StatusCode(401);
         }
+
 
         // --- Oe ---
         
@@ -123,6 +138,20 @@ namespace hb.SbsdbServer.Controllers {
             return _svzRepository.GetTagTypes();
         }
         
+        [HttpPost]
+        [ActionName("tagtyp/change")]
+        public ActionResult<List<TagTyp>> ChangeTagtyp([FromBody] EditTagtypTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var result =_svzRepository.ChangeTagtyp(chg);
+                if (result != null) {
+                    // Aenderungen an alle Clients senden  
+                    _hub.Clients.All.SendAsync(NotificationHub.TagtypChangeEvent, chg);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
         // --- Vlan ---
         
         [HttpGet] 

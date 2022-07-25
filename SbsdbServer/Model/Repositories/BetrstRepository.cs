@@ -24,10 +24,56 @@ namespace hb.SbsdbServer.Model.Repositories {
             return QueryBst(_dbContext.Oe.Where(oe => oe.Id == id)).ToList();
         }
 
+        public EditOeTransport ChangeBetrst(EditOeTransport chg) {
+            // TODO
+            return null;
+        }
+
         public List<Adresse> GetAdressen() {
             return _dbContext.Adresse.ToList();
         }
 
+        public EditAdresseTransport ChangeAdresse(EditAdresseTransport chg) {
+            Adresse adr;
+            if (chg.Del) {
+                // del
+                adr = _dbContext.Adresse.Find(chg.Adresse.Id);
+                if (adr != null) {
+                    _dbContext.Adresse.Remove(adr);
+                }
+            } else if (chg.Adresse.Id == 0) {
+                // new
+                adr = new Adresse { 
+                    Plz= chg.Adresse.Plz,
+                    Ort = chg.Adresse.Ort,
+                    Strasse = chg.Adresse.Strasse,
+                    Hausnr = chg.Adresse.Hausnr
+                };
+                _dbContext.Adresse.Add(adr);
+            } else {
+                // chg  
+                adr = _dbContext.Adresse.Find(chg.Adresse.Id);
+                if (adr != null) {
+                    adr.Plz = chg.Adresse.Plz;
+                    adr.Ort = chg.Adresse.Ort;
+                    adr.Strasse = chg.Adresse.Strasse;
+                    adr.Hausnr = chg.Adresse.Hausnr;
+                    _dbContext.Adresse.Update(adr);
+                }
+            }
+            var rc = _dbContext.SaveChanges();
+            if (rc == 1) {
+                if (!chg.Del) {
+                    var ret = _dbContext.Adresse.Find(adr.Id);
+                    chg.Adresse = ret;
+                }
+                return chg;
+            }
+            else {
+                return null;
+            }
+        }
+        
         private IQueryable<Betrst> QueryBst(IQueryable<Oe> ctx) {
             return ctx
                 .AsNoTracking()

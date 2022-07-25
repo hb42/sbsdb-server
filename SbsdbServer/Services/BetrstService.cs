@@ -19,8 +19,16 @@ namespace hb.SbsdbServer.Services {
             return _betrstRepository.GetBetrst(id);
         }
 
+        public EditOeTransport ChangeBetrst(EditOeTransport chg) {
+            return _betrstRepository.ChangeBetrst(chg);
+        }
+        
         public List<Adresse> GetAdressen() {
             return _betrstRepository.GetAdressen();
+        }
+
+        public EditAdresseTransport ChangeAdresse(EditAdresseTransport chg) {
+            return _betrstRepository.ChangeAdresse(chg);
         }
     }
 }

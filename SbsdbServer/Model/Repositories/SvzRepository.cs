@@ -17,19 +17,7 @@ public class SvzRepository : ISvzRepository {
         _dbContext = context;
         _log = log;
     }
-    
-    // --- Adresse ---
 
-    // TODO ViewModel.adresse fehlt
-    // public List<> GetAdressen() {
-    //     
-    // }
-    
-    // public EditAdresseTransport ChangeAdresse(EditAdresseTransport chg) {
-    //     
-    // }
-
-    
     // --- ApKategorie ---
     
     public List<ApKategorie> GetApKat() {
@@ -268,17 +256,6 @@ public class SvzRepository : ISvzRepository {
         }
     }
 
-    // --- Oe ---
-    
-    // TODO ViewModel.oe fehlt
-    // public List<> GetOes() {
-    //     
-    // }
-    
-    // public EditOeTransport ChangeOe(EditOeTransport chg) {
-    //     
-    // }
-
     // --- TagTyp ---
 
     public List<TagTyp> GetTagTypes() {
@@ -357,8 +334,9 @@ public class SvzRepository : ISvzRepository {
             .ToList();
     }
 
-    // public EditVlanTransport ChangeVlan(EditVlanTransport chg) {
-    //     
-    // }
+    public EditVlanTransport ChangeVlan(EditVlanTransport chg) {
+        // TODO
+        return null;
+    }
 
 }

@@ -24,15 +24,6 @@ namespace hb.SbsdbServer.Controllers {
             _hub = hub;
         }
         
-        // --- Adresse ---
-        
-        // TODO ViewModel.adresse fehlt
-        // [HttpGet] 
-        // [ActionName("adresse/all")]
-        // public ActionResult<List<Adr>> Adressen() {
-        //     return _svzRepository.GetAdressen();
-        // }
-        
         // --- ApKategorie ---
         
         [HttpGet] 
@@ -119,17 +110,7 @@ namespace hb.SbsdbServer.Controllers {
             }
             return StatusCode(401);
         }
-
-
-        // --- Oe ---
         
-        // TODO ViewModel.oe fehlt
-        // [HttpGet] 
-        // [ActionName("oe/all")]
-        // public ActionResult<List<Oe>> Oes() {
-        //     return _svzRepository.GetOes();
-        // }
-
         // --- TagTyp ---
         
         [HttpGet] 
@@ -158,6 +139,20 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("vlan/all")]
         public ActionResult<List<Vlan>> Vlans() {
             return _svzRepository.GetVlans();
+        }
+
+        [HttpPost]
+        [ActionName("vlan/change")]
+        public ActionResult<List<Vlan>> ChangeVlan([FromBody] EditVlanTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var result =_svzRepository.ChangeVlan(chg);
+                if (result != null) {
+                    // Aenderungen an alle Clients senden  
+                    _hub.Clients.All.SendAsync(NotificationHub.VlanChangeEvent, chg);
+                }
+                return Ok();
+            }
+            return StatusCode(401);        
         }
 
     }

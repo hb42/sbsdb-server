@@ -19,6 +19,6 @@ public interface ISvzRepository {
     List<TagTyp> GetTagTypes();
     public EditTagtypTransport ChangeTagtyp(EditTagtypTransport chg);
     List<Vlan> GetVlans();
-    // public EditVlanTransport ChangeVlan(EditVlanTransport chg);
+    public EditVlanTransport ChangeVlan(EditVlanTransport chg);
 
 }

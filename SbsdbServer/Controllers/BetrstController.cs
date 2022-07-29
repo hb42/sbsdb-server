@@ -4,17 +4,21 @@ using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers {
-    public class BetrstController: AbstractControllerBase<BetrstController> {
+    public class BetrstController : AbstractControllerBase<BetrstController> {
         private readonly IBetrstService _betrstService;
         private readonly AuthorizationHelper _auth;
         private readonly IHubContext<NotificationHub> _hub;
+        private readonly ILogger<BetrstController> _log;
 
-        public BetrstController(IBetrstService service, AuthorizationHelper auth, IHubContext<NotificationHub> hub) {
+        public BetrstController(IBetrstService service, AuthorizationHelper auth, IHubContext<NotificationHub> hub,
+            ILogger<BetrstController> log) {
             _betrstService = service;
             _auth = auth;
             _hub = hub;
+            _log = log;
         }
 
         [HttpGet]
@@ -33,13 +37,13 @@ namespace hb.SbsdbServer.Controllers {
         [ActionName("change")]
         public ActionResult<List<Betrst>> ChangeBst([FromBody] EditOeTransport chg) {
             if (_auth.IsAdmin(User)) {
-                var result =_betrstService.ChangeBetrst(chg);
+                var result = _betrstService.ChangeBetrst(chg);
                 if (result != null) {
-                    // Aenderungen an alle Clients senden  
                     _hub.Clients.All.SendAsync(NotificationHub.OeChangeEvent, chg);
                 }
                 return Ok();
             }
+
             return StatusCode(401);
         }
 
@@ -48,20 +52,19 @@ namespace hb.SbsdbServer.Controllers {
         public ActionResult<List<Adresse>> AllAdressen() {
             return _betrstService.GetAdressen();
         }
-        
+
         [HttpPost]
         [ActionName("chgadresse")]
         public ActionResult<List<Adresse>> ChangeAptyp([FromBody] EditAdresseTransport chg) {
             if (_auth.IsAdmin(User)) {
-                var result =_betrstService.ChangeAdresse(chg);
+                var result = _betrstService.ChangeAdresse(chg);
                 if (result != null) {
-                    // Aenderungen an alle Clients senden  
                     _hub.Clients.All.SendAsync(NotificationHub.AdresseChangeEvent, chg);
                 }
                 return Ok();
             }
+
             return StatusCode(401);
         }
-        
     }
 }

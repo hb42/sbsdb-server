@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Vlan = hb.SbsdbServer.Model.ViewModel.Vlan;
 
-namespace hb.SbsdbServer.Model.Repositories; 
+namespace hb.SbsdbServer.Model.Repositories;
 
 public class SvzRepository : ISvzRepository {
     private readonly SbsdbContext _dbContext;
@@ -19,7 +19,7 @@ public class SvzRepository : ISvzRepository {
     }
 
     // --- ApKategorie ---
-    
+
     public List<ApKategorie> GetApKat() {
         return _dbContext.Apkategorie
             .Select(a => new ApKategorie {
@@ -54,6 +54,7 @@ public class SvzRepository : ISvzRepository {
                 _dbContext.Apkategorie.Update(ak);
             }
         }
+
         var rc = _dbContext.SaveChanges();
         if (rc == 1) {
             if (!chg.Del) {
@@ -65,15 +66,15 @@ public class SvzRepository : ISvzRepository {
                     }).First();
                 chg.Apkategorie = ret;
             }
+
             return chg;
-        }
-        else {
+        } else {
             return null;
         }
     }
-    
+
     // --- ApTyp ---
-    
+
     public List<ApTyp> GetApTypes() {
         return _dbContext.Aptyp
             .Select(a => new ApTyp {
@@ -112,6 +113,7 @@ public class SvzRepository : ISvzRepository {
                 _dbContext.Aptyp.Update(at);
             }
         }
+
         var rc = _dbContext.SaveChanges();
         if (rc == 1) {
             if (!chg.Del) {
@@ -126,15 +128,15 @@ public class SvzRepository : ISvzRepository {
                     }).First();
                 chg.Aptyp = ret;
             }
+
             return chg;
-        }
-        else {
+        } else {
             return null;
         }
     }
-    
+
     // --- ExtProg ---
-    
+
     public List<ExtProg> GetExtprog() {
         return _dbContext.Extprog
             .AsNoTracking()
@@ -194,9 +196,9 @@ public class SvzRepository : ISvzRepository {
         var check = _dbContext.SaveChanges();
         return check == count;
     }
-    
+
     // --- HwTyp ---
-    
+
     public List<HwTyp> GetHwTypes() {
         return _dbContext.Hwtyp
             .Select(a => new HwTyp {
@@ -235,6 +237,7 @@ public class SvzRepository : ISvzRepository {
                 _dbContext.Hwtyp.Update(ht);
             }
         }
+
         var rc = _dbContext.SaveChanges();
         if (rc == 1) {
             if (!chg.Del) {
@@ -249,9 +252,9 @@ public class SvzRepository : ISvzRepository {
                     }).First();
                 chg.Hwtyp = ret;
             }
+
             return chg;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -288,8 +291,7 @@ public class SvzRepository : ISvzRepository {
                 ApkategorieId = chg.Tagtyp.ApKategorieId
             };
             _dbContext.Tagtyp.Add(tt);
-        }
-        else {
+        } else {
             // chg
             tt = _dbContext.Tagtyp.Find(chg.Tagtyp.Id);
             tt.Bezeichnung = chg.Tagtyp.Bezeichnung;
@@ -298,6 +300,7 @@ public class SvzRepository : ISvzRepository {
             tt.ApkategorieId = chg.Tagtyp.ApKategorieId;
             _dbContext.Tagtyp.Update(tt);
         }
+
         var rc = _dbContext.SaveChanges();
         if (rc == 1) {
             if (!chg.Del) {
@@ -320,9 +323,9 @@ public class SvzRepository : ISvzRepository {
             return null;
         }
     }
-    
+
     // --- Vlan ---
-    
+
     public List<Vlan> GetVlans() {
         return _dbContext.Vlan
             .Select(v => new Vlan {
@@ -335,8 +338,46 @@ public class SvzRepository : ISvzRepository {
     }
 
     public EditVlanTransport ChangeVlan(EditVlanTransport chg) {
-        // TODO
-        return null;
+        Entities.Vlan vl;
+        if (chg.Del) {
+            // del
+            vl = _dbContext.Vlan.Find(chg.Vlan.Id);
+            if (vl != null) {
+                _dbContext.Vlan.Remove(vl);
+            }
+        } else if (chg.Vlan.Id == 0) {
+            // new
+            vl = new Entities.Vlan {
+                Bezeichnung = chg.Vlan.Bezeichnung,
+                Ip = chg.Vlan.Ip,
+                Netmask = chg.Vlan.Netmask
+            };
+            _dbContext.Vlan.Add(vl);
+        } else {
+            // chg  
+            vl = _dbContext.Vlan.Find(chg.Vlan.Id);
+            if (vl != null) {
+                vl.Bezeichnung = chg.Vlan.Bezeichnung;
+                vl.Ip = chg.Vlan.Ip;
+                vl.Netmask = chg.Vlan.Netmask;
+                _dbContext.Vlan.Update(vl);
+            }
+        }
+        var rc = _dbContext.SaveChanges();
+        if (rc == 1) {
+            if (!chg.Del) {
+                var ret = _dbContext.Vlan.Where(a => a.Id == vl.Id)
+                    .Select(a => new Vlan {
+                        Id = a.Id,
+                        Bezeichnung = a.Bezeichnung,
+                        Ip = a.Ip,
+                        Netmask = a.Netmask
+                    }).First();
+                chg.Vlan = ret;
+            }
+            return chg;
+        } else {
+            return null;
+        }
     }
-
 }

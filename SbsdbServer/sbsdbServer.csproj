@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <VersionSuffix>alpha.480</VersionSuffix>
+    <VersionSuffix>beta.1</VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
     <Description>Web API fuer SBS-Datenbank</Description>
     <Copyright>Copyright (c) 1997-2022 Hartmut Bauer</Copyright>
@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/hb42/sbsdb-server</RepositoryUrl>
     <RootNamespace>hb.SbsdbServer</RootNamespace>
     <Authors>hb42@gmx.de</Authors>
-    <PackageVersion>1.0.0-alpha.480</PackageVersion>
+    <PackageVersion>1.0.0-beta.1</PackageVersion>
     <Nullable>disable</Nullable>
     <LangVersion>10</LangVersion>
   </PropertyGroup>
@@ -29,16 +29,16 @@
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="6.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.1" />
-    <PackageReference Include="MySql.Data" Version="8.0.28" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.50" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
+    <PackageReference Include="MySql.Data" Version="8.0.30" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.1.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.61" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
-    <PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.5" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" />
   </ItemGroup>
   <!-- Angular SPA nach wwwroot kopieren, config-Dir kopieren -->
   <ItemGroup>
@@ -54,6 +54,7 @@
     <RemoveDir Directories="$(PublishDir)\cron" />
     <Copy SourceFiles="@(CronFiles)" DestinationFiles="@(CronFiles-&gt;'$(PublishDir)\cron\%(Filename)%(Extension)')" />
     <MakeDir Directories="$(PublishDir)\logs" />
+    <Touch Files="$(PublishDir)\logs\nlog-all.log;$(PublishDir)\logs\nlog-app.log" AlwaysCreate="true" />
   </Target>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

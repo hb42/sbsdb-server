@@ -39,7 +39,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Betriebsstelle = chg.Oe.Betriebsstelle,
                     Bst = chg.Oe.BstNr,
                     Tel = chg.Oe.Tel,
-                    Fax = chg.Oe.Fax,
                     Oeff = chg.Oe.Oeff,
                     Ap = chg.Oe.Ap,
                     AdresseId = chg.Oe.AdresseId,
@@ -53,7 +52,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     oe.Betriebsstelle = chg.Oe.Betriebsstelle;
                     oe.Bst = chg.Oe.BstNr;
                     oe.Tel = chg.Oe.Tel;
-                    oe.Fax = chg.Oe.Fax;
                     oe.Oeff = chg.Oe.Oeff;
                     oe.Ap = chg.Oe.Ap;
                     oe.AdresseId = chg.Oe.AdresseId;
@@ -70,7 +68,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                             BstId = bst.Id,
                             Betriebsstelle = bst.Betriebsstelle,
                             BstNr = bst.Bst,
-                            Fax = bst.Fax,
                             Tel = bst.Tel,
                             Oeff = bst.Oeff,
                             Ap = (bool)bst.Ap,
@@ -138,7 +135,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     BstId = bst.Id,
                     Betriebsstelle = bst.Betriebsstelle,
                     BstNr = bst.Bst,
-                    Fax = bst.Fax,
                     Tel = bst.Tel,
                     Oeff = bst.Oeff,
                     Ap = (bool)bst.Ap,

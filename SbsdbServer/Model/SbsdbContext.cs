@@ -15,7 +15,6 @@ namespace hb.SbsdbServer.Model
 
         public virtual DbSet<Adresse> Adresse { get; set; }
         public virtual DbSet<Ap> Ap { get; set; }
-        public virtual DbSet<ApIssue> ApIssue { get; set; }
         public virtual DbSet<ApTag> ApTag { get; set; }
         public virtual DbSet<Apkategorie> Apkategorie { get; set; }
         public virtual DbSet<Aptyp> Aptyp { get; set; }
@@ -25,7 +24,6 @@ namespace hb.SbsdbServer.Model
         public virtual DbSet<Hwhistory> Hwhistory { get; set; }
         public virtual DbSet<Hwkonfig> Hwkonfig { get; set; }
         public virtual DbSet<Hwtyp> Hwtyp { get; set; }
-        public virtual DbSet<Issuetyp> Issuetyp { get; set; }
         public virtual DbSet<Mac> Mac { get; set; }
         public virtual DbSet<Oe> Oe { get; set; }
         public virtual DbSet<ProgramSettings> ProgramSettings { get; set; }
@@ -131,71 +129,7 @@ namespace hb.SbsdbServer.Model
                     .HasForeignKey(d => d.OeIdVerOe)
                     .HasConstraintName("AP_OE_FK_VER_OE");
             });
-
-            modelBuilder.Entity<ApIssue>(entity =>
-            {
-                entity.ToTable("AP_ISSUE");
-
-                entity.HasIndex(e => e.ApId)
-                    .HasDatabaseName("AP_ISSUE_AP_ID_IDX");
-
-                entity.HasIndex(e => e.Close)
-                    .HasDatabaseName("AP_ISSUE_CLOSE_IDX");
-
-                entity.HasIndex(e => e.Id)
-                    .HasDatabaseName("AP_ISSUE_PK")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.IssuetypId)
-                    .HasDatabaseName("AP_ISSUE_ISSUETYP_ID_IDX");
-
-                entity.HasIndex(e => e.Open)
-                    .HasDatabaseName("AP_ISSUE_OPEN_IDX");
-
-                entity.HasIndex(e => e.Prio)
-                    .HasDatabaseName("AP_ISSUE_PRIO_IDX");
-
-                entity.HasIndex(e => e.Userid)
-                    .HasDatabaseName("AP_ISSUE_USERID_IDX");
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.ApId).HasColumnName("AP_ID");
-
-                entity.Property(e => e.Close)
-                    .HasColumnName("CLOSE")
-                    .HasColumnType("DATE");
-
-                entity.Property(e => e.Issue)
-                    .IsRequired()
-                    .HasColumnName("ISSUE")
-                    .HasColumnType("CLOB");
-
-                entity.Property(e => e.IssuetypId).HasColumnName("ISSUETYP_ID");
-
-                entity.Property(e => e.Open)
-                    .HasColumnName("OPEN")
-                    .HasColumnType("DATE");
-
-                entity.Property(e => e.Prio).HasColumnName("PRIO");
-
-                entity.Property(e => e.Userid)
-                    .IsRequired()
-                    .HasColumnName("USERID")
-                    .HasColumnType("VARCHAR2(20)");
-
-                entity.HasOne(d => d.Ap)
-                    .WithMany(p => p.ApIssue)
-                    .HasForeignKey(d => d.ApId)
-                    .HasConstraintName("AP_ISSUE_AP_FK");
-
-                entity.HasOne(d => d.Issuetyp)
-                    .WithMany(p => p.ApIssue)
-                    .HasForeignKey(d => d.IssuetypId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("AP_ISSUE_ISSUETYP_FK");
-            });
-
+            
             modelBuilder.Entity<ApTag>(entity =>
             {
                 entity.ToTable("AP_TAG");
@@ -613,31 +547,6 @@ namespace hb.SbsdbServer.Model
                     .HasConstraintName("HWTYP_APKATEGORIE_FK");
             });
 
-            modelBuilder.Entity<Issuetyp>(entity =>
-            {
-                entity.ToTable("ISSUETYP");
-
-                entity.HasIndex(e => e.Bezeichnung)
-                    .HasDatabaseName("ISSUETYP_BEZEICHNUNG_UN")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Flag)
-                    .HasDatabaseName("ISSUETYP_FLAG_IDX");
-
-                entity.HasIndex(e => e.Id)
-                    .HasDatabaseName("ISSUETYP_PK")
-                    .IsUnique();
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.Bezeichnung)
-                    .IsRequired()
-                    .HasColumnName("BEZEICHNUNG")
-                    .HasColumnType("VARCHAR2(100)");
-
-                entity.Property(e => e.Flag).HasColumnName("FLAG");
-            });
-
             modelBuilder.Entity<Mac>(entity =>
             {
                 entity.ToTable("MAC");
@@ -706,10 +615,6 @@ namespace hb.SbsdbServer.Model
                     .HasColumnType("VARCHAR2(100)");
 
                 entity.Property(e => e.Bst).HasColumnName("BST");
-
-                entity.Property(e => e.Fax)
-                    .HasColumnName("FAX")
-                    .HasColumnType("VARCHAR2(50)");
 
                 entity.Property(e => e.OeId).HasColumnName("OE_ID");
 

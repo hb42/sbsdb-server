@@ -15,7 +15,6 @@ namespace hb.SbsdbServer.Model.Entities
         public long Id { get; set; }
         public string Betriebsstelle { get; set; }
         public long Bst { get; set; }
-        public string Fax { get; set; }
         public string Tel { get; set; }
         public string Oeff { get; set; }
         public bool? Ap { get; set; }

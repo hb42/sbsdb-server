@@ -111,13 +111,11 @@ namespace hb.SbsdbServer.Model {
             MigHwkonfig();
             MigAussond();
             MigVlan();
-            MigIssuetyp();
             MigAdresse();
             MigOe();
             // MigExtprog();
             MigTagtyp();
             MigAp();
-            MigApissue();
             MigAptag();
             MigHw();
             MigHwhistory();
@@ -253,24 +251,7 @@ namespace hb.SbsdbServer.Model {
             v5dbContext.SaveChanges();
             LOG.LogDebug("Vlan OK");
         }
-
-        private void MigIssuetyp() {
-            var old = v4dbContext.SbsTtKategorie.ToList();
-            foreach (var o in old) {
-                var n = new Issuetyp {
-                    Id = o.KategorieIndex,
-                    Bezeichnung = o.Kategorie,
-                    Flag = o.Flag
-                };
-                LOG.LogDebug("IssueTyp add #" + n.Id);
-                v5dbContext.Issuetyp.Add(n);
-            }
-
-            LOG.LogDebug("IssueTyp saving...");
-            v5dbContext.SaveChanges();
-            LOG.LogDebug("IssueTyp OK");
-        }
-
+        
         private void MigAdresse() {
             var old = v4dbContext.SbsFiliale.ToList();
             foreach (var o in old) {
@@ -300,7 +281,6 @@ namespace hb.SbsdbServer.Model {
                     Ap = (o.Ap ?? 0) > 0 ? true : false,
                     Betriebsstelle = o.Betriebsstelle,
                     Bst = o.Bst,
-                    Fax = o.Fax,
                     Oeff = o.Oeff,
                     OeId = o.ParentOe == 0 ? null : o.ParentOe,
                     Tel = o.Tel
@@ -415,28 +395,6 @@ namespace hb.SbsdbServer.Model {
             LOG.LogDebug("AP saving...");
             v5dbContext.SaveChanges();
             LOG.LogDebug("AP OK");
-        }
-
-        private void MigApissue() {
-            var old = v4dbContext.SbsTtIssue.Include(t => t.UserIndexNavigation).ToList();
-            foreach (var o in old) {
-                var n = new ApIssue {
-                    Id = o.TtissueIndex,
-                    ApId = o.ApIndex,
-                    Close = o.Close,
-                    Issue = o.Ticket,
-                    IssuetypId = o.KategorieIndex,
-                    Open = o.Open,
-                    Prio = o.Prio,
-                    Userid = o.UserIndexNavigation.UserId
-                };
-                LOG.LogDebug("ApIssue add #" + n.Id);
-                v5dbContext.ApIssue.Add(n);
-            }
-
-            LOG.LogDebug("ApIssue saving...");
-            v5dbContext.SaveChanges();
-            LOG.LogDebug("ApIssue OK");
         }
 
         private void MigAptag() {

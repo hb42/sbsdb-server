@@ -3,7 +3,6 @@
         public long BstId { get; set; }
         public string Betriebsstelle { get; set; }
         public long BstNr { get; set; }
-        public string Fax { get; set; }
         public string Tel { get; set; }
         public string Oeff { get; set; }
         public bool Ap { get; set; }

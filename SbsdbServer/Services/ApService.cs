@@ -46,5 +46,9 @@ namespace hb.SbsdbServer.Services {
         public ApTransport ChangeAp(EditApTransport apt) {
             return _apRepository.ChangeAp(apt);
         }
+
+        public ApTransport ChangeApTyp(ChangeAptypTransport chg) {
+            return _apRepository.ChangeApTyp(chg);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
+using hb.SbsdbServer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -108,15 +109,9 @@ namespace hb.SbsdbServer.Model.Repositories {
                     apt.Id = ap.Id;
                     if ((ap.Aptyp.Flag & Const.FREMDE_HW) > 0) {
                         // ** fremde HW -> neue HW + MAC eintragen
-                        var hwkonf = _dbContext.Hwkonfig.First(h =>
-                            h.Hwtyp.Apkategorie.Aptyp.First(a => a.Id == ap.AptypId).ApkategorieId == h.Hwtyp.ApkategorieId && (h.Hwtyp.Flag & Const.FREMDE_HW) > 0);
-                        var hw = new Hw {
-                            HwkonfigId = hwkonf.Id,
-                            SerNr = ap.Apname
-                        };
-                        hw.ChangeAp(ap.Id, true);
+                        var hw = NewFremdeHw(ap);
                         _dbContext.Hw.Add(hw);
-                        _dbContext.SaveChanges();
+                        _dbContext.SaveChanges ();
                         apt.Hw.NewpriId = hw.Id;
                         foreach (var vlan in apt.Hw.PriVlans) {
                             _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
@@ -176,7 +171,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                                 _dbContext.Hwhistory.RemoveRange(_dbContext.Hwhistory.Where(hh => hh.HwId == h.Id));
                                 _dbContext.Hw.Remove(h);
                             } else {
-                                chg.Add(RemoveHwFromAp(h));
+                                chg.Add(RemoveHwFromAp(h.Id));
                             }
                         }
                         _dbContext.Ap.Remove(ap);
@@ -222,6 +217,70 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
         }
 
+        public ApTransport ChangeApTyp(ChangeAptypTransport chg) {
+            if (chg == null) {
+                return null;
+            } try {
+                var ap = _dbContext.Ap.Include(a => a.Aptyp).First(a => a.Id == chg.Apid);
+                if (chg.Aptypid == ap.AptypId) {
+                    return null;
+                }
+                var newTyp = _dbContext.Aptyp.Find(chg.Aptypid);
+                var newFremde = (newTyp.Flag & Const.FREMDE_HW) > 0;
+                var oldFremde = (ap.Aptyp.Flag & Const.FREMDE_HW) > 0;
+                ap.AptypId = chg.Aptypid;
+                _dbContext.Ap.Update(ap);
+                var hws = _hwRepository.GetHwForAp(ap.Id);
+                if (oldFremde != newFremde) {
+                    var oldPri = hws.Find(h => h.Pri);
+                    if (!newFremde) {
+                        // fremdeHW zu !fremdeHW
+                        if (oldPri != null) {
+                            RemoveHwFromAp(oldPri.Id);
+                            oldPri.Sernr = null;
+                        }
+                    } else {
+                        // !fremdeHw zu fremdeHW
+                        var movevlans = new List<Mac>();
+                        if (oldPri != null) {
+                            var vlans = _dbContext.Mac.Where(m => m.HwId == oldPri.Id).ToList();
+                            foreach (var vlan in vlans) {
+                                movevlans.Add(new Mac {
+                                    Adresse = IpHelper.NULL_MAC,
+                                    Ip    = vlan.Ip,
+                                    VlanId = vlan.VlanId
+                                });
+                                // vlan.HwId = hw.Id;
+                                // _dbContext.Mac.Update(vlan);
+                            }
+                            RemoveHwFromAp(oldPri.Id);
+                            oldPri.Sernr = null;
+                        }
+
+                        var hw = NewFremdeHw(ap);
+                        _dbContext.Hw.Add(hw);
+                        _dbContext.SaveChanges();
+                        foreach (var vlan in movevlans) {
+                            vlan.HwId = hw.Id;
+                            _dbContext.Mac.Add(vlan);
+                        }
+                        _dbContext.SaveChanges();
+                        hws.AddRange(_hwRepository.GetHardware(hw.Id));
+                    }
+                }
+                _dbContext.SaveChanges();
+                var retap = GetAp(ap.Id);
+                return new ApTransport {
+                    Ap = retap.Count == 1 ? retap[0] : null,
+                    Hw = hws.ToArray(),
+                    DelApId = 0
+                };
+            } catch(Exception ex) {
+                _log.LogError(ex, "Error in ChangeApTyp() ApId: {Id}", chg.Apid);
+                return null;
+            }
+        }
+        
         private void ChangeTags(EditApTransport apt) {
             if (apt.Tags == null || apt.Tags.Length == 0) {
                 return;
@@ -266,7 +325,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                 // remove old pri 
                 _log.LogDebug("HW Change: remove old pri");
                 if (hw != null) {
-                    RemoveHwFromAp(hw);
+                    RemoveHwFromAp(hw.Id);
                 } 
                 if (apt.Hw.NewpriId != 0) {
                     var newhw = _dbContext.Hw.Find(apt.Hw.NewpriId);
@@ -288,7 +347,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             foreach (var peri in apt.Hw.Periph) {
                 var phw = _dbContext.Hw.Find(peri.HwId);
                 if (peri.del) {
-                    phw = RemoveHwFromAp(phw);
+                    phw = RemoveHwFromAp(phw.Id);
                     _log.LogDebug("HW Change: remove peri #" + peri.HwId);
                 } else {
                     if (phw.ApId != apt.Id) {
@@ -309,8 +368,8 @@ namespace hb.SbsdbServer.Model.Repositories {
             return rc;
         }
 
-        private Hw RemoveHwFromAp(Hw hardware) {
-            var hw = _dbContext.Hw.Include(h => h.Hwkonfig.Hwtyp).First(h => h.Id == hardware.Id);
+        private Hw RemoveHwFromAp(long hwid) {
+            var hw = _dbContext.Hw.Include(h => h.Hwkonfig.Hwtyp).First(h => h.Id == hwid);
             if ((hw.Hwkonfig.Hwtyp.Flag & Const.FREMDE_HW) > 0) {
                 _log.LogDebug("remove fremde HW");
                 var rc = new Hw {
@@ -350,6 +409,19 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
         }
 
+        private Hw NewFremdeHw(Ap ap) {
+            var hwkonf = _dbContext.Hwkonfig.First(h =>
+                h.Hwtyp.Apkategorie.Aptyp
+                    .First(a => a.Id == ap.AptypId).ApkategorieId == h.Hwtyp.ApkategorieId &&
+                (h.Hwtyp.Flag & Const.FREMDE_HW) > 0);
+            var hw = new Hw {
+                HwkonfigId = hwkonf.Id,
+                SerNr = ap.Apname
+            };
+            hw.ChangeAp(ap.Id, true);
+            return hw;
+        }
+        
         /*
          * Alle benoetigten Daten fuer einen Arbeitsplatz aus der DB holen
          * 
@@ -377,53 +449,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     ApKatId = ap.Aptyp.Apkategorie.Id,
                     ApKatBezeichnung = ap.Aptyp.Apkategorie.Bezeichnung,
                     ApKatFlag = ap.Aptyp.Apkategorie.Flag ?? 0,
-                    //     new Betrst {
-                    //     BstId = ap.Oe.Id,
-                    //     Betriebsstelle = ap.Oe.Betriebsstelle,
-                    //     BstNr = ap.Oe.Bst,
-                    //     Fax = ap.Oe.Fax,
-                    //     Tel = ap.Oe.Tel,
-                    //     Oeff = ap.Oe.Oeff,
-                    //     Ap = (bool) ap.Oe.Ap,
-                    //     ParentId = ap.Oe.OeId,
-                    //     Plz = ap.Oe.Adresse.Plz,
-                    //     Ort = ap.Oe.Adresse.Ort,
-                    //     Strasse = ap.Oe.Adresse.Strasse,
-                    //     Hausnr = ap.Oe.Adresse.Hausnr
-                    // },
                     VerantwOeId = ap.OeIdVerOe ?? 0, // == null || ap.OeIdVerOe == ap.OeId
-                        // ? null
-                        // : new Betrst {
-                        //     BstId = ap.OeIdVerOeNavigation.Id,
-                        //     Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
-                        //     BstNr = ap.OeIdVerOeNavigation.Bst,
-                        //     Fax = ap.OeIdVerOeNavigation.Fax,
-                        //     Tel = ap.OeIdVerOeNavigation.Tel,
-                        //     Oeff = ap.OeIdVerOeNavigation.Oeff,
-                        //     Ap = (bool) ap.OeIdVerOeNavigation.Ap,
-                        //     ParentId = ap.OeIdVerOeNavigation.OeId,
-                        //     Plz = ap.OeIdVerOeNavigation.Adresse.Plz,
-                        //     Ort = ap.OeIdVerOeNavigation.Adresse.Ort,
-                        //     Strasse = ap.OeIdVerOeNavigation.Adresse.Strasse,
-                        //     Hausnr = ap.OeIdVerOeNavigation.Adresse.Hausnr
-                        // },
-                    // Hw = ap.Hw.Select(hw => new TmpHw {
-                    //     Id = hw.Id,
-                    //     Hersteller = hw.Hwkonfig.Hersteller,
-                    //     Bezeichnung = hw.Hwkonfig.Bezeichnung,
-                    //     Sernr = hw.SerNr,
-                    //     Pri = hw.Pri,
-                    //     Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
-                    //     HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
-                    //     Vlan = hw.Mac.Select(m => new Netzwerk {
-                    //         VlanId = m.VlanId,
-                    //         Bezeichnung = m.Vlan.Bezeichnung,
-                    //         Vlan = m.Vlan.Ip,
-                    //         Netmask = m.Vlan.Netmask,
-                    //         Ip = (long) m.Ip,
-                    //         Mac = m.Adresse
-                    //     }).ToList()
-                    // }).ToList(),
                     Tags = ap.ApTag.Select(t => new Tag {
                         ApTagId = t.Id,
                         TagId = t.TagtypId,
@@ -457,32 +483,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                     ApKatId = ap.Aptyp.Apkategorie.Id,
                     ApKatBezeichnung = ap.Aptyp.Apkategorie.Bezeichnung,
                     ApKatFlag = ap.Aptyp.Apkategorie.Flag ?? 0,
-                    //     new Betrst {
-                    //     Betriebsstelle = ap.Oe.Betriebsstelle,
-                    //     BstNr = ap.Oe.Bst,
-                    // },
                     VerantwOeId = ap.OeIdVerOe ?? 0, // == null || ap.OeIdVerOe == ap.OeId
-                        // ? null
-                        // : new Betrst {
-                        //     Betriebsstelle = ap.OeIdVerOeNavigation.Betriebsstelle,
-                        //     BstNr = ap.OeIdVerOeNavigation.Bst,
-                        // },
-                    // Hw = ap.Hw.Where(hw => hw.Pri).Select(hw => new TmpHw {
-                    //     Hersteller = hw.Hwkonfig.Hersteller,
-                    //     Bezeichnung = hw.Hwkonfig.Bezeichnung,
-                    //     Sernr = hw.SerNr,
-                    //     Pri = hw.Pri,
-                    //     Hwtyp = hw.Hwkonfig.Hwtyp.Bezeichnung,
-                    //     HwtypFlag = (long) hw.Hwkonfig.Hwtyp.Flag,
-                    //     Vlan = hw.Mac.Select(m => new Netzwerk {
-                    //         VlanId = m.VlanId,
-                    //         Bezeichnung = m.Vlan.Bezeichnung,
-                    //         Vlan = m.Vlan.Ip,
-                    //         Netmask = m.Vlan.Netmask,
-                    //         Ip = (long) m.Ip,
-                    //         Mac = m.Adresse
-                    //     }).ToList()
-                    // }).ToList()
                 });
         }
 
@@ -508,19 +509,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     ApKatFlag = t.ApKatFlag,
                     Tags = t.Tags ?? new List<Tag>()
                 };
-                // foreach (var h in t.Hw) {
-                //     var hw = new Hardware {
-                //         Id = h.Id,
-                //         Hersteller = h.Hersteller,
-                //         Bezeichnung = h.Bezeichnung,
-                //         Sernr = h.Sernr,
-                //         Pri = h.Pri,
-                //         Hwtyp = h.Hwtyp,
-                //         HwtypFlag = h.HwtypFlag,
-                //         Vlan = h.Vlan ?? new List<Netzwerk>()
-                //     };
-                //     ap.Hw.Add(hw);
-                // }
                 aps.Add(ap);
             }
             return aps;

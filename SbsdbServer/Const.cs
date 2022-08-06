@@ -8,7 +8,7 @@
         // Bitmask fuer das Flag "fremde Hardware"
         public const byte FREMDE_HW = 0b_0000_0001;
 
-        // App-Startpfad
+        // App-Startpfad (Linux/MacOS)
         public const string BASE_URL = "/791/sbsdb";
         
         // Pfad fuer Server-Events

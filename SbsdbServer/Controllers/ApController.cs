@@ -64,6 +64,21 @@ namespace hb.SbsdbServer.Controllers {
             return StatusCode(401);
         }
 
+        [HttpPost]
+        [ActionName("changeaptyp")]
+        public ActionResult<ApTransport> ApTypChange([FromBody] ChangeAptypTransport chg) {
+            if (_auth.IsAdmin(User)) {
+                var ap = _apService.ChangeApTyp(chg);
+                if (ap != null) {
+                    // Aenderungen an alle Clients senden  
+                    _log.LogDebug("ApTypChange done, trigger notification");
+                    _hub.Clients.All.SendAsync(NotificationHub.ApChangeAptypEvent, ap);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
         [HttpGet]
         [ActionName("count")]
         public ActionResult<int> Count() {

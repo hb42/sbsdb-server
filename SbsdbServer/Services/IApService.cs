@@ -10,5 +10,6 @@ namespace hb.SbsdbServer.Services {
         List<Arbeitsplatz> QueryAps(ApQuery query);
         int GetCount();
         ApTransport ChangeAp(EditApTransport apt);
+        ApTransport ChangeApTyp(ChangeAptypTransport chg);
     }
 }

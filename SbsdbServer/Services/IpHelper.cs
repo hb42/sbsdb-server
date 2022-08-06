@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace hb.SbsdbServer.Services; 
 
 public class IpHelper {
+    public static string NULL_MAC = "000000000000";
+    
     private const string IpString =
         @"^\s*(\d|[01]?\d\d|2[0-4]\d|25[0-5])\.(\d|[01]?\d\d|2[0-4]\d|25[0-5])\.(\d|[01]?\d\d|2[0-4]\d|25[0-5])\.(\d|[01]?\d\d|2[0-4]\d|25[0-5])\s*$";
 

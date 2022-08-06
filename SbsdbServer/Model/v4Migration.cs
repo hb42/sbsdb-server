@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.sbsdbv4.model;
+using hb.SbsdbServer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -474,7 +475,7 @@ namespace hb.SbsdbServer.Model {
                 })
                 .ToList();
             foreach (var o in hws) {
-                if (!(o.seg == null && NormalizeMac(o.mac, false) == "000000000000")) {
+                if (!(o.seg == null && NormalizeMac(o.mac, false) == IpHelper.NULL_MAC)) {
                     var n = new Mac {
                         Adresse = NormalizeMac(o.mac, false),
                         Ip = o.ip,
@@ -702,7 +703,7 @@ namespace hb.SbsdbServer.Model {
                 }
             }
 
-            return "000000000000";
+            return IpHelper.NULL_MAC;
         }
 
         private class conv {

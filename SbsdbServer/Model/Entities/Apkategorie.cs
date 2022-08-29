@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class Apkategorie
+    public class Apkategorie
     {
-        public Apkategorie()
-        {
+        public Apkategorie() {
             Aptyp = new HashSet<Aptyp>();
             Hwtyp = new HashSet<Hwtyp>();
             Tagtyp = new HashSet<Tagtyp>();

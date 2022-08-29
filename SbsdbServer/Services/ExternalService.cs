@@ -16,7 +16,7 @@ public class ExternalService: IExternalService {
     private readonly IConfiguration _configuration;
     private readonly ILogger<ExternalService> _log;
 
-    private const string lf = $"\n";
+    private const string Lf = $"\n";
     
     public ExternalService(SbsdbContext context, IConfiguration configuration, ILogger<ExternalService> log) {
         _dbContext = context;
@@ -54,7 +54,7 @@ public class ExternalService: IExternalService {
                     }
                     catch {
                         // Hostname nicht in DB
-                        result += $"ERROR - {host} nicht in DB (evtl. Datei auf TFTP-Share loeschen)." + lf;
+                        result += $"ERROR - {host} nicht in DB (evtl. Datei auf TFTP-Share loeschen)." + Lf;
                     }
                 }
             }
@@ -62,8 +62,8 @@ public class ExternalService: IExternalService {
         catch (Exception e) {
             // IO-Fehler beim Dateizugriff
             var err = $"ERROR - Fehler beim Einlesen der TFTP-Dateien: {e.Message}";
-            result += err + lf;
-            _log.LogError(err);
+            result += err + Lf;
+            _log.LogError("{E}",err);
         }
 
         _log.LogDebug("Import Thin Clients-Job executed");
@@ -79,7 +79,7 @@ public class ExternalService: IExternalService {
         try {
             return File.ReadAllText(logfile);
         } catch(Exception e) {
-            _log.LogError($"Fehler beim Einlesen von {logfile}: " + e.Message);
+            _log.LogError("Fehler beim Einlesen von {Log}: {Msg}", logfile, e.Message);
             return "-- kein Protokoll vorhanden --";
         }
     }
@@ -110,7 +110,7 @@ public class ExternalService: IExternalService {
                                 mac.VlanId = vlan.Id;
                                 _dbContext.Mac.Update(mac);
                                 _dbContext.SaveChanges();
-                                result += $"Success - {ap.Apname}: aendere IP von {IpHelper.GetIpString((uint)ipOld)} zu {ip}" + lf;
+                                result += $"Success - {ap.Apname}: aendere IP von {IpHelper.GetIpString((uint)ipOld)} zu {ip}" + Lf;
                             }
                         }
                     }
@@ -118,13 +118,13 @@ public class ExternalService: IExternalService {
                         // alles gut, nichts zu tun
                     }
                 } else {
-                    result += $"ERROR - {ap.Apname} hat keine MAC-Adresse." + lf;
+                    result += $"ERROR - {ap.Apname} hat keine MAC-Adresse." + Lf;
                 }
             }
         }
 
         if (!pri) {
-            result += $"ERROR - {ap.Apname} hat keine primaere Hardware." + lf;
+            result += $"ERROR - {ap.Apname} hat keine primaere Hardware." + Lf;
         }
 
         return result;

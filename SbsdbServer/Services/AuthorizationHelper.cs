@@ -1,10 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Services {
     public class AuthorizationHelper {
@@ -59,22 +56,5 @@ namespace hb.SbsdbServer.Services {
             return user.IsInRole(_configuration.GetValue<string>("AdminRole"));
 #endif
         }
-
-        // /**
-        //  * Hat der Benutzer Adminrechte?
-        //  * Wird indirekt 
-        //  */
-        // public bool IsAdmin(AuthorizationHandlerContext ctx) {
-        //     DefaultHttpContext res = ctx.Resource as DefaultHttpContext;
-        //     Console.WriteLine("ctx.resource.user.id.name: " + res.User.Identity?.Name);
-        //     Console.WriteLine("Identity.authenticated: " + ctx.User.Identity.IsAuthenticated);
-        //
-        //     if (!res.User.Identity.IsAuthenticated) {
-        //         Console.WriteLine(" null");
-        //         return false;
-        //     } 
-        //     
-        //     return IsAdmin(res.User);
-        // }
     }
 }

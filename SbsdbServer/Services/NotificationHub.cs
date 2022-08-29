@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-using hb.SbsdbServer.Model.ViewModel;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 

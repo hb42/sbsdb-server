@@ -6,9 +6,7 @@ using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using Vlan = hb.SbsdbServer.Model.ViewModel.Vlan;
 
 namespace hb.SbsdbServer.Model.Repositories {
     public class ApRepository : IApRepository {
@@ -30,13 +28,13 @@ namespace hb.SbsdbServer.Model.Repositories {
             );
         }
         public List<Arbeitsplatz> GetPage(int page, int pageSize) {  
-            int skipRows = page * pageSize;  // page is zero based!
+            var skipRows = page * pageSize;  // page is zero based!
             var tmp = Convert(
                 GetArbeitsplatzQuery(
                     _dbContext.Ap
                 ).Skip(skipRows).Take(pageSize).ToList()
             );
-            _log.LogDebug("GetPage " + page + " skip=" + skipRows + " take=" + pageSize + " length=" + tmp.Count());
+            _log.LogDebug("GetPage {Page} skip={Skip} take={Psize} length={Count}", page, skipRows, pageSize, tmp.Count());
             return tmp;
         }
         /*
@@ -66,7 +64,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             );
             watch.Stop();
             var delta = watch.ElapsedMilliseconds;
-            _log.LogDebug($"--- select-query for search '{like}' took {delta}ms");
+            _log.LogDebug("--- select-query for search '{Like}' took {Delta}ms", like, delta);
             return aps;
         }
 
@@ -92,7 +90,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                 if (apt.Id == 0) {
                     // ** neuer AP
                     if (apt.Ap.StandortId == null || apt.Ap.ApTypId == null) {
-                        _log.LogDebug("Error for new AP: invalid idx oe: {oeid}, typ: {typid}", apt.Ap.StandortId, apt.Ap.ApTypId);
+                        _log.LogDebug("Error for new AP: invalid idx oe: {Oeid}, typ: {Typid}", apt.Ap.StandortId, apt.Ap.ApTypId);
                         return null;
                     }
                     ap = new Ap {
@@ -158,8 +156,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                                     Smbiosguid = null,
                                     WartungFa = null,
                                     Bemerkung = null,
-                                    // Pri = false,
-                                    // ApId = null,
                                     HwkonfigId = 0,
                                     Ap = null,
                                     Hwkonfig = null,
@@ -198,9 +194,7 @@ namespace hb.SbsdbServer.Model.Repositories {
                               Smbiosgiud = null,
                               WartungFa = null,
                               Bemerkung = null,
-                              // Pri = false,
                               HwKonfigId = 0,
-                              // ApId = 0,
                               Vlans = null
                           });
                         }
@@ -226,6 +220,11 @@ namespace hb.SbsdbServer.Model.Repositories {
                     return null;
                 }
                 var newTyp = _dbContext.Aptyp.Find(chg.Aptypid);
+                if (newTyp == null) {
+                    // ungueltiger ApTyp sollte nicht vorkommen
+                    _log.LogError("Error in ChangeApTyp() ApTypId: {Id} ist nicht vorhanden!", chg.Aptypid);
+                    return null;
+                }
                 var newFremde = (newTyp.Flag & Const.FREMDE_HW) > 0;
                 var oldFremde = (ap.Aptyp.Flag & Const.FREMDE_HW) > 0;
                 ap.AptypId = chg.Aptypid;
@@ -250,8 +249,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                                     Ip    = vlan.Ip,
                                     VlanId = vlan.VlanId
                                 });
-                                // vlan.HwId = hw.Id;
-                                // _dbContext.Mac.Update(vlan);
                             }
                             RemoveHwFromAp(oldPri.Id);
                             oldPri.Sernr = null;
@@ -285,7 +282,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             if (apt.Tags == null || apt.Tags.Length == 0) {
                 return;
             }
-            _log.LogDebug("change ap tags count " + apt.Tags.Length);
+            _log.LogDebug("change ap tags count {Len}", apt.Tags.Length);
             foreach (var tag in apt.Tags) {
                 if (tag.ApTagId == null) {
                     var nTag = new ApTag {
@@ -295,12 +292,21 @@ namespace hb.SbsdbServer.Model.Repositories {
                     };
                     _dbContext.ApTag.Add(nTag);
                 } else if (tag.TagId == null) {
-                    _dbContext.ApTag.Remove(_dbContext.ApTag.Find(tag.ApTagId));
+                    var rTag = _dbContext.ApTag.Find(tag.ApTagId);
+                    if (rTag != null) {
+                        _dbContext.ApTag.Remove(rTag);
+                    } else {
+                        _log.LogError("Error in ChangeTags() ApTag: {Id} ist nicht vorhanden!", tag.ApTagId);
+                    }
                 } else {
                   var cTag = _dbContext.ApTag.Find(tag.ApTagId);
-                  cTag.TagtypId = tag.TagId ?? 0;
-                  cTag.Text = tag.Text;
-                  _dbContext.ApTag.Update(cTag);
+                  if (cTag != null) {
+                      cTag.TagtypId = tag.TagId ?? 0;
+                      cTag.Text = tag.Text;
+                      _dbContext.ApTag.Update(cTag);
+                  } else {
+                      _log.LogError("Error in ChangeTags() ApTag: {Id} ist nicht vorhanden!", tag.ApTagId);
+                  }
                 }              
             }
         }
@@ -314,7 +320,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
             var hwlist = _dbContext.Hw.Where(h => h.ApId == apt.Id && h.Pri == true).ToList();
             if (hwlist.Count > 1) {
-                _log.LogDebug($"HW Change: ERROR {hwlist.Count} entries for pri HW @apId {hw.ApId}");
+                _log.LogDebug("HW Change: ERROR {Count} entries for pri HW @apId {Id}", hwlist.Count, apt.Id);
                 return rc;
             } else if (hwlist.Count == 1) {
                 hw = hwlist[0];
@@ -329,40 +335,53 @@ namespace hb.SbsdbServer.Model.Repositories {
                 } 
                 if (apt.Hw.NewpriId != 0) {
                     var newhw = _dbContext.Hw.Find(apt.Hw.NewpriId);
-                    // change pri
-                    _log.LogDebug("HW Change: change pri");
-                    _hwRepository.ChangeAp(newhw, apt.Id, true);
-                    ResetVlans(newhw.Id); // zur Sicherheit (sollte eigentlich sauber sein)
-                    _dbContext.Hw.Update(newhw);
-                    rc.Add(newhw);
-                    hw = newhw;
+                    if (newhw != null) {
+                        // change pri
+                        _log.LogDebug("HW Change: change pri");
+                        _hwRepository.ChangeAp(newhw, apt.Id, true);
+                        ResetVlans(newhw.Id); // zur Sicherheit (sollte eigentlich sauber sein)
+                        _dbContext.Hw.Update(newhw);
+                        rc.Add(newhw);
+                        hw = newhw;
+                    } else {
+                        _log.LogError("Error in ChangeHw() new pri HW {Id} ist nicht vorhanden!", apt.Hw.NewpriId);
+                    }
                 }
             }
             // chg pri vlans
-            foreach (var vlan in apt.Hw.PriVlans) {
-                _log.LogDebug("HW Change: change pri vlans");
-                _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+            if (hw != null) {
+                foreach (var vlan in apt.Hw.PriVlans) {
+                    _log.LogDebug("HW Change: change pri vlans");
+                    _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, hw.Id);
+                }
             }
+
             // periph.
             foreach (var peri in apt.Hw.Periph) {
                 var phw = _dbContext.Hw.Find(peri.HwId);
-                if (peri.del) {
-                    phw = RemoveHwFromAp(phw.Id);
-                    _log.LogDebug("HW Change: remove peri #" + peri.HwId);
+                if (phw != null) {
+                    if (peri.del) {
+                        phw = RemoveHwFromAp(phw.Id);
+                        _log.LogDebug("HW Change: remove peri #{Id}", peri.HwId);
+                    } else {
+                        if (phw.ApId != apt.Id) {
+                            // change peri
+                            _log.LogDebug("HW Change: change peri #{Hwid}, apid {Apid} hw.apid {Hwapid}", peri.HwId, apt.Id, phw.ApId);
+                            _hwRepository.ChangeAp(phw, apt.Id == 0 ? null : apt.Id, false);
+                            ResetVlans(phw.Id);
+                            _dbContext.Hw.Update(phw);
+                        }
+
+                        foreach (var vlan in peri.vlans) {
+                            _log.LogDebug("HW Change: change peri vlan");
+                            _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, peri.HwId);
+                        }
+                    }
+
+                    rc.Add(phw);
                 } else {
-                    if (phw.ApId != apt.Id) {
-                        // change peri
-                        _log.LogDebug("HW Change: change peri #" + peri.HwId + ", apid " + apt.Id + " hw.apid " + phw.ApId);
-                        _hwRepository.ChangeAp(phw, apt.Id == 0 ? null : apt.Id, false);
-                        ResetVlans(phw.Id);
-                        _dbContext.Hw.Update(phw);
-                    }
-                    foreach (var vlan in peri.vlans) {
-                        _log.LogDebug("HW Change: change peri vlan");
-                        _hwRepository.ChangeVlan(vlan.HwMacId, vlan.Mac, vlan.VlanId, vlan.Ip, peri.HwId);
-                    }
+                    _log.LogError("Error in ChangeHw() peri. HW {Id} ist nicht vorhanden!", peri.HwId);
                 }
-                rc.Add(phw);
             }
 
             return rc;
@@ -381,8 +400,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Smbiosguid = null,
                     WartungFa = null,
                     Bemerkung = null,
-                    // Pri = false,
-                    // ApId = null,
                     HwkonfigId = 0,
                     Ap = null,
                     Hwkonfig = null,
@@ -498,7 +515,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     Apname = t.Apname,
                     Bezeichnung = t.Bezeichnung,
                     Bemerkung = t.Bemerkung,
-                    // Aptyp = t.Aptyp,
                     OeId = t.OeId,
                     VerantwOeId = t.VerantwOeId,
                     ApTypId = t.ApTypId,
@@ -514,33 +530,21 @@ namespace hb.SbsdbServer.Model.Repositories {
             return aps;
         }
 
-        private class TmpHw {
-            public long Id { get; set; }
-            public string Hersteller { get; set; }
-            public string Bezeichnung { get; set; }
-            public string Sernr { get; set; }
-            public bool Pri { get; set; }
-            public string Hwtyp { get; set; }
-            public long HwtypFlag { get; set; }
-            public List<Netzwerk> Vlan { get; set; }
-        }
-
         private class TmpAp {
-            public long ApId { get; set; }
-            public string Apname { get; set; }
-            public string Bezeichnung { get; set; }
+            public long ApId { get; init; }
+            public string Apname { get; init; }
+            public string Bezeichnung { get; init; }
             public string Aptyp { get; set; }
-            public long OeId { get; set; }
-            public long VerantwOeId { get; set; }
-            public string Bemerkung { get; set; }
-            public long ApTypId { get; set; }
-            public string ApTypBezeichnung { get; set; }
-            public long ApTypFlag { get; set; }
-            public long ApKatId { get; set; }
-            public string ApKatBezeichnung { get; set; }
-            public long ApKatFlag { get; set; }
-            public List<Tag> Tags { get; set; }
-            public List<TmpHw> Hw { get; set; }
+            public long OeId { get; init; }
+            public long VerantwOeId { get; init; }
+            public string Bemerkung { get; init; }
+            public long ApTypId { get; init; }
+            public string ApTypBezeichnung { get; init; }
+            public long ApTypFlag { get; init; }
+            public long ApKatId { get; init; }
+            public string ApKatBezeichnung { get; init; }
+            public long ApKatFlag { get; init; }
+            public List<Tag> Tags { get; init; }
         }
     }
 }

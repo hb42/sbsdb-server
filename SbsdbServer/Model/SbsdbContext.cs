@@ -1,12 +1,9 @@
-﻿using System;
-using hb.SbsdbServer.Model.Entities;
+﻿using hb.SbsdbServer.Model.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Newtonsoft.Json;
 
 namespace hb.SbsdbServer.Model
 {
-    public partial class SbsdbContext : DbContext
+    public class SbsdbContext : DbContext
     {
         public SbsdbContext(DbContextOptions<SbsdbContext> options)
             : base(options)

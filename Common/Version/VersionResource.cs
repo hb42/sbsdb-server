@@ -106,7 +106,6 @@ namespace hb.Common.Version {
         public string OsVersion() {
             // fuer Windows ist dieser String ausreichend
             var desc = RuntimeInformation.OSDescription;
-            // TODO Abfrage fuer macOS + Linux, die besser lesbare Infos liefert
             // fuer macOS wird nur die Kernel-Version geliefert, daher zusaetzliche Info anhaengen
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
                 desc = RuntimeInformation.RuntimeIdentifier + " " + desc;

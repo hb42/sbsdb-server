@@ -1,5 +1,3 @@
-using hb.SbsdbServer.Model.Entities;
-
 namespace hb.SbsdbServer.Model.ViewModel; 
 
 public class EditAptypTransport {

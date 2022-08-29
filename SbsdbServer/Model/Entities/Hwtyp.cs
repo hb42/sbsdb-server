@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class Hwtyp
+    public class Hwtyp
     {
-        public Hwtyp()
-        {
+        public Hwtyp() {
             Hwkonfig = new HashSet<Hwkonfig>();
         }
 

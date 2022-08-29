@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class Ap
+    public class Ap
     {
-        public Ap()
-        {
-            ApIssue = new HashSet<ApIssue>();
+        public Ap() {
             ApTag = new HashSet<ApTag>();
             Hw = new HashSet<Hw>();
         }
@@ -23,7 +20,6 @@ namespace hb.SbsdbServer.Model.Entities
         public virtual Aptyp Aptyp { get; set; }
         public virtual Oe Oe { get; set; }
         public virtual Oe OeIdVerOeNavigation { get; set; }
-        public virtual ICollection<ApIssue> ApIssue { get; set; }
         public virtual ICollection<ApTag> ApTag { get; set; }
         public virtual ICollection<Hw> Hw { get; set; }
     }

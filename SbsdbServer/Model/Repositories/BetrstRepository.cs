@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
 using Microsoft.EntityFrameworkCore;
@@ -117,7 +116,7 @@ namespace hb.SbsdbServer.Model.Repositories {
 
             var rc = _dbContext.SaveChanges();
             if (rc == 1) {
-                if (!chg.Del) {
+                if (!chg.Del && adr != null) {
                     var ret = _dbContext.Adresse.Find(adr.Id);
                     chg.Adresse = ret;
                 }

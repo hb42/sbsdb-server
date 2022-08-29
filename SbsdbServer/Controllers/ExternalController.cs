@@ -1,18 +1,12 @@
-using hb.Common.Version;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Controllers; 
 
 public class ExternalController : AbstractControllerBase<ExternalController> {
     private readonly IExternalService _service;
-    private readonly VersionResource _version;
-    private readonly AuthorizationHelper _auth;
 
-    public ExternalController(IExternalService ext, VersionResource ver, AuthorizationHelper auth) {
-        _version = ver;
-        _auth = auth;
+    public ExternalController(IExternalService ext) {
         _service = ext;
     }
 
@@ -28,7 +22,7 @@ public class ExternalController : AbstractControllerBase<ExternalController> {
      *
      * Voraussetzungen: - der Job laeuft unter SYSTEM (wird hier abgeprueft) und fuer den Job
      *                    muss "mit hoechsten Berechtigungen ausfuehren" eingestellt sein.
-     *                  - Als Format der Dateien von den TCs wird "<IP-Adresse> <Hostname>"
+     *                  - Als Format der Dateien von den TCs wird "IP-Adresse Hostname"
      *                    am Anfang der Datei erwartet.
      */
     [HttpGet]

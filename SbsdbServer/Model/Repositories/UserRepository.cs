@@ -1,20 +1,25 @@
 ﻿using System.Linq;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
+using Microsoft.Extensions.Logging;
 
 namespace hb.SbsdbServer.Model.Repositories {
     public class UserRepository : IUserRepository {
         private readonly SbsdbContext _dbContext;
+        private readonly ILogger<UserRepository> _log;
 
-        public UserRepository(SbsdbContext context) {
+        public UserRepository(SbsdbContext context, ILogger<UserRepository> log) {
             _dbContext = context;
+            _log = log;
         }
 
         public void DeleteUser(long id) {
             var user = _dbContext.UserSettings.Find(id);
-            if (user != null) { // TODO Fehler "User nicht gefunden" wird nicht zurueckgegeben
+            if (user != null) {
                 _dbContext.Remove(user);
                 _dbContext.SaveChanges();
+            } else {
+                _log.LogError("Error in DeleteUser() User {Id} ist nicht vorhanden!", id);
             }
         }
 

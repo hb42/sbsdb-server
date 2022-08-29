@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
@@ -294,11 +293,15 @@ public class SvzRepository : ISvzRepository {
         } else {
             // chg
             tt = _dbContext.Tagtyp.Find(chg.Tagtyp.Id);
-            tt.Bezeichnung = chg.Tagtyp.Bezeichnung;
-            tt.Param = chg.Tagtyp.Param;
-            tt.Flag = chg.Tagtyp.Flag;
-            tt.ApkategorieId = chg.Tagtyp.ApKategorieId;
-            _dbContext.Tagtyp.Update(tt);
+            if (tt != null) {
+                tt.Bezeichnung = chg.Tagtyp.Bezeichnung;
+                tt.Param = chg.Tagtyp.Param;
+                tt.Flag = chg.Tagtyp.Flag;
+                tt.ApkategorieId = chg.Tagtyp.ApKategorieId;
+                _dbContext.Tagtyp.Update(tt);
+            } else {
+                _log.LogError("Error in ChangeTagTyp() TagTyp {Id} ist nicht vorhanden!", chg.Tagtyp.Id);
+            }
         }
 
         var rc = _dbContext.SaveChanges();

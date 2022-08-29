@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using hb.SbsdbServer.Model.Entities;
 
 namespace hb.SbsdbServer.Model.ViewModel {
     public class Hardware {

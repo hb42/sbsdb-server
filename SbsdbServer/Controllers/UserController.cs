@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Linq;
 using System.Security.Claims;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
@@ -23,7 +21,7 @@ namespace hb.SbsdbServer.Controllers {
             UserSession user = _userService.GetUser(AuthorizationHelper.GetUserId(User));
             
             user.IsAdmin = false;
-            user.IsReadonly = false;  // TODO sind Unterscheidungen ausser 'Admin' sinnvoll??
+            user.IsReadonly = false;
             user.IsHotline = false;
             if (_authorizationHelper.IsAdmin(User)) {
                 user.IsAdmin = true;
@@ -48,27 +46,25 @@ namespace hb.SbsdbServer.Controllers {
         /*
          * Dump Kerberos-Ticket
          */
-        private void debug() {
+        private void Debug() {
             // string sid = "S-1-5-21-3981708267-1880105098-3983911190-586075"; // e077
             string sid = "S-1-5-21-2177293706-942526630-1309965019-1013"; // loc PS> Get-LocalGroup | select name,sid
             Log.LogDebug("***** User *****");
-            Log.LogDebug("Configuration: " + Configuration["AdminRole"]);
-            Log.LogDebug("ClaimsType: " + ClaimTypes.Role);
-            Log.LogDebug("Name: " + User.Identity.Name);
-            Log.LogDebug("AuthenticationType: " + User.Identity.AuthenticationType);
-            Log.LogDebug("IsAuthenticated: " + User.Identity.IsAuthenticated);
-            Log.LogDebug("inRole: " + User.IsInRole(Configuration["AdminRole"]));
-            Log.LogDebug("inRole SID: " + User.IsInRole(sid));
-            Log.LogDebug("claims.count: " + User.Claims.Count());
+            Log.LogDebug("Configuration: {Adm}", Configuration["AdminRole"]);
+            Log.LogDebug("ClaimsType: {Rol}", ClaimTypes.Role);
+            Log.LogDebug("Name: {Name}", User.Identity?.Name);
+            Log.LogDebug("AuthenticationType: {Authtype}", User.Identity?.AuthenticationType);
+            Log.LogDebug("IsAuthenticated: {Isauth}", User.Identity?.IsAuthenticated);
+            Log.LogDebug("inRole: {Inrole}", User.IsInRole(Configuration["AdminRole"]));
+            Log.LogDebug("inRole SID: {Sid}", User.IsInRole(sid));
+            Log.LogDebug("claims.count: {Cnt}", User.Claims.Count());
             foreach (var claim in User.Claims) {
                 Log.LogDebug(
-                    $"ClaimType:[{claim.Type}], ClaimValue:[{claim.Value}], Issuer:[{claim.Issuer}], valueType:[{claim.ValueType}], OriginalIssuer:[{claim.OriginalIssuer}]");
-                // foreach (var prop in claim.Properties) {
-                //     Log.LogDebug($"Property.Key: {prop.Key} = {prop.Value}");
-                // }
+                    "ClaimType:[{Type}], ClaimValue:[{Value}], Issuer:[{Issuer}], valueType:[{ValType}], OriginalIssuer:[{OriIssuer}]",
+                    claim.Type, claim.Value, claim.Issuer, claim.ValueType, claim.OriginalIssuer);
             }
             foreach(var id in User.Identities)
-                Log.LogDebug($"Identity.Name: {id.Name}, Label: {id.Label}, AuthenticationType: {id.AuthenticationType}");
+                Log.LogDebug("Identity.Name: {Name}, Label: {Label}, AuthenticationType: {AuthType}", id.Name, id.Label, id.AuthenticationType);
                     
             // das Folgende funktioniert nur unter Windows!
             // var si = new System.Security.Principal.SecurityIdentifier(sid);

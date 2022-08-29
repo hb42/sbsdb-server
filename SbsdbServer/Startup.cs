@@ -46,7 +46,7 @@ namespace hb.SbsdbServer {
             // daher wird hier eine Policy definiert, die die Unterschiede
             // beruecksichtigen kann -> [Authorize(Policy = "adminUser")].
             //
-            // Die fn wird immer zweimal aufgerufen, beim ersten Mal ohen Daten fuer den Benutzer,
+            // Die fn wird immer zweimal aufgerufen, beim ersten Mal ohne Daten fuer den Benutzer,
             // User.Identity.IsAuthenticated ist dann false. Da ist natuerlich auch kein Check
             // auf Gruppen moeglich, es ist auch egal, ob true oder false zurueckgegeben wird.
             // Desalb der zusaetzliche Check auf IsAuthenticated.
@@ -125,28 +125,14 @@ namespace hb.SbsdbServer {
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-            // TODO auch in Produktion drinlassen?
-            // if (env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            // }
-
-            // TODO kann raus, wenn die Datenbankstruktur steht 
-            // create-table-commands fuer alle Entities die SbsdbContext verwaltet ins Log schreiben
-            /*using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>()
-                         .CreateScope()) {
-              LOG.LogDebug(serviceScope.ServiceProvider.GetService<SbsdbContext>()
-                  .Database.GenerateCreateScript());
-            }
-            */
-
             // Exceptions fangen und einheitlich zurueckgeben (Status 500)
             app.UseExceptionHandler(a => a.Run(async context => {
                 var feature = context.Features.Get<IExceptionHandlerPathFeature>();
-                var exception = feature.Error;
+                var exception = feature?.Error;
                 var result = JsonConvert.SerializeObject(
-                    (exception: exception.GetType().Name,
-                    message: exception.Message,
-                    stacktrace: exception.StackTrace));
+                    (exception: exception?.GetType().Name,
+                    message: exception?.Message,
+                    stacktrace: exception?.StackTrace));
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = 500;
                 await context.Response.WriteAsync(result);
@@ -159,7 +145,7 @@ namespace hb.SbsdbServer {
                 app.UsePathBase(new PathString(Const.BASE_URL)); 
             }
 
-            app.UseHttpsRedirection();  // falls das mal auf https laeuft
+            app.UseHttpsRedirection();
 
             app.UseStaticFiles(new StaticFileOptions() {
                 OnPrepareResponse = (context) => {
@@ -176,7 +162,8 @@ namespace hb.SbsdbServer {
                 endpoints.MapHub<NotificationHub>(Const.NOTIFICATION_PATH);
                 endpoints.MapControllers();
             });
-            app.UseSpa(conf => conf.Options.DefaultPage = "/index.html"); // Angular-SPA
+            // Angular-SPA
+            app.UseSpa(conf => conf.Options.DefaultPage = "/index.html");
         }
     }
 }

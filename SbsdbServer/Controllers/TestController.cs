@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Collections.Generic;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
-using hb.SbsdbServer.Model.Entities;
-using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;

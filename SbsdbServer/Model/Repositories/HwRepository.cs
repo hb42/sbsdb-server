@@ -41,7 +41,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             if (hwt == null) {
                 return null;
             }
-            Hw hw = null;
+            Hw hw;
             if (hwt.DelHw) {
                 // DEL hw
                 // include() => auch records aus HwHistory loeschen
@@ -110,12 +110,6 @@ namespace hb.SbsdbServer.Model.Repositories {
                     hw.InvNr = hwt.InvNr;
                     hw.WartungFa = hwt.WartungFa;
                 }
-
-                
-                // TODO Ap-change-handling??
-                // if (hwt.ApId.HasValue && hwt.ApId != hw.ApId) {
-                //     ChangeAp(hw, hwt.ApId, hw.Pri);
-                // }
                 if (hwt.RemoveAp) {
                     ChangeAp(hw, null, false);
                 }
@@ -184,11 +178,9 @@ namespace hb.SbsdbServer.Model.Repositories {
          * Die fn macht keinen Commit, das ist Aufgabe des Callers
          */
         public void ChangeAp(Hw hw, long? newapid, bool pri) {
-            Ap oldap = null;
-            Ap newap = null;
             if (hw.ApId != null) {
                 // alter Eintrag vorhanden, in der History vermerken
-                oldap = _dbContext.Ap.Include(ap => ap.Oe).First(ap => ap.Id == hw.ApId);
+                var oldap = _dbContext.Ap.Include(ap => ap.Oe).First(ap => ap.Id == hw.ApId);
                 var shift = new Hwhistory {
                     HwId = hw.Id,
                     Direction = "-",
@@ -202,7 +194,7 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
             if (newapid != null) {
                 // neuen AP eintragen
-               newap = _dbContext.Ap.Include(ap => ap.Oe).First(ap => ap.Id == newapid.Value);
+               var newap = _dbContext.Ap.Include(ap => ap.Oe).First(ap => ap.Id == newapid.Value);
                var shift = new Hwhistory {
                     HwId = hw.Id,
                     Direction = "+",
@@ -229,13 +221,21 @@ namespace hb.SbsdbServer.Model.Repositories {
                 _dbContext.Mac.Add(nVlan);
             } else if (mac == "") {
                 var vlan = _dbContext.Mac.Find(id);
-                _dbContext.Mac.Remove(vlan);
+                if (vlan != null) {
+                    _dbContext.Mac.Remove(vlan);
+                } else {
+                    _log.LogError("Error in ChangeVlan() Mac to remove {Id} ist nicht vorhanden!", id);
+                }
             } else {
                 var vlan = _dbContext.Mac.Find(id);
-                vlan.Adresse = mac;
-                vlan.Ip = ip;
-                vlan.VlanId = vlanid == 0 ? null : vlanid;
-                _dbContext.Mac.Update(vlan);
+                if (vlan != null) {
+                    vlan.Adresse = mac;
+                    vlan.Ip = ip;
+                    vlan.VlanId = vlanid == 0 ? null : vlanid;
+                    _dbContext.Mac.Update(vlan);
+                } else {
+                    _log.LogError("Error in ChangeVlan() Mac to change {Id} ist nicht vorhanden!", id);
+                }
             }
         }
 

@@ -27,17 +27,22 @@ namespace hb.SbsdbServer.Model.Repositories {
             if (kc == null) {
                 return null;
             }
-            Hwkonfig konfig = null;
+            Hwkonfig konfig;
             if (kc.Id > 0) {
                 //change   
                 konfig = _dbContext.Hwkonfig.Find(kc.Id);
-                konfig.Hersteller = kc.Hersteller;
-                konfig.Bezeichnung = kc.Bezeichnung;
-                konfig.Hd = kc.Hd;
-                konfig.Ram = kc.Ram;
-                konfig.Prozessor = kc.Prozessor;
-                konfig.Video = kc.Video;
-                konfig.Sonst = kc.Sonst;
+                if (konfig != null) {
+                    konfig.Hersteller = kc.Hersteller;
+                    konfig.Bezeichnung = kc.Bezeichnung;
+                    konfig.Hd = kc.Hd;
+                    konfig.Ram = kc.Ram;
+                    konfig.Prozessor = kc.Prozessor;
+                    konfig.Video = kc.Video;
+                    konfig.Sonst = kc.Sonst;
+                } else {
+                    _log.LogError("Error in ChangeKonfig() Konfig {Id} ist nicht vorhanden!", kc.Id);
+                    return null;
+                }
             }
             else {
                 // new

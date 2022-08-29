@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class Hwhistory
+    public class Hwhistory
     {
         public long Id { get; set; }
         public long ApId { get; set; }

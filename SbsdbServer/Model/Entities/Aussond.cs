@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class Aussond
+    public class Aussond
     {
         public long Id { get; set; }
         public string SerNr { get; set; }

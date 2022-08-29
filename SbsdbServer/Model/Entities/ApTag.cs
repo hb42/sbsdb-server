@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace hb.SbsdbServer.Model.Entities
+﻿namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class ApTag
+    public class ApTag
     {
         public long Id { get; set; }
         public string Text { get; set; }

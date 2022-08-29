@@ -1,10 +1,7 @@
 using System.IO;
-using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using hb.SbsdbServer.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -34,13 +31,12 @@ namespace hb.SbsdbServer.Controllers {
              * nicht erkannt wird (-> 415 unknown media type).
              * Statt dessen als JSON senden, aber hier nur die RAW-Daten auslesen. Dafuer duerfen
              * die Daten nicht als Parameter ([FromBody] string value) uebernommen werden.
-             * TODO das stammt aus NetCore 2.0 -> gilt das noch in 5.0?
              */
             Task<string> value;
             using (var reader = new StreamReader(Request.Body, Encoding.UTF8)) {  
                 value = reader.ReadToEndAsync();
             }
-            Log.LogDebug("POST config=" + config +" /value=" + value);
+            Log.LogDebug("POST config={Conf} /value={Val}", config, value.ToString());
             return Ok(_configService.SetConfig(config, value.Result));
         }
 

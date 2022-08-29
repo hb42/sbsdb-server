@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace hb.SbsdbServer.Model.Entities
 {
-    public partial class Vlan
+    public class Vlan
     {
-        public Vlan()
-        {
+        public Vlan() {
             Mac = new HashSet<Mac>();
         }
 

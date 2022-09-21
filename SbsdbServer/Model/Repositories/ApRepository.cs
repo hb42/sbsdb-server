@@ -277,6 +277,32 @@ namespace hb.SbsdbServer.Model.Repositories {
                 return null;
             }
         }
+
+        public ApTransport[] ChangeApMulti(EditApTransport[] aps) {
+            var result = new List<ApTransport>();
+            foreach (var ap in aps) {
+                if (ap.Ap.StandortId != null || ap.Ap.VerantwId != null || ap.Tags.Length > 0) {
+                    var chg = ChangeAp(ap);
+                    // ApTyp-Aenderung passiert im naechsten Schritt
+                    if (chg != null && ap.Ap.ApTypId == null) {
+                        // TODO Falls es beim aendern des AP einen Fehler gabt, wird er hier verschluckt!
+                        //      Gibt das error handling im Client derzeit nicht her.
+                        result.Add(chg);
+                    }
+                }
+                if (ap.Ap.ApTypId != null) {
+                    var chg = ChangeApTyp(
+                        new ChangeAptypTransport { Apid = ap.Id, Aptypid = ap.Ap.ApTypId.Value }
+                        );
+                    if (chg != null) {
+                        // TODO s.o.
+                        result.Add(chg);
+                    }
+                }
+            }
+
+            return result.Count > 0 ? result.ToArray() : null;
+        }
         
         private void ChangeTags(EditApTransport apt) {
             if (apt.Tags == null || apt.Tags.Length == 0) {

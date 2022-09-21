@@ -128,6 +128,17 @@ namespace hb.SbsdbServer.Model.Repositories {
             };
         }
 
+        public HwTransport[] ChangeHwMulti(EditHwTransport[] hws) {
+            var result = new List<HwTransport>();
+            foreach (var hw in hws) {
+                var chg = ChangeHw(hw);
+                if (chg != null) {
+                    result.Add(chg);
+                }
+            }
+            return result.Count > 0 ? result.ToArray() : null;
+        }
+
         public AddHwTransport AddHw(NewHwTransport nhw) {
             var ids = new Stack<long>();
             foreach (var device in nhw.Devices) {

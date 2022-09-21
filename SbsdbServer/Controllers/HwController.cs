@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +9,20 @@ using Microsoft.Extensions.Logging;
 namespace hb.SbsdbServer.Controllers {
     public class HwController : AbstractControllerBase<HwController> {
         private readonly IHwService _hwService;
+        private readonly IHwRepository _hwRepo;
         private readonly AuthorizationHelper _auth;
         private readonly IHubContext<NotificationHub> _hub;
         private readonly ILogger<HwController> _log;
 
-        public HwController(IHwService service, AuthorizationHelper auth, IHubContext<NotificationHub> hub, ILogger<HwController> log) {
+        public HwController(
+            IHwService service, 
+            IHwRepository repo, 
+            AuthorizationHelper auth, 
+            IHubContext<NotificationHub> hub, 
+            ILogger<HwController> log
+            ) {
             _hwService = service;
+            _hwRepo = repo;
             _auth = auth;
             _log = log;
             _hub = hub;
@@ -52,6 +61,21 @@ namespace hb.SbsdbServer.Controllers {
                     // Aenderungen an alle Clients senden  
                     _log.LogDebug("HwChange done, trigger notification");
                     _hub.Clients.All.SendAsync(NotificationHub.HwChangeEvent, hw);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
+        [HttpPost]
+        [ActionName("changehwmulti")]
+        public ActionResult<HwTransport[]> HwChangeMulti([FromBody] EditHwTransport[] chg) {
+            if (_auth.IsAdmin(User)) {
+                var hw = _hwRepo.ChangeHwMulti(chg);
+                if (hw != null) {
+                    // Aenderungen an alle Clients senden  
+                    _log.LogDebug("HwChangeMulti done, trigger notification");
+                    _hub.Clients.All.SendAsync(NotificationHub.HwChangeMultiEvent, hw);
                 }
                 return Ok();
             }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
@@ -102,5 +103,26 @@ namespace hb.SbsdbServer.Controllers {
             return _hwService.GetHwHistoryFor(id);
         }
         
+        [HttpGet]
+        [ActionName("ausslist")]
+        public ActionResult<AussondMeldung[]> AussonderungsListe() {
+            return _hwRepo.GetAussondList();
+        }
+        
+        [HttpGet("{date}")]
+        [ActionName("aussdetails")]
+        public ActionResult<Aussonderung[]> AussonderungsDetails(string date) {
+            return _hwRepo.GetAussondDetails(date);
+        }
+
+        [HttpPost]
+        [ActionName("aussond")]
+        public ActionResult<long> AusssonderungenMelden([FromBody] string per) {
+            if (_auth.IsAdmin(User)) {
+                var count = _hwRepo.AussondMelden(per);
+                return Ok(count);
+            }
+            return StatusCode(401);
+        }
     }
 }

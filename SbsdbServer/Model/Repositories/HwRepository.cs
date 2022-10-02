@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 
 namespace hb.SbsdbServer.Model.Repositories {
     public class HwRepository: IHwRepository {
@@ -250,6 +252,50 @@ namespace hb.SbsdbServer.Model.Repositories {
             }
         }
 
+        public AussondMeldung[] GetAussondList() {
+            /*
+             * select rewe, count(id) from AUSSOND
+               group by rewe
+               order by rewe;
+             */
+            return _dbContext.Aussond
+                .GroupBy(au => au.Rewe)
+                .OrderBy(au => au.Key)
+                .Select(au => new AussondMeldung {
+                    Datum = au.Key,
+                    Anzahl = au.Count()
+                }).ToArray();
+        }
+
+        public Aussonderung[] GetAussondDetails(string date) {
+            // id, invNr, anschDat, anschWert, hwkonfig.hersteller + ' - ' + hwkonfig.bezeichnung, serNr, aussDat, aussGrund, rewe
+            // where rewe = date
+            DateTime? aussDate = toDate(date);
+            return _dbContext.Aussond.Where((au) => au.Rewe == aussDate).Include((au) => au.Hwkonfig)
+                .Select((au) => new Aussonderung {
+                    Id = au.Id,
+                    Bezeichnung = au.Hwkonfig.Hersteller + " - " + au.Hwkonfig.Bezeichnung,
+                    AnschDat = au.AnschDat,
+                    AnschWert = au.AnschWert,
+                    InvNr = au.InvNr,
+                    SerNr = au.SerNr,
+                    AussDat = au.AussDat,
+                    AussGrund = au.AussGrund,
+                    Rewe = au.Rewe
+                }).ToArray();
+        }
+
+        public long AussondMelden(string per) {
+            // set rewe=per where rewe is null and aussDat <= per
+            DateTime? aussDate = toDate(per);
+            if (aussDate == null) {
+                return -1;
+            } else {
+                // do aussond
+                return -1;
+            }
+        }
+
         private IQueryable<Hardware> QueryHw(IQueryable<Hw> ctx) {
             return ctx
                 .AsNoTracking()
@@ -277,6 +323,18 @@ namespace hb.SbsdbServer.Model.Repositories {
                         Mac = m.Adresse
                     }).ToList()
                 });
+        }
+
+        private DateTime? toDate(string date) {
+            DateTime? aussDate;
+            try {
+                CultureInfo provider = CultureInfo.InvariantCulture;  
+                aussDate = DateTime.ParseExact(date, "dd.MM.yyyy", provider);  
+            } catch {
+                // unguelter Datum-String
+                aussDate = null;
+            }
+            return aussDate;
         }
     }
 }

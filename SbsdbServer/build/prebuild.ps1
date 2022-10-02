@@ -28,7 +28,7 @@ if (test-path $csproj) {
   [string]$versionSuffix = $xml.Project.PropertyGroup.VersionSuffix
   
   # sofern vorhanden in Versions-Nummern zerlegen
-  if ($versionPrefix) {
+  if ($versionPrefix -ne $null -and $versionPrefix -ne "") {
     $major, $minor, $patch  = $versionPrefix.Split(".")
   }
   # blanks entfernen
@@ -36,11 +36,12 @@ if (test-path $csproj) {
   $minor = $minor.trim()
   $patch = $patch.trim()
   
-  if ($versionSuffix) {
+  if ($versionSuffix -ne $null -and $versionSuffix -ne "") {
+    $versionSuffix = $versionSuffix.trim()
     $pretype, $prenumber = $versionSuffix.Split(".")
   }
   # pre-release vorhanden?
-  if ($pretype) {
+  if ($pretype -ne $null -and $pretype -ne "") {
     # Nummer in int konvertieren
     [int]$build = 0
     [bool]$isnumber = [int]::TryParse($prenumber, [ref]$build)

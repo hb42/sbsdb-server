@@ -291,7 +291,8 @@ namespace hb.SbsdbServer.Model.Repositories {
             if (aussDate == null) {
                 return -1;
             } else {
-                // do aussond
+                // TODO do aussond
+                
                 return -1;
             }
         }

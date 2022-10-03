@@ -115,9 +115,9 @@ namespace hb.SbsdbServer.Controllers {
             return _hwRepo.GetAussondDetails(date);
         }
 
-        [HttpPost]
+        [HttpGet("{date}")]
         [ActionName("aussond")]
-        public ActionResult<long> AusssonderungenMelden([FromBody] string per) {
+        public ActionResult<long> AusssonderungenMelden(string per) {
             if (_auth.IsAdmin(User)) {
                 var count = _hwRepo.AussondMelden(per);
                 return Ok(count);

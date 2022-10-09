@@ -286,14 +286,22 @@ namespace hb.SbsdbServer.Model.Repositories {
         }
 
         public long AussondMelden(string per) {
-            // set rewe=per where rewe is null and aussDat <= per
             DateTime? aussDate = toDate(per);
             if (aussDate == null) {
                 return -1;
             } else {
-                // TODO do aussond
-                
-                return -1;
+                var today = DateTime.Today;
+                var count = _dbContext.Database.ExecuteSqlRaw(
+                    "update AUSSOND set rewe = {0} where REWE is null and AUSS_DAT <= {1}", today, aussDate);
+                // Heute ./. 11 Jahre 
+                var old = DateTime.Today.AddYears(-11);
+                // und alles loeschen, das vorher ausgesondert wurde
+                var del = _dbContext.Database.ExecuteSqlRaw(
+                    "delete from AUSSOND where REWE < {0}", old);
+                // Info im Log sollte hier reichen
+                _log.LogInformation($"=== {del} Aussonderungen die vor {old.ToShortDateString()} an ReWe gemeldet wurden geloescht. ===");
+                // Anzahl der Aussonderungen zurueckgeben
+                return count;
             }
         }
 
@@ -326,11 +334,17 @@ namespace hb.SbsdbServer.Model.Repositories {
                 });
         }
 
+        /**
+         * Gegenstueck zu JavaScript: Date.toLocaleDateString("de-DE")
+         *
+         * Datum kommt im Format "9.4.2020", deshalb einzelnes "d" bzw. "M" im
+         * Format-Sring ("dd" wuerde fuehrende Null erwarten).
+         */
         private DateTime? toDate(string date) {
             DateTime? aussDate;
             try {
-                CultureInfo provider = CultureInfo.InvariantCulture;  
-                aussDate = DateTime.ParseExact(date, "dd.MM.yyyy", provider);  
+                CultureInfo provider = new CultureInfo("de-DE");
+                aussDate = DateTime.ParseExact(date, "d.M.yyyy", provider);  
             } catch {
                 // unguelter Datum-String
                 aussDate = null;

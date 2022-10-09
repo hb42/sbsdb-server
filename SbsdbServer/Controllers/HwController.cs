@@ -117,9 +117,9 @@ namespace hb.SbsdbServer.Controllers {
 
         [HttpGet("{date}")]
         [ActionName("aussond")]
-        public ActionResult<long> AusssonderungenMelden(string per) {
+        public ActionResult<long> AusssonderungenMelden(string date) {
             if (_auth.IsAdmin(User)) {
-                var count = _hwRepo.AussondMelden(per);
+                var count = _hwRepo.AussondMelden(date);
                 return Ok(count);
             }
             return StatusCode(401);

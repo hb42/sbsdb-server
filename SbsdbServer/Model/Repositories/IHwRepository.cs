@@ -18,6 +18,6 @@ namespace hb.SbsdbServer.Model.Repositories {
         public void ChangeVlan(long id, string mac, long vlanid, long ip, long hwid);
         public AussondMeldung[] GetAussondList();
         public Aussonderung[] GetAussondDetails(string date);
-        public long AussondMelden(string per);
+        public AussondResult AussondMelden(string per);
     }
 }

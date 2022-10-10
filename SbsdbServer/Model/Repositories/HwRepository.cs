@@ -285,10 +285,13 @@ namespace hb.SbsdbServer.Model.Repositories {
                 }).ToArray();
         }
 
-        public long AussondMelden(string per) {
+        public AussondResult AussondMelden(string per) {
             DateTime? aussDate = toDate(per);
             if (aussDate == null) {
-                return -1;
+                return new AussondResult {
+                    Meldung = -1,
+                    Del = 0
+                };
             } else {
                 var today = DateTime.Today;
                 var count = _dbContext.Database.ExecuteSqlRaw(
@@ -298,10 +301,11 @@ namespace hb.SbsdbServer.Model.Repositories {
                 // und alles loeschen, das vorher ausgesondert wurde
                 var del = _dbContext.Database.ExecuteSqlRaw(
                     "delete from AUSSOND where REWE < {0}", old);
-                // Info im Log sollte hier reichen
-                _log.LogInformation($"=== {del} Aussonderungen die vor {old.ToShortDateString()} an ReWe gemeldet wurden geloescht. ===");
-                // Anzahl der Aussonderungen zurueckgeben
-                return count;
+                // Anzahl der Aussonderungen + Loeschungen zurueckgeben
+                return new AussondResult {
+                    Meldung = count,
+                    Del = del
+                };
             }
         }
 

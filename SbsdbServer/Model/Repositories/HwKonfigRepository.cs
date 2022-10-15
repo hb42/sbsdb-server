@@ -62,6 +62,29 @@ namespace hb.SbsdbServer.Model.Repositories {
             return GetHwKonfig(konfig.Id).First();
         }
 
+        public long? DelKonfig(long id) {
+            var konfig = _dbContext.Hwkonfig.Find(id);
+            if (konfig != null) {
+                _dbContext.Hwkonfig.Remove(konfig);
+                _dbContext.SaveChanges();
+                return id;
+            }
+            return null;
+        }
+        
+        /**
+         * Liefert IDs aller HwKonfig, fuer die eine Aussonderung gespeichert ist.
+         * Loeschen der HwKonfig ist erst moeglich, wenn die Aussonderungen
+         * geloescht wurden.
+         */
+        public long[] HwKonfigInAussond() {
+            return _dbContext.Aussond
+                .GroupBy(au => au.HwkonfigId)
+                .OrderBy(au => au.Key)
+                .Select(au => au.Key)
+                .ToArray();
+        }
+        
         private IQueryable<HwKonfig> QueryHwKonfig(IQueryable<Hwkonfig> ctx) {
             return ctx
                 .AsNoTracking()

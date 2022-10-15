@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using hb.SbsdbServer.Model.Repositories;
 using hb.SbsdbServer.Model.ViewModel;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +9,18 @@ using Microsoft.Extensions.Logging;
 namespace hb.SbsdbServer.Controllers {
     public class HwKonfigController : AbstractControllerBase<HwKonfigController> {
         private readonly IHwKonfigService _hwKonfigService;
+        private readonly IHwKonfigRepository _repo;
         private readonly AuthorizationHelper _auth;
         private readonly IHubContext<NotificationHub> _hub;
         private readonly ILogger<HwKonfigController> _log;
 
-        public HwKonfigController(IHwKonfigService service, AuthorizationHelper auth, IHubContext<NotificationHub> hub, ILogger<HwKonfigController> log) {
+        public HwKonfigController(IHwKonfigService service,
+            IHwKonfigRepository repo,
+            AuthorizationHelper auth, 
+            IHubContext<NotificationHub> hub, 
+            ILogger<HwKonfigController> log) {
             _hwKonfigService = service;
+            _repo = repo;
             _auth = auth;
             _log = log;
             _hub = hub;
@@ -44,5 +51,24 @@ namespace hb.SbsdbServer.Controllers {
             return StatusCode(401);
         }
         
+        [HttpPost]
+        [ActionName("delkonfig")]
+        public ActionResult<long> DelKonfig([FromBody] long konfId) {
+            if (_auth.IsAdmin(User)) {
+                var id = _repo.DelKonfig(konfId);
+                if (id != null) {
+                    _hub.Clients.All.SendAsync(NotificationHub.KonfigDelEvent, id);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+        
+        [HttpGet]
+        [ActionName("hwkonfiginaussond")]
+        public ActionResult<long[]> HwKonfigInAussond() {
+            return _repo.HwKonfigInAussond();
+        }
+
     }
 }

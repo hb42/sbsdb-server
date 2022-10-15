@@ -6,6 +6,8 @@ namespace hb.SbsdbServer.Model.Repositories {
         List<HwKonfig> GetAll();
         List<HwKonfig> GetHwKonfig(long id);
         public HwKonfig ChangeKonfig(KonfigChange kc);
+        public long? DelKonfig(long id);
+        public long[] HwKonfigInAussond();
 
     }
 }

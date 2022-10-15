@@ -10,6 +10,7 @@ namespace hb.SbsdbServer.Services {
         public const string HwChangeMultiEvent = "hwchangemulti";
         public const string AddHwEvent = "addhw";
         public const string KonfigChangeEvent = "konfigchange";
+        public const string KonfigDelEvent = "konfigdel";
         public const string ExtProgChangeEvent = "extprogchange";
         public const string AptypChangeEvent = "aptypchange";
         public const string ApkategorieChangeEvent = "apkategoriechange";

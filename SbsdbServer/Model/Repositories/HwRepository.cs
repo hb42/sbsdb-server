@@ -47,7 +47,10 @@ namespace hb.SbsdbServer.Model.Repositories {
             if (hwt.DelHw) {
                 // DEL hw
                 // include() => auch records aus HwHistory loeschen
-                hw = _dbContext.Hw.Include(hdw => hdw.Hwhistory).First(hdw => hdw.Id == hwt.Id);
+                hw = _dbContext.Hw
+                    .Include(hdw => hdw.Hwhistory)
+                    .Include(hdw => hdw.Mac)
+                    .First(hdw => hdw.Id == hwt.Id);
                 if (hw.ApId is > 0) {
                     ChangeAp(hw, null, false);
                 }

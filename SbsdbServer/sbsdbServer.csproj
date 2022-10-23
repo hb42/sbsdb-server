@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <VersionPrefix>1.2.1</VersionPrefix>
+    <VersionPrefix>1.3.0</VersionPrefix>
     <VersionSuffix>
     </VersionSuffix>
     <AssemblyTitle>SBSDB-Server</AssemblyTitle>
@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/hb42/sbsdb-server</RepositoryUrl>
     <RootNamespace>hb.SbsdbServer</RootNamespace>
     <Authors>hb42@gmx.de</Authors>
-    <PackageVersion>1.2.1</PackageVersion>
+    <PackageVersion>1.3.0</PackageVersion>
     <Nullable>disable</Nullable>
     <LangVersion>10</LangVersion>
   </PropertyGroup>

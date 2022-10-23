@@ -5,6 +5,7 @@ namespace hb.SbsdbServer.Services {
     public class NotificationHub: Hub {
         public const string ApChangeEvent = "apchange";
         public const string ApChangeMultiEvent = "apchangemulti";
+        public const string ApChangeMoveEvent = "apchangemove";
         public const string ApChangeAptypEvent = "apchangeaptyp";
         public const string HwChangeEvent = "hwchange";
         public const string HwChangeMultiEvent = "hwchangemulti";

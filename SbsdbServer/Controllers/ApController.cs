@@ -87,6 +87,21 @@ namespace hb.SbsdbServer.Controllers {
         }
 
         [HttpPost]
+        [ActionName("changeapmove")]
+        public ActionResult<ApTransport[]> ApChangeMove([FromBody] EditApTransport[] chg) {
+            if (_auth.IsAdmin(User)) {
+                var ap = _apRepo.ChangeApMove(chg);
+                if (ap != null) {
+                    // Aenderungen an alle Clients senden  
+                    _log.LogDebug("ApChangeMove done, trigger notification");
+                    _hub.Clients.All.SendAsync(NotificationHub.ApChangeMoveEvent, ap);
+                }
+                return Ok();
+            }
+            return StatusCode(401);
+        }
+
+        [HttpPost]
         [ActionName("changeaptyp")]
         public ActionResult<ApTransport> ApTypChange([FromBody] ChangeAptypTransport chg) {
             if (_auth.IsAdmin(User)) {

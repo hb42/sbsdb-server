@@ -303,7 +303,20 @@ namespace hb.SbsdbServer.Model.Repositories {
 
             return result.Count > 0 ? result.ToArray() : null;
         }
-        
+
+        public ApTransport[] ChangeApMove(EditApTransport[] aps) {
+            var result = new List<ApTransport>();
+            foreach (var ap in aps) {
+                var chg = ChangeAp(ap);
+                if (chg != null) {
+                    // TODO Falls es beim aendern des AP einen Fehler gabt, wird er hier verschluckt!
+                    //      Gibt das error handling im Client derzeit nicht her.
+                    result.Add(chg);
+                }
+            }
+            return result.Count > 0 ? result.ToArray() : null;
+        }
+
         private void ChangeTags(EditApTransport apt) {
             if (apt.Tags == null || apt.Tags.Length == 0) {
                 return;

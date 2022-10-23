@@ -12,5 +12,6 @@ namespace hb.SbsdbServer.Model.Repositories {
         ApTransport ChangeAp(EditApTransport apt); 
         ApTransport ChangeApTyp(ChangeAptypTransport chg);
         ApTransport[] ChangeApMulti(EditApTransport[] aps);
+        ApTransport[] ChangeApMove(EditApTransport[] aps);
     }
 }

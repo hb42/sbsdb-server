@@ -20,11 +20,7 @@ namespace hb.SbsdbServer {
             // NLog: setup the logger first to catch all errors
             var logger = NLogBuilder.ConfigureNLog(NLOG_CONF).GetCurrentClassLogger();
             try {
-#if TESTSYSTEM
-                logger.Info("*** INIT MAIN TESTSYSTEM *** ");
-#else                
                 logger.Info("*** INIT MAIN *** ");
-#endif
                 // -- Server starten
                 CreateHostBuilder(args).Build().Run();
             }

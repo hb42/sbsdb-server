@@ -4,7 +4,6 @@ using hb.Common.Validation;
 using hb.Common.Version;
 using hb.SbsdbServer.Model;
 using hb.SbsdbServer.Model.Repositories;
-using hb.SbsdbServer.sbsdbv4.model;
 using hb.SbsdbServer.Services;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Builder;
@@ -64,27 +63,7 @@ namespace hb.SbsdbServer {
             });
             
             // DB-Connection-Strings holen
-#if TESTSYSTEM  // unterschiedliche Connection-Strings fuer verschiedene Systeme
-            string connStr = Configuration.GetConnectionString("sbsdbxx");
-            string connStrv4 = Configuration.GetConnectionString("sbsdbv4xx");
-#else
             string connStr = Configuration.GetConnectionString("sbsdb");
-            string connStrv4 = Configuration.GetConnectionString("sbsdbv4");
-#endif
-            // alter Bestand - MySQL/EF
-            // TODO kann raus, sobald alles auf neue Oracle-Struktur ueberfuehrt
-            // Replace with your server version and type.
-            // Use 'MariaDbServerVersion' for MariaDB.
-            // Alternatively, use 'ServerVersion.AutoDetect(connectionString)'.
-            // For common usages, see pull request #1233.
-            // var serverVersion = ServerVersion.AutoDetect(connStrv4); //new MySqlServerVersion(new Version(5, 5, 60));
-            var serverVersion = new MariaDbServerVersion("10.0.0");
-            services.AddDbContextPool<Sbsdbv4Context>(
-                    dbContextOptions => dbContextOptions
-                        .UseMySql(connStrv4, serverVersion)
-                        .EnableSensitiveDataLogging() // These two calls are optional but help
-                        .EnableDetailedErrors()      // with debugging (remove for production).
-                );
 
             // neuer Bestand - Oracle/EF
             services.AddDbContextPool<SbsdbContext>(
@@ -119,8 +98,6 @@ namespace hb.SbsdbServer {
             services.AddTransient<IExternalService, ExternalService>();
             services.AddTransient<ISvzRepository, SvzRepository>();
 
-            services.AddTransient<v4Migration, v4Migration>();
-            services.AddTransient<TestService, TestService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

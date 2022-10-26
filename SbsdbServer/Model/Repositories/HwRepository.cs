@@ -6,7 +6,6 @@ using hb.SbsdbServer.Model.Entities;
 using hb.SbsdbServer.Model.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 
 namespace hb.SbsdbServer.Model.Repositories {
     public class HwRepository: IHwRepository {
